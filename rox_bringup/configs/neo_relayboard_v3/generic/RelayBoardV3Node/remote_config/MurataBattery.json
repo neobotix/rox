@@ -1,0 +1,22 @@
+{
+	"input_can": "devices.can.receive",
+	"can_ids": [
+		256,
+		257,
+		259,
+		272,
+		273,
+		274,
+		275,
+		288,
+		304,
+		305
+	],
+	"current_calculation": [
+		[0, "ZERO"],
+		[1, "MAX"],
+		[2, "AVERAGE"],
+		[4, "SUM"]
+	]
+}
+

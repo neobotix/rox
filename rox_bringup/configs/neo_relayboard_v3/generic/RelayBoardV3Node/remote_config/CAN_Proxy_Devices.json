@@ -1,0 +1,6 @@
+{
+	"input": "devices.can.send",
+	"output": "devices.can.receive",
+	"device": "can0",
+	"is_big_endian": false
+}

@@ -1,0 +1,6 @@
+{
+	"input": "kinematics.drive_can.send",
+	"output": "kinematics.drive_can.receive",
+	"device": "can1",
+	"is_big_endian": false
+}

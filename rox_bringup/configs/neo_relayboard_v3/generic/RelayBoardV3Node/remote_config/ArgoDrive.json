@@ -1,0 +1,5 @@
+{
+	"input_system_state": "platform.system_state",
+	"update_interval_ms": 10,
+	"can_proxy_server": "CAN_Proxy_Motors"
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+	<!-- start node -->
+	<node pkg="neo_relayboard_v3" exec="relayboardv3_node" name="relayboardv3_node">
+		<param name="pilot_config" value="/home/neobotix/ros2_workspace/src/rox/config/default/rox-argo/"/>
+	</node>
+
+</launch>

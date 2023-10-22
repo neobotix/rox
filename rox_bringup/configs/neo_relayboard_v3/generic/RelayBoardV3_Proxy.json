@@ -1,0 +1,8 @@
+{
+	"time_sync": true,
+	"auto_login": ["neo-board", "460900ad5480f4904557f26d1567881d5755008540b40cf8bf3d22229f3ed562"],
+	"export_list": [
+		"kinematics.state"
+	]
+}
+
