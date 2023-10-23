@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
-    num_wheels: 3
-    control_rate: 50.0
+    num_wheels: 4
+    control_rate: 100.0
     wheel_radius: 0.050
     wheel_lever_arm: 0.0
     zero_vel_threshold: 0.005
@@ -13,25 +13,25 @@
     steer_hysteresis_dynamic: 5.0
 
     wheel0:
-      drive_joint_name: "argo_wheel_front_left_joint"
-      steer_joint_name: "argo_caster_front_left_joint"
-      center_pos_x: 0.265
-      center_pos_y: 0.215
+      drive_joint_name: "mpo_700_wheel_front_left_joint"
+      steer_joint_name: "mpo_700_caster_front_left_joint"
+      center_pos_x: 0.45
+      center_pos_y: 0.21
 
     wheel1:
-      drive_joint_name: "argo_wheel_back_left_joint"
-      steer_joint_name: "argo_caster_back_left_joint"
-      center_pos_x: -0.265
-      center_pos_y: 0.215
-
-    wheel3:
-      drive_joint_name: "argo_wheel_back_right_joint"
-      steer_joint_name: "argo_caster_back_right_joint"
-      center_pos_x: -0.265
-      center_pos_y: -0.215
+      drive_joint_name: "mpo_700_wheel_back_left_joint"
+      steer_joint_name: "mpo_700_caster_back_left_joint"
+      center_pos_x: -0.45
+      center_pos_y: 0.21
 
     wheel2:
-      drive_joint_name: "argo_wheel_front_right_joint"
-      steer_joint_name: "argo_caster_front_right_joint"
-      center_pos_x: 0.265
-      center_pos_y: -0.215
+      drive_joint_name: "mpo_700_wheel_front_right_joint"
+      steer_joint_name: "mpo_700_caster_front_right_joint"
+      center_pos_x: 0.45
+      center_pos_y: -0.21
+
+    wheel3:
+      drive_joint_name: "mpo_700_wheel_back_right_joint"
+      steer_joint_name: "mpo_700_caster_back_right_joint"
+      center_pos_x: -0.45
+      center_pos_y: -0.21

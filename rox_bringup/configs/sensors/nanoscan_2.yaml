@@ -4,7 +4,7 @@
     sensor_ip: "192.168.1.31"
     host_ip: "192.168.1.10"
     interface_ip: "0.0.0.0"
-    host_udp_port: 6060
+    host_udp_port: 6061
     channel: 0
     channel_enabled: True
     skip: 1
