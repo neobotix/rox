@@ -54,7 +54,7 @@ def execution_stage(context: LaunchContext, robot_type):
   scan1 = Node(
           package="sick_safetyscanners2",
           executable="sick_safetyscanners2_node",
-          name="sick_safetyscanners2_node",
+          name="lidar_1_node",
           output="screen",
           emulate_tty=True,
           parameters=[os.path.join(get_package_share_directory('rox_bringup'),'configs/sensors', 'nanoscan_1.yaml')],
@@ -67,7 +67,7 @@ def execution_stage(context: LaunchContext, robot_type):
   scan2 = Node(
           package="sick_safetyscanners2",
           executable="sick_safetyscanners2_node",
-          name="sick_safetyscanners2_node",
+          name="lidar_2_node",
           output="screen",
           emulate_tty=True,
           parameters=[os.path.join(get_package_share_directory('rox_bringup'),'configs/sensors', 'nanoscan_2.yaml')],

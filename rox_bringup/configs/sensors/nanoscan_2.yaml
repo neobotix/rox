@@ -10,7 +10,7 @@
     skip: 1
     angle_start: -1.48
     angle_end: 1.48
-    time_offset: -0.07
+    time_offset: -0.015
     general_system_state: True
     derived_settings: True
     measurement_data: True
