@@ -14,8 +14,9 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, frame_type):
+def execution_stage(context: LaunchContext, frame_type, arm_type):
     frame_typ = frame_type.perform(context)
+    arm_typ = arm_type.perform(context)
 
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
@@ -26,12 +27,16 @@ def execution_stage(context: LaunchContext, frame_type):
         output='screen',
         parameters=[{'robot_description': Command([
             "xacro", " ", urdf, " ", 'frame_type:=',
-            frame_typ])}],
+            frame_typ,
+            " ", 'arm_type:=',
+            arm_typ])}],
         arguments=[urdf])
 
     return [start_robot_state_publisher_cmd]
 
 def generate_launch_description():
-    opq_function = OpaqueFunction(function=execution_stage, args=[LaunchConfiguration('frame_type',  default="short")])
+    opq_function = OpaqueFunction(function=execution_stage,
+                                  args=[LaunchConfiguration('frame_type',  default="short"),
+                                        LaunchConfiguration('arm_type',  default="")])
 
     return LaunchDescription([opq_function])

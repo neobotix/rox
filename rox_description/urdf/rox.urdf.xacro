@@ -5,8 +5,11 @@
     <!-- Xacro Arguments-->
     <xacro:arg name="frame_type" default="short"/>
     <xacro:arg name="joint_type" default="fixed"/>
+    <xacro:arg name="arm_type" default=""/>
+    
     <xacro:property name="frame" value="$(arg frame_type)"/>
     <xacro:property name="joint_typ" value="$(arg joint_type)"/>
+    <xacro:property name="arm" value="$(arg arm_type)"/>
   
     <!-- Include xacro files -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -20,6 +23,7 @@
         <xacro:property name="caster_rot" value="0 0 0" />
         <xacro:property name="wheel_pos" value="0 0 0" />
         <xacro:property name="wheel_rot" value="0 0 0" />
+        <xacro:property name="cabinet_pos" value="0 0 0.33" />
     </xacro:if>
 
     <xacro:if value="${frame == 'long'}">
@@ -27,6 +31,7 @@
         <xacro:property name="caster_rot" value="0 0 0" />
         <xacro:property name="wheel_pos" value="0 0 0" />
         <xacro:property name="wheel_rot" value="0 0 0" />
+        <xacro:property name="cabinet_pos" value="0.13 0 0.33" />
     </xacro:if>
 
     <link name="base_link" />
@@ -82,7 +87,7 @@
     <xacro:argo_wheel name="wheel_back_right" parent="base_footprint"
         vis_rot="0 0 0" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="3.14 0 0" xyz="0.60 0.25 0.10"/>
+        <origin xyz="${wheel_pos}" rpy="${wheel_rot}"/>
     </xacro:argo_wheel>
 
     <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
@@ -92,4 +97,15 @@
     <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
         <origin rpy="3.14 0 3.14" xyz="-0.60 -0.25 0.10"/>
     </xacro:sick_nanoscan>
+
+    <xacro:unless value="${arm == ''}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
+        <xacro:cabinet name="cabinet" parent="base_footprint">
+            <origin rpy="0 0 0" xyz="${cabinet_pos}"/>
+        </xacro:cabinet>
+        <!-- <xacro:include filename="$(find rox_description)/urdf/xacros/$(arg arm).xacro" />
+        <xacro:$(arg arm) name="arm" parent="base_footprint">
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </xacro:$(arg arm)> -->
+    </xacro:unless>
 </robot>
