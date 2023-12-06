@@ -21,13 +21,13 @@
       <visual>
         <origin xyz="${vis_pos}" rpy="${vis_rot}" />
         <geometry>
-            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.001 0.001 0.001"/>
+            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </visual>
       <collision>
         <origin xyz="${vis_pos}" rpy="${vis_rot}" />
         <geometry>
-            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.001 0.001 0.001"/>
+            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </collision>
     </link>
