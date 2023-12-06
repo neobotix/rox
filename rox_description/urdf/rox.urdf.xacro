@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+    <!-- Xacro Arguments-->
+    <xacro:arg name="frame_type" default="short"/>
+    <xacro:arg name="joint_type" default="revolute"/>
+    <xacro:property name="frame" value="$(arg frame_type)"/>
+    <xacro:property name="joint_typ" value="$(arg joint_type)"/>
+  
+    <!-- Include xacro files -->
+    <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
+    <xacro:include filename="$(find rox_description)/urdf/xacros/argo_caster.xacro" />
+    <xacro:include filename="$(find rox_description)/urdf/xacros/argo_wheel.xacro" />
+
+    <!-- Assigning Xacro properties -->
+    <xacro:if value="${frame == 'short'}">
+        <xacro:property name="caster_pos" value="0 0 0" />
+        <xacro:property name="caster_rot" value="0 0 0" />
+        <xacro:property name="wheel_pos" value="0 0 0" />
+        <xacro:property name="wheel_rot" value="0 0 0" />
+    </xacro:if>
+
+    <xacro:if value="${frame == 'long'}">
+        <xacro:property name="caster_pos" value="0 0 0" />
+        <xacro:property name="caster_rot" value="0 0 0" />
+        <xacro:property name="wheel_pos" value="0 0 0" />
+        <xacro:property name="wheel_rot" value="0 0 0" />
+    </xacro:if>
+
+    <link name="base_link" />
+
+    <xacro:rox_base name="base_footprint"  parent="base_link"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        type="${frame}">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:rox_base>
+
+    <xacro:argo_caster name="caster_front_left" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${caster_pos}" rpy="${caster_rot}"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_caster name="caster_front_right" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${caster_pos}" rpy="${caster_rot}"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_caster name="caster_back_left" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${caster_pos}" rpy="${caster_rot}"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_caster name="caster_back_right" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${caster_pos}" rpy="${caster_rot}"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_wheel name="wheel_front_left" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${wheel_pos}" rpy="${wheel_rot}"/>
+    </xacro:argo_wheel>
+
+    <xacro:argo_wheel name="wheel_front_right" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${wheel_pos}" rpy="${wheel_rot}"/>
+    </xacro:argo_wheel>
+
+    <xacro:argo_wheel name="wheel_back_left" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${wheel_pos}" rpy="${wheel_rot}"/>
+    </xacro:argo_wheel>
+
+    <xacro:argo_wheel name="wheel_back_right" parent="base_footprint"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin xyz="${wheel_pos}" rpy="${wheel_rot}"/>
+    </xacro:argo_wheel>
+
+</robot>
