@@ -36,15 +36,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_caster_front_left_joint" type="revolute">
+  <joint name="caster_front_left_joint" type="revolute">
     <origin rpy="0 0 3.14" xyz="0.45 0.21 0.123"/>
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="6.5"/>
     <joint_properties damping="30" friction="110"/>
     <parent link="base_footprint"/>
-    <child link="mpo_700_caster_front_left_link"/>
+    <child link="caster_front_left_link"/>
   </joint>
-  <link name="mpo_700_caster_front_left_link">
+  <link name="caster_front_left_link">
     <inertial>
       <mass value="12.7"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -63,15 +63,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_caster_front_right_joint" type="revolute">
+  <joint name="caster_front_right_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.45 -0.21 0.123"/>
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="6.5"/>
     <joint_properties damping="30" friction="110"/>
     <parent link="base_footprint"/>
-    <child link="mpo_700_caster_front_right_link"/>
+    <child link="caster_front_right_link"/>
   </joint>
-  <link name="mpo_700_caster_front_right_link">
+  <link name="caster_front_right_link">
     <inertial>
       <mass value="12.7"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -90,15 +90,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_caster_back_left_joint" type="revolute">
+  <joint name="caster_back_left_joint" type="revolute">
     <origin rpy="0 0 3.14" xyz="-0.45 0.21 0.123"/>
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="6.5"/>
     <joint_properties damping="30" friction="110"/>
     <parent link="base_footprint"/>
-    <child link="mpo_700_caster_back_left_link"/>
+    <child link="caster_back_left_link"/>
   </joint>
-  <link name="mpo_700_caster_back_left_link">
+  <link name="caster_back_left_link">
     <inertial>
       <mass value="12.7"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -117,15 +117,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_caster_back_right_joint" type="revolute">
+  <joint name="caster_back_right_joint" type="revolute">
     <origin rpy="0 0 0" xyz="-0.45 -0.21 0.123"/>
     <axis xyz="0 0 1"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="6.5"/>
     <joint_properties damping="30" friction="110"/>
     <parent link="base_footprint"/>
-    <child link="mpo_700_caster_back_right_link"/>
+    <child link="caster_back_right_link"/>
   </joint>
-  <link name="mpo_700_caster_back_right_link">
+  <link name="caster_back_right_link">
     <inertial>
       <mass value="12.7"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -144,15 +144,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_wheel_front_left_joint" type="revolute">
+  <joint name="wheel_front_left_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.0 0.0 -0.07225"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="20.5"/>
     <axis xyz="0 -1 0"/>
     <joint_properties damping="30" friction="110"/>
-    <parent link="mpo_700_caster_front_left_link"/>
-    <child link="mpo_700_wheel_front_left_link"/>
+    <parent link="caster_front_left_link"/>
+    <child link="wheel_front_left_link"/>
   </joint>
-  <link name="mpo_700_wheel_front_left_link" type="wheel">
+  <link name="wheel_front_left_link" type="wheel">
     <inertial>
       <mass value="1.2"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -172,15 +172,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_wheel_front_right_joint" type="revolute">
+  <joint name="wheel_front_right_joint" type="revolute">
     <origin rpy="0 0 3.14" xyz="0.0 0.0 -0.07225"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="20.5"/>
     <axis xyz="0 -1 0"/>
     <joint_properties damping="30" friction="110"/>
-    <parent link="mpo_700_caster_front_right_link"/>
-    <child link="mpo_700_wheel_front_right_link"/>
+    <parent link="caster_front_right_link"/>
+    <child link="wheel_front_right_link"/>
   </joint>
-  <link name="mpo_700_wheel_front_right_link" type="wheel">
+  <link name="wheel_front_right_link" type="wheel">
     <inertial>
       <mass value="1.2"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -200,15 +200,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_wheel_back_left_joint" type="revolute">
+  <joint name="wheel_back_left_joint" type="revolute">
     <origin rpy="0 0 0" xyz="0.0 0.0 -0.07225"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="20.5"/>
     <axis xyz="0 -1 0"/>
     <joint_properties damping="30" friction="110"/>
-    <parent link="mpo_700_caster_back_left_link"/>
-    <child link="mpo_700_wheel_back_left_link"/>
+    <parent link="caster_back_left_link"/>
+    <child link="wheel_back_left_link"/>
   </joint>
-  <link name="mpo_700_wheel_back_left_link" type="wheel">
+  <link name="wheel_back_left_link" type="wheel">
     <inertial>
       <mass value="1.2"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -228,15 +228,15 @@
       </geometry>
     </collision>
   </link>
-  <joint name="mpo_700_wheel_back_right_joint" type="revolute">
+  <joint name="wheel_back_right_joint" type="revolute">
     <origin rpy="0 0 3.14" xyz="0.0 0 -0.07225"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="20.5"/>
     <axis xyz="0 -1 0"/>
     <joint_properties damping="30" friction="110"/>
-    <parent link="mpo_700_caster_back_right_link"/>
-    <child link="mpo_700_wheel_back_right_link"/>
+    <parent link="caster_back_right_link"/>
+    <child link="wheel_back_right_link"/>
   </joint>
-  <link name="mpo_700_wheel_back_right_link" type="wheel">
+  <link name="wheel_back_right_link" type="wheel">
     <inertial>
       <mass value="1.2"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -309,3 +309,4 @@
   </link>
 
 </robot>
+

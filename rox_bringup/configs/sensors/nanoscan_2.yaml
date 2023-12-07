@@ -17,4 +17,4 @@
     intrusion_data: True
     application_io_data: True
     use_persistent_config: False
-    min_intensities": 0.0
+    min_intensities: 0.0
