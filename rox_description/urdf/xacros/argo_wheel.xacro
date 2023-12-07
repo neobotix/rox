@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
-  <xacro:macro name="argo_wheel" params="name parent *origin vis_rot vis_pos joint_type">
+  <xacro:macro name="argo_wheel" params="name parent *origin joint_type">
    <joint name="${name}_joint" type="${joint_type}">
     <xacro:insert_block name="origin" />
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="3.5"/>
@@ -15,19 +15,17 @@
     <inertial>
     <!-- These are not accurate value -->
       <mass value="2" />
-      <origin xyz="0 0 0" rpy="0 0 0" />
+      <origin rpy="0 0 3.14" xyz="0 0.020 0" />
       <inertia ixx="0.00044332" ixy="0" ixz="0" iyy="0.00044332" iyz="0" izz="0.00072" />
     </inertial>
-
     <visual>
-     <origin xyz="${vis_pos}" rpy="${vis_rot}" />
-     <geometry>
+      <origin rpy="0 0 3.14" xyz="0 0.020 0" />
+      <geometry>
         <mesh filename="package://rox_description/meshes/argo_wheel.dae" scale="0.1 0.1 0.1"/>
-     </geometry>
+      </geometry>
     </visual>
-
     <collision>
-     <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+     <origin rpy="0 0 3.14" xyz="0 0.020 0" />
      <geometry>
         <mesh filename="package://rox_description/meshes/argo_wheel.dae" scale="0.1 0.1 0.1"/>
      </geometry>

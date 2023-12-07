@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
-  <xacro:macro name="rox_base" params="name parent type *origin vis_rot vis_pos">
+  <xacro:macro name="rox_base" params="name parent type *origin">
    <joint name="${name}_joint" type="fixed">
     <xacro:insert_block name="origin" />
     <axis xyz="0 0 -1" />
@@ -19,13 +19,13 @@
                  izz="2.5725" />
       </inertial>
       <visual>
-        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
             <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </visual>
       <collision>
-        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
             <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
