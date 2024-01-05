@@ -4,28 +4,29 @@
 
     <!-- Xacro Arguments-->
     <xacro:arg name="frame_type" default="short"/>
+    <xacro:arg name="rox_type" default="argo"/>
     <xacro:arg name="joint_type" default="fixed"/>
     <xacro:arg name="arm_type" default=""/>
 
     <xacro:property name="frame" value="$(arg frame_type)"/>
+    <xacro:property name="rox_typ" default="$(arg rox_type)"/>
     <xacro:property name="joint_typ" value="$(arg joint_type)"/>
     <xacro:property name="arm" value="$(arg arm_type)"/>
 
     <!-- Include xacro files -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
-    <xacro:include filename="$(find rox_description)/urdf/xacros/argo_caster.xacro" />
-    <xacro:include filename="$(find rox_description)/urdf/xacros/argo_wheel.xacro" />
     <xacro:include filename="$(find rox_description)/urdf/xacros/sick_nanoscan.xacro" />
 
     <!-- Assigning Xacro properties -->
     <xacro:if value="${frame == 'short'}">
-        <xacro:property name="argo_ext" value="0.0" />
+        <xacro:property name="frame_len" value="0.0" />
     </xacro:if>
 
     <xacro:if value="${frame == 'long'}">
-        <xacro:property name="argo_ext" value="0.13" />
+        <xacro:property name="frame_len" value="0.13" />
     </xacro:if>
 
+    <!-- Building the robot from here -->
     <link name="base_link" />
 
     <xacro:rox_base name="base_footprint"  parent="base_link"
@@ -33,62 +34,39 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:rox_base>
 
-    <xacro:argo_caster name="caster_front_left" parent="base_footprint"
-        vis_rot="0 0 0" vis_pos="0 0 0"
-        joint_type="${joint_typ}">
-        <origin rpy="0 0 ${pi}" xyz="${0.234 + argo_ext} 0.238 0.123"/>
-    </xacro:argo_caster>
+    <!-- Argo drives -->
+    <xacro:if value="${rox_typ == 'argo'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/argo_drive.xacro" />
+        <xacro:argo_drive parent="base_footprint"/>
+    </xacro:if>
 
-    <xacro:argo_caster name="caster_front_right" parent="base_footprint"
-        vis_rot="0 0 ${pi}" vis_pos="0 0 0"
-        joint_type="${joint_typ}">
-        <origin rpy="0 0 0" xyz="${0.234 + argo_ext} -0.238 0.123"/>
-    </xacro:argo_caster>
+    <!-- Diff drive -->
+    <!-- Includes both Trike and Diff -->
+    <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/diff_drive.xacro" />
+        <xacro:trike_drive parent="base_footprint"/>
+    </xacro:if>
+    
+    <!-- Meca drive -->
+    <xacro:if value="${rox_typ == 'meca'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/meca_drive.xacro" />
+        <xacro:meca_drive parent="base_footprint"/>
+    </xacro:if>
 
-    <xacro:argo_caster name="caster_back_left" parent="base_footprint"
-        vis_rot="0 0 0" vis_pos="0 0 0"
-        joint_type="${joint_typ}">
-        <origin rpy="0 0 ${pi}" xyz="-${0.234 + argo_ext} 0.238 0.123"/>
-    </xacro:argo_caster>
-
-    <xacro:argo_caster name="caster_back_right" parent="base_footprint"
-        vis_rot="0 0 ${pi}" vis_pos="0 0 0"
-        joint_type="${joint_typ}">
-        <origin rpy="0 0 0" xyz="-${0.234 + argo_ext} -0.238 0.123"/>
-    </xacro:argo_caster>
-
-    <xacro:argo_wheel name="wheel_front_left" parent="caster_front_left_link"
-        joint_type="${joint_typ}">
-        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 0" />
-    </xacro:argo_wheel>
-
-    <xacro:argo_wheel name="wheel_front_right" parent="caster_front_right_link"
-        joint_type="${joint_typ}">
-        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 ${pi}" />
-    </xacro:argo_wheel>
-
-    <xacro:argo_wheel name="wheel_back_left" parent="caster_back_left_link"
-        joint_type="${joint_typ}">
-        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 0" />
-    </xacro:argo_wheel>
-
-    <xacro:argo_wheel name="wheel_back_right" parent="caster_back_right_link"
-        joint_type="${joint_typ}">
-        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 ${pi}" />
-    </xacro:argo_wheel>
-
+    <!-- Sensors -->
+    <!-- Laser scanners -->
     <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
-        <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + argo_ext} 0.269 0.19"/>
+        <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
     </xacro:sick_nanoscan>
 
     <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
-        <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + argo_ext} -0.269 0.19"/>
+        <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + frame_len} -0.269 0.19"/>
     </xacro:sick_nanoscan>
 
     <xacro:unless value="${arm == ''}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
         <xacro:cabinet name="cabinet" parent="base_footprint">
-            <origin rpy="0 0 0" xyz="${argo_ext} 0 0.33"/>
+            <origin rpy="0 0 0" xyz="${frame_len} 0 0.33"/>
         </xacro:cabinet>
         <!-- <xacro:include filename="$(find rox_description)/urdf/xacros/$(arg arm).xacro" />
         <xacro:$(arg arm) name="arm" parent="base_footprint">
