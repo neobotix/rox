@@ -7,11 +7,13 @@
     <xacro:arg name="rox_type" default="argo"/>
     <xacro:arg name="joint_type" default="fixed"/>
     <xacro:arg name="arm_type" default=""/>
+    <xacro:arg name="sim" default=""/>
 
     <xacro:property name="frame" value="$(arg frame_type)"/>
     <xacro:property name="rox_typ" default="$(arg rox_type)"/>
     <xacro:property name="joint_typ" value="$(arg joint_type)"/>
     <xacro:property name="arm" value="$(arg arm_type)"/>
+    <xacro:property name="gz" value="$(arg sim)"/>
 
     <!-- Include xacro files -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -73,4 +75,9 @@
             <origin rpy="0 0 0" xyz="0 0 0"/>
         </xacro:$(arg arm)> -->
     </xacro:unless>
+    <!-- Check if simulation needs to be used -->
+    <xacro:if value="${gz == 'use_gz'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/gazebo.xacro" />
+        <xacro:gazebo_plugins />
+    </xacro:if>
 </robot>
