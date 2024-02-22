@@ -14,12 +14,14 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type):
+def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu):
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
-    frame_typ = frame_type.perform(context)
-    arm_typ = arm_type.perform(context)
-    rox_typ = rox_type.perform(context)
+    frame_typ = str(frame_type.perform(context))
+    arm_typ = str(arm_type.perform(context))
+    rox_typ = str(rox_type.perform(context))
+    d435 = str(use_d435.perform(context))
+    imu = str(use_imu.perform(context))
 
     if (rox_typ == "meca"):
         frame_typ = "long"
@@ -48,15 +50,20 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type):
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': Command([
+        parameters=[{
+            'robot_description': Command([
             "xacro", " ", urdf, " ", 'frame_type:=',
             frame_typ,
             " ", 'arm_type:=',
             arm_typ,
             " ", 'rox_type:=',
             rox_type,
-            " ", 'sim:=',
-            "use_gz"
+            " ", 'use_imu:=',
+            imu,
+            " ", 'use_d435:=',
+            d435,
+            " ", 'use_gz:=',
+            "True"
             ])}],
         arguments=[urdf])
     
@@ -78,9 +85,43 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type):
 
 def generate_launch_description():
     opq_function = OpaqueFunction(function=execution_stage,
-                                  args=[LaunchConfiguration('frame_type',  default="short"),
-                                        LaunchConfiguration('rox_type',  default="argo"),
-                                        LaunchConfiguration('arm_type',  default=""),
+                                  args=[LaunchConfiguration('frame_type'),
+                                        LaunchConfiguration('rox_type'),
+                                        LaunchConfiguration('arm_type'),
+                                        LaunchConfiguration('d435_enable'),
+                                        LaunchConfiguration('imu_enable')
                                         ])
+    
+    declare_frame_type_cmd = DeclareLaunchArgument(
+            'frame_type', default_value='short',
+            description='Frame type - Options: short/long'
+        )
+    
+    declare_rox_type_cmd = DeclareLaunchArgument(
+            'rox_type', default_value='argo',
+            description='Robot type - Options: argo/diff/trike/meca'
+        )
 
-    return LaunchDescription([opq_function])
+    declare_imu_cmd = DeclareLaunchArgument(
+            'imu_enable', default_value='False',
+            description='Enable IMU - Options: True/False'
+        )
+    
+    declare_realsense_cmd = DeclareLaunchArgument(
+            'd435_enable', default_value='False',
+            description='Enable Realsense - Options: True/False'
+        )
+    
+    declare_arm_cmd = DeclareLaunchArgument(
+            'arm_type', default_value='',
+            description='Arm used in the robot - currently only support universal'
+        )
+
+    return LaunchDescription([
+        declare_imu_cmd,
+        declare_realsense_cmd,
+        declare_arm_cmd,
+        declare_frame_type_cmd,
+        declare_rox_type_cmd,
+        opq_function
+    ])
