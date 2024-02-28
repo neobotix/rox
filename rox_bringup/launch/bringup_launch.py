@@ -19,7 +19,6 @@ def execution_stage(context: LaunchContext,
                     frame_type,
                     rox_type,
                     arm_type,
-                    use_d435,
                     use_imu):
     
     rox = get_package_share_directory('rox_bringup')
@@ -27,7 +26,6 @@ def execution_stage(context: LaunchContext,
     frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
-    d435_enable = str(use_d435.perform(context))
     imu_enable = str(use_imu.perform(context))
     launches = []
     
@@ -55,9 +53,7 @@ def execution_stage(context: LaunchContext,
             " ", 'rox_type:=',
             rox_typ,
             " ", 'use_imu:=',
-            imu_enable,
-            " ", 'use_d435:=',
-            d435_enable
+            imu_enable
             ]), 'frame_prefix': rp_ns}],
         arguments=[urdf])
     
@@ -110,19 +106,6 @@ def execution_stage(context: LaunchContext,
         )
     
     launches.append(imu)
-
-    # D435
-    # TODO: Add support for namespacing
-    d435 = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(get_package_share_directory('realsense2_camera'),
-                    'launch',
-                    'rs_launch.py')
-            ),
-            condition=IfCondition(d435_enable)
-        )
-
-    launches.append(d435)
 
     # relayboard node
     relayboard = Node(
@@ -220,9 +203,8 @@ def generate_launch_description():
     rox_type = LaunchConfiguration('rox_type')
     arm_type = LaunchConfiguration('arm_type')
     imu_enable = LaunchConfiguration('imu_enable')
-    realsense_enable = LaunchConfiguration('d435_enable')
 
-    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, imu_enable, realsense_enable]
+    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, imu_enable]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
     
@@ -244,12 +226,7 @@ def generate_launch_description():
             'imu_enable', default_value='False',
             description='Enable IMU - Options: True/False'
         )
-    
-    declare_realsense_cmd = DeclareLaunchArgument(
-            'd435_enable', default_value='False',
-            description='Enable Realsense - Options: True/False'
-        )
-    
+   
     declare_arm_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
             description='Arm used in the robot - currently only support universal'
@@ -259,7 +236,6 @@ def generate_launch_description():
     ld.add_action(declare_namespace_cmd)
     ld.add_action(declare_rox_type_cmd)
     ld.add_action(declare_imu_cmd)
-    ld.add_action(declare_realsense_cmd)
     ld.add_action(declare_arm_cmd)
     ld.add_action(declare_frame_type_cmd)
     ld.add_action(opq_function)
