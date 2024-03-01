@@ -166,7 +166,7 @@ def generate_launch_description():
             'map', default_value=os.path.join(
                 get_package_share_directory('rox_navigation'),
                 'maps',
-                'test1.yaml'),
+                'neo_workshop.yaml'),
             description='Full path to map file to load'
         )
     
