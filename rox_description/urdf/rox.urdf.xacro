@@ -6,6 +6,7 @@
     <xacro:arg name="frame_type" default="short"/>
     <xacro:arg name="rox_type" default="argo"/>
     <xacro:arg name="joint_type" default="fixed"/>
+    <xacro:arg name="scanner" default="nanoscan"/>
     <xacro:arg name="arm_type" default=""/>
     <xacro:arg name="use_gz" default="false"/>
     <xacro:arg name="use_imu" default="false"/>
@@ -15,6 +16,7 @@
     <xacro:property name="frame" value="$(arg frame_type)"/>
     <xacro:property name="rox_typ" default="$(arg rox_type)"/>
     <xacro:property name="joint_typ" value="$(arg joint_type)"/>
+    <xacro:property name="scanner_typ" value="$(arg scanner)"/>
     <xacro:property name="arm" value="$(arg arm_type)"/>
     <xacro:property name="gz" value="$(arg use_gz)"/>
     <xacro:property name="use_ur_arm" value="false"/>
@@ -23,7 +25,12 @@
 
     <!-- Include xacro files -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
+    
+    <!-- Nanoscan -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/sick_nanoscan.xacro" />
+
+    <!-- PSenScan -->
+    <xacro:include filename="$(find rox_description)/urdf/xacros/pilz_psenscan.xacro" />
 
     <!-- checking if one of the UR arms is used -->
     <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
@@ -68,13 +75,26 @@
 
     <!-- Sensors -->
     <!-- Laser scanners -->
-    <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
-        <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
-    </xacro:sick_nanoscan>
 
-    <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
-        <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + frame_len} -0.269 0.19"/>
-    </xacro:sick_nanoscan>
+    <xacro:if value="${scanner_typ == 'nanoscan'}">
+        <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
+            <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
+        </xacro:sick_nanoscan>
+
+        <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
+            <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + frame_len} -0.269 0.19"/>
+        </xacro:sick_nanoscan>
+    </xacro:if>
+    
+    <xacro:if value="${scanner_typ == 'psenscan'}">
+        <xacro:pilz_psenscan name="lidar_1" parent="base_footprint">
+            <origin rpy="${pi} 0 ${pi/4}" xyz="${0.3016 + frame_len} 0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+
+        <xacro:pilz_psenscan name="lidar_2" parent="base_footprint">
+            <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.3016 + frame_len} -0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+    </xacro:if>
 
     <!-- IMU -->
     <xacro:if value="${imu == True}">
