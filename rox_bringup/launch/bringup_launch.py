@@ -143,7 +143,7 @@ def execution_stage(context: LaunchContext,
 
         launches.append(ur_arm)
     
-        # laser scanner1
+    # laser scanner1
     scan1 = Node(
             package="sick_safetyscanners2",
             executable="sick_safetyscanners2_node",
