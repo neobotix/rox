@@ -1,4 +1,5 @@
 {
+	"fetch_interval_ms": 157,
 	"fetch_items": [
 		{
 			"address": {

@@ -1,7 +1,7 @@
 {
 	"input": "flexi_soft.raw_data.request",
 	"output": "flexi_soft.raw_data.response",
-	"port": "/dev/ttyO2",
+	"port": "/dev/ttyS2",
 	"baud_rate": 115200,
 	"raw_mode": true
 }

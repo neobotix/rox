@@ -41,9 +41,9 @@
 	],
 	"led_pwms": {
 		"RED": [7, 0],
-		"GREEN": [4, 1],
+		"GREEN": [5, 1],
 		"BLUE": [7, 1],
-		"WHITE": [4, 0]
+		"WHITE": [5, 0]
 	},
 	"battery_voltage_ain": 0,
 	"charge_current_ain": 2,
