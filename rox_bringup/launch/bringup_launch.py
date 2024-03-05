@@ -114,7 +114,7 @@ def execution_stage(context: LaunchContext,
           output='screen',
           name='neo_relayboard_v3_node',
           parameters = [
-              {"pilot_config": "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/rox-" + rox_typ}
+              {"pilot_config": "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/rox-" + rox_typ + "/"}
           ]
         )
     
