@@ -76,6 +76,8 @@
     <!-- Sensors -->
     <!-- Laser scanners -->
 
+    <!-- Nanoscans -->
+
     <xacro:if value="${scanner_typ == 'nanoscan'}">
         <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
             <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
@@ -86,6 +88,18 @@
         </xacro:sick_nanoscan>
     </xacro:if>
     
+    <xacro:if value="${scanner_typ == 'psenscan'}">
+        <xacro:pilz_psenscan name="lidar_1" parent="base_footprint">
+            <origin rpy="0 0 ${pi/4}" xyz="${0.3016 + frame_len} 0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+
+        <xacro:pilz_psenscan name="lidar_2" parent="base_footprint">
+            <origin rpy="0 0 -${pi - pi/4}" xyz="-${0.3016 + frame_len} -0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+    </xacro:if>
+
+    <!-- Pilz -->
+
     <xacro:if value="${scanner_typ == 'psenscan'}">
         <xacro:pilz_psenscan name="lidar_1" parent="base_footprint">
             <origin rpy="0 0 ${pi/4}" xyz="${0.3016 + frame_len} 0.2719 0.191"/>
@@ -121,7 +135,7 @@
         </xacro:sensor_d435>
     </xacro:if>
 
-    <!-- Lidar -->
+    <!-- arm -->
     <xacro:unless value="${arm == ''}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
         <xacro:cabinet name="cabinet" parent="base_footprint">

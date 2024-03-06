@@ -4,9 +4,10 @@
 import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import ThisLaunchFileDir, LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable, PythonExpression
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
 from launch.conditions import IfCondition
@@ -19,6 +20,7 @@ def execution_stage(context: LaunchContext,
                     frame_type,
                     rox_type,
                     arm_type,
+                    scanner_type,
                     use_imu):
     
     rox = get_package_share_directory('rox_bringup')
@@ -26,6 +28,7 @@ def execution_stage(context: LaunchContext,
     frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
+    scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
     launches = []
     
@@ -144,34 +147,50 @@ def execution_stage(context: LaunchContext,
         launches.append(ur_arm)
     
     # laser scanner1
-    scan1 = Node(
-            package="sick_safetyscanners2",
-            executable="sick_safetyscanners2_node",
-            name="lidar_1_node",
-            output="screen",
-            emulate_tty=True,
-            parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_1.yaml')],
-            remappings=[
-                ('/scan', '/lidar_1/scan_filtered')
-            ]
-        )
-    
-    launches.append(scan1)
+    if scanner_type == "nanoscan":
+        scan1 = Node(
+                package="sick_safetyscanners2",
+                executable="sick_safetyscanners2_node",
+                name="lidar_1_node",
+                output="screen",
+                emulate_tty=True,
+                parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_1.yaml')],
+                remappings=[
+                    ('/scan', '/lidar_1/scan_filtered')
+                ]
+            )
+        
+        launches.append(scan1)
 
-    # laser scanner2
-    scan2 = Node(
-            package="sick_safetyscanners2",
-            executable="sick_safetyscanners2_node",
-            name="lidar_2_node",
-            output="screen",
-            emulate_tty=True,
-            parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_2.yaml')],
-            remappings=[
-                ('/scan', '/lidar_2/scan_filtered'),
-            ]
+        # laser scanner2
+        scan2 = Node(
+                package="sick_safetyscanners2",
+                executable="sick_safetyscanners2_node",
+                name="lidar_2_node",
+                output="screen",
+                emulate_tty=True,
+                parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_2.yaml')],
+                remappings=[
+                    ('/scan', '/lidar_2/scan_filtered'),
+                ]
+            )
+        
+        launches.append(scan2)
+    
+    elif scanner_type == "psenscan":
+        scan = IncludeLaunchDescription(
+            XMLLaunchDescriptionSource(
+                os.path.join(get_package_share_directory('psen_scan_v2'),
+                    'launch',
+                    'psen_scan_v2.launch.xml')
+            ),
+            launch_arguments={
+                'sensor_ip': "192.168.1.30",
+                'host_ip': "192.168.1.10"
+            }.items()
         )
     
-    launches.append(scan2)
+        launches.append(scan)
 
     # Relaying lidar data to /scan topic
     relay_topic_lidar1 = Node(
@@ -202,9 +221,10 @@ def generate_launch_description():
     frame_type = LaunchConfiguration('frame_type')
     rox_type = LaunchConfiguration('rox_type')
     arm_type = LaunchConfiguration('arm_type')
+    scanner_type = LaunchConfiguration('scanner_type')
     imu_enable = LaunchConfiguration('imu_enable')
 
-    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, imu_enable]
+    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, scanner_type, imu_enable]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
     
@@ -231,6 +251,11 @@ def generate_launch_description():
             'arm_type', default_value='',
             description='Arm used in the robot - currently only support universal'
         )
+    
+    declare_scanner_cmd = DeclareLaunchArgument(
+            'scanner_type', default_value='',
+            description='Scanner options available: nanoscan/psenscan'
+        )
 
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
@@ -238,6 +263,7 @@ def generate_launch_description():
     ld.add_action(declare_imu_cmd)
     ld.add_action(declare_arm_cmd)
     ld.add_action(declare_frame_type_cmd)
+    ld.add_action(declare_scanner_cmd)
     ld.add_action(opq_function)
     
     return ld
