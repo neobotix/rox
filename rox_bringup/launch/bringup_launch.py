@@ -147,7 +147,7 @@ def execution_stage(context: LaunchContext,
         launches.append(ur_arm)
     
     # laser scanner1
-    if scanner_type == "nanoscan":
+    if scanner_typ == "nanoscan":
         scan1 = Node(
                 package="sick_safetyscanners2",
                 executable="sick_safetyscanners2_node",
@@ -177,7 +177,7 @@ def execution_stage(context: LaunchContext,
         
         launches.append(scan2)
     
-    elif scanner_type == "psenscan":
+    elif scanner_typ == "psenscan":
         scan = IncludeLaunchDescription(
             XMLLaunchDescriptionSource(
                 os.path.join(get_package_share_directory('psen_scan_v2'),
@@ -253,7 +253,7 @@ def generate_launch_description():
         )
     
     declare_scanner_cmd = DeclareLaunchArgument(
-            'scanner_type', default_value='',
+            'scanner_type', default_value='nanoscan',
             description='Scanner options available: nanoscan/psenscan'
         )
 
