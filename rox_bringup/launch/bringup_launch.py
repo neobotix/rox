@@ -55,6 +55,8 @@ def execution_stage(context: LaunchContext,
             arm_typ,
             " ", 'rox_type:=',
             rox_typ,
+            " ", 'scanner:=',
+            scanner_typ,
             " ", 'use_imu:=',
             imu_enable
             ]), 'frame_prefix': rp_ns}],
