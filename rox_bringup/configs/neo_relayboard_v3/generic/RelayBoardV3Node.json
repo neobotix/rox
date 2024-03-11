@@ -18,6 +18,7 @@
 		}
 	},
 	"topics_from_board": [
+        "vnx.log_out",
 		"platform.system_state",
 		"platform.power_state"
 	],
