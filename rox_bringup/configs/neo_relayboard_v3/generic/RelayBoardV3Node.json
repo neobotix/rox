@@ -2,20 +2,24 @@
 	"topics_board_to_ros": [
 		["platform.emergency_state", "emergency_stop_state"],
 		["platform.battery_state", "battery_state"],
-		["kinematics.drive_state", "drives/joint_states"],
+		["kinematics.drive_state", "joint_states"],
 		["platform.io_board_data", "ioboard/data"],
 		["platform.us_board_data", "usboard/measurements"],
-		["platform.relay_board_data" "relayboard_v3/state"]
-		["platform.safety_state" "safety_state"]
+		["platform.relay_board_data", "relayboard_v3/state"],
+		["platform.safety_state", "safety_state"]
 	],
 
 	"topics_ros_to_board": {
 		"trajectory_msgs/JointTrajectory": {
-			"/drives/joint_trajectory": "kinematics.drive_cmd"
+			"joint_trajectory": "kinematics.drive_cmd"
+		},
+		"neo_msgs2/KinematicsState":{
+			"/kinematics_state": "kinematics.state"
 		}
 	},
 	"topics_from_board": [
-		"platform.safety_state",
+        "vnx.log_out",
+		"platform.system_state",
 		"platform.power_state"
 	],
 	"topics_to_ros": {

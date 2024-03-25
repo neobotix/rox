@@ -1,0 +1,169 @@
+<?xml version="1.0" ?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+    <!-- Xacro Arguments-->
+    <xacro:arg name="frame_type" default="short"/>
+    <xacro:arg name="rox_type" default="argo"/>
+    <xacro:arg name="joint_type" default="fixed"/>
+    <xacro:arg name="scanner" default="nanoscan"/>
+    <xacro:arg name="arm_type" default=""/>
+    <xacro:arg name="use_gz" default="false"/>
+    <xacro:arg name="use_imu" default="false"/>
+    <xacro:arg name="use_d435" default="false"/>
+
+    <!-- Xacro Properties -->
+    <xacro:property name="frame" value="$(arg frame_type)"/>
+    <xacro:property name="rox_typ" default="$(arg rox_type)"/>
+    <xacro:property name="joint_typ" value="$(arg joint_type)"/>
+    <xacro:property name="scanner_typ" value="$(arg scanner)"/>
+    <xacro:property name="arm" value="$(arg arm_type)"/>
+    <xacro:property name="gz" value="$(arg use_gz)"/>
+    <xacro:property name="use_ur_arm" value="false"/>
+    <xacro:property name="imu" value="$(arg use_imu)"/>
+    <xacro:property name="d435" value="$(arg use_d435)"/>
+
+    <!-- Include xacro files -->
+    <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
+    
+    <!-- Nanoscan -->
+    <xacro:include filename="$(find rox_description)/urdf/xacros/sick_nanoscan.xacro" />
+
+    <!-- PSenScan -->
+    <xacro:include filename="$(find rox_description)/urdf/xacros/pilz_psenscan.xacro" />
+
+    <!-- checking if one of the UR arms is used -->
+    <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
+        <xacro:property name="use_ur_arm" value="true"/>
+    </xacro:if>
+
+    <!-- Assigning Xacro properties -->
+    <xacro:if value="${frame == 'short'}">
+        <xacro:property name="frame_len" value="0.0" />
+    </xacro:if>
+
+    <xacro:if value="${frame == 'long'}">
+        <xacro:property name="frame_len" value="0.13" />
+    </xacro:if>
+
+    <!-- Building the robot from here -->
+    <link name="base_link" />
+
+    <xacro:rox_base name="base_footprint"  parent="base_link"
+        type="${frame}">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:rox_base>
+
+    <!-- Argo drives -->
+    <xacro:if value="${rox_typ == 'argo'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/argo_drive.xacro" />
+        <xacro:argo_drive parent="base_footprint"/>
+    </xacro:if>
+
+    <!-- Diff drive -->
+    <!-- Includes both Trike and Diff -->
+    <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/diff_drive.xacro" />
+        <xacro:trike_drive parent="base_footprint"/>
+    </xacro:if>
+    
+    <!-- Meca drive -->
+    <xacro:if value="${rox_typ == 'meca'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/meca_drive.xacro" />
+        <xacro:meca_drive parent="base_footprint"/>
+    </xacro:if>
+
+    <!-- Sensors -->
+    <!-- Laser scanners -->
+
+    <!-- Nanoscans -->
+
+    <xacro:if value="${scanner_typ == 'nanoscan'}">
+        <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
+            <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
+        </xacro:sick_nanoscan>
+
+        <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
+            <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + frame_len} -0.269 0.19"/>
+        </xacro:sick_nanoscan>
+    </xacro:if>
+    
+    <!-- Pilz -->
+
+    <xacro:if value="${scanner_typ == 'psenscan'}">
+        <xacro:pilz_psenscan name="lidar_1" parent="base_footprint">
+            <origin rpy="0 0 ${pi/4}" xyz="${0.3016 + frame_len} 0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+
+        <xacro:pilz_psenscan name="lidar_2" parent="base_footprint">
+            <origin rpy="0 0 -${pi - pi/4}" xyz="-${0.3016 + frame_len} -0.2719 0.191"/>
+        </xacro:pilz_psenscan>
+    </xacro:if>
+
+    <!-- IMU -->
+    <xacro:if value="${imu == True}">
+        <link name="imu_link">
+            <inertial>
+                <mass value="0.001" />
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.0001" />
+            </inertial>  
+        </link>
+        <joint name="imu_joint" type="fixed">
+            <axis xyz="0 1 0"/>
+            <origin rpy="0 0 0" xyz="-0.052 0.208 0.266"/>
+            <parent link="base_link"/>
+            <child link="imu_link"/>
+        </joint>
+    </xacro:if>
+
+    <!-- Realsense D435 -->
+    <xacro:if value="${d435 == True}">
+        <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
+        <xacro:sensor_d435 parent="base_link">
+            <origin xyz="0.292 0.0 0.716" rpy="0 0 0"/>
+        </xacro:sensor_d435>
+    </xacro:if>
+
+    <!-- arm -->
+    <xacro:unless value="${arm == ''}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
+        <xacro:cabinet name="cabinet" parent="base_footprint">
+            <origin rpy="0 0 0" xyz="${frame_len} 0 0.33"/>
+        </xacro:cabinet>
+
+        <xacro:if value="${use_ur_arm == True}">
+            <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+            <xacro:arg name="tf_prefix" default="${arm}" />
+            <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"/>
+            <xacro:arg name="kinematics_params" default="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"/>
+            <xacro:arg name="physical_params" default="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"/>
+            <xacro:arg name="visual_params" default="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"/>
+            <xacro:arg name="transmission_hw_interface" default=""/>
+            <xacro:arg name="safety_limits" default="false"/>
+            <xacro:arg name="safety_pos_margin" default="0.15"/>
+            <xacro:arg name="safety_k_position" default="20"/>
+            <xacro:arg name="force_abs_paths" default="false" />
+
+            <xacro:ur_robot name="${arm}"
+                parent="cabinet_link"
+                tf_prefix="$(arg tf_prefix)"
+                joint_limits_parameters_file="$(arg joint_limit_params)"
+                kinematics_parameters_file="$(arg kinematics_params)"
+                physical_parameters_file="$(arg physical_params)"
+                visual_parameters_file="$(arg visual_params)"
+                safety_limits="$(arg safety_limits)"
+                safety_pos_margin="$(arg safety_pos_margin)"
+                safety_k_position="$(arg safety_k_position)"
+                >
+                <!-- position robot in the world -->
+                <origin xyz="0.133 0.0 0.416" rpy="0.0 0.0 -1.5708" />
+            </xacro:ur_robot>
+        </xacro:if>
+    </xacro:unless>
+    <!-- Check if simulation needs to be used -->
+    <xacro:if value="${gz == True}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/gazebo.xacro" />
+        <xacro:gazebo_plugins />
+    </xacro:if>
+</robot>

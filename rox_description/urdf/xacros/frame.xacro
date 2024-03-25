@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <xacro:macro name="rox_base" params="name parent type *origin">
+   <joint name="${name}_joint" type="fixed">
+    <xacro:insert_block name="origin" />
+    <axis xyz="0 0 -1" />
+    <joint_properties damping="1" friction="1" />
+    <parent link="${parent}" />
+    <child link="${name}" />
+   </joint>
+   <link name="${name}">
+      <inertial>
+      <!-- These are not accurate value -->
+        <mass value="0.5" />
+        <origin xyz="0 0 0.0" rpy="0 0 0"/>
+        <inertia ixx="0.005" ixy="0.0" ixz="0.0"
+                 iyy="0.005" iyz="0.0" 
+                 izz="0.005" />
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+  
+</robot>
