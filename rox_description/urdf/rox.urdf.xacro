@@ -60,6 +60,12 @@
         <xacro:argo_drive parent="base_footprint"/>
     </xacro:if>
 
+    <!-- Argo drives -->
+    <xacro:if value="${rox_typ == 'argo_duo'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/argo_duo.xacro" />
+        <xacro:argo_duo parent="base_footprint"/>
+    </xacro:if>
+
     <!-- Diff drive -->
     <!-- Includes both Trike and Diff -->
     <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
