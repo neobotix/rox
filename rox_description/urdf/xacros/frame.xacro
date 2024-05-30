@@ -5,18 +5,17 @@
    <joint name="${name}_joint" type="fixed">
     <xacro:insert_block name="origin" />
     <axis xyz="0 0 -1" />
-    <joint_properties damping="1" friction="1" />
     <parent link="${parent}" />
     <child link="${name}" />
    </joint>
    <link name="${name}">
       <inertial>
       <!-- These are not accurate value -->
-        <mass value="0.5" />
-        <origin xyz="0 0 0.0" rpy="0 0 0"/>
-        <inertia ixx="0.005" ixy="0.0" ixz="0.0"
-                 iyy="0.005" iyz="0.0" 
-                 izz="0.005" />
+        <mass value="0.1" />
+        <origin xyz="0 0 0.0" rpy="0.00 0.00 0.0"/>
+        <inertia ixx="0.05" ixy="0.000" ixz="0.000"
+                 iyy="0.0" iyz="0.000" 
+                 izz="0.05" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -31,6 +30,13 @@
         </geometry>
       </collision>
     </link>
+    <gazebo reference="${name}">
+    <!-- <kp> 10000 </kp> -->
+    <!-- <fdir1>0 1 0</fdir1> -->
+    <!-- <slip1> 0.1 </slip1> -->
+    <mu1>0.0001</mu1>
+    <mu2>0.0001</mu2>
+  </gazebo>
   </xacro:macro>
   
 </robot>
