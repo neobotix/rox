@@ -35,7 +35,7 @@
         <topic>scan</topic>
         <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
         <output_type>sensor_msgs/LaserScan</output_type>
-        <ignition_frame_id>lidar_1_link</ignition_frame_id>
+        <gz_frame_id>lidar_1_link</gz_frame_id>
       </sensor>
     </gazebo>
 
@@ -72,13 +72,13 @@
         <topic>scan2</topic>
         <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
         <output_type>sensor_msgs/LaserScan</output_type>
-        <ignition_frame_id>lidar_2_link</ignition_frame_id>
+        <gz_frame_id>lidar_2_link</gz_frame_id>
       </sensor>
     </gazebo>
 
     <gazebo reference="imu_link">
         <sensor name="imu_sensor" type="imu">
-            <ignition_frame_id>imu_link</ignition_frame_id>
+            <gz_frame_id>imu_link</gz_frame_id>
             <update_rate>50</update_rate>
             <visualize>false</visualize>
             <topic>imu</topic>
@@ -87,8 +87,8 @@
     </gazebo>
 
     <gazebo>
-      <plugin filename="ignition-gazebo-odometry-publisher-system"
-          name="ignition::gazebo::systems::OdometryPublisher">
+      <plugin filename="gz-sim-odometry-publisher-system"
+          name="gz::sim::systems::OdometryPublisher">
           <odom_frame>odom</odom_frame> 
           <odom_covariance_topic>odom</odom_covariance_topic>
           <tf_topic>tf</tf_topic>
@@ -96,17 +96,17 @@
           <odom_publish_frequency>100</odom_publish_frequency>
       </plugin>
 
-      <plugin filename="ignition-gazebo-imu-system"
-          name="ignition::gazebo::systems::Imu">
+      <plugin filename="gz-sim-imu-system"
+          name="gz::sim::systems::Imu">
       </plugin>
 
-      <plugin filename="ignition-gazebo-velocity-control-system"
-          name="ignition::gazebo::systems::VelocityControl">
+      <plugin filename="gz-sim-velocity-control-system"
+          name="gz::sim::systems::VelocityControl">
           <topic>cmd_vel</topic>
       </plugin>
 
-      <plugin filename="ignition-gazebo-sensors-system"
-          name="ignition::gazebo::systems::Sensors">
+      <plugin filename="gz-sim-sensors-system"
+          name="gz::sim::systems::Sensors">
       </plugin>
       
     </gazebo>
