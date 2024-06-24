@@ -12,9 +12,9 @@
    <link name="${name}_link" type="wheel">
     <inertial>
     <!-- These are not accurate value -->
-      <mass value="0.03" />
-      <origin rpy="0 0 0" xyz="0 0.0 0" />
-      <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.0000005" iyz="0" izz="0.02" />
+      <mass value="5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.02" iyz="0" izz="0.02" />
     </inertial>
     <visual>
       <origin rpy="0 0 3.14" xyz="0 0.0 0" />
@@ -23,10 +23,10 @@
       </geometry>
     </visual>
     <collision>
-     <origin rpy="0 0 3.14" xyz="0 0.0 0" />
-     <geometry>
-        <mesh filename="package://rox_description/meshes/argo_wheel.dae" scale="0.1 0.1 0.1"/>
-     </geometry>
+     <origin rpy="0 0 0" xyz="0 0.0 0" />
+      <geometry>
+        <sphere radius="0.05" />
+      </geometry>
     </collision>
    </link>
    
