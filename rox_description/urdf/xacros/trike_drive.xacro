@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <xacro:include filename="$(find rox_description)/urdf/xacros/diff_caster.xacro" />
+  <xacro:include filename="$(find rox_description)/urdf/xacros/diff_wheel.xacro" />
+
+  <xacro:macro name="trike_drive" params="parent">
+    <xacro:diff_caster name="caster_back" parent="${parent}"
+        vis_rot="-${pi/2} 0 -${pi/2}" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin rpy="0 0 0" xyz="-${0.2785 - 0.04 + frame_len} 0.0 0.123"/>
+        <!-- For the caster position 0.2785 is   -->
+    </xacro:diff_caster>
+
+    <xacro:diff_wheel name="wheel_left" parent="${parent}"
+        joint_type="${joint_typ}">
+        <origin xyz="0.0 -0.297 0.075" rpy="0 0 0" />
+    </xacro:diff_wheel>
+
+    <xacro:diff_wheel name="wheel_right" parent="${parent}"
+        joint_type="${joint_typ}">
+        <origin xyz="0.0 0.297 0.075" rpy="0 0 ${pi}" />
+    </xacro:diff_wheel>
+
+  </xacro:macro>
+  
+</robot>

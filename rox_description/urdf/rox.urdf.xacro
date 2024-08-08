@@ -62,15 +62,15 @@
 
     <!-- Diff drive -->
     <!-- Includes both Trike and Diff -->
-    <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
+    <xacro:if value="${rox_typ == 'diff'}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/diff_drive.xacro" />
         <xacro:trike_drive parent="base_footprint"/>
     </xacro:if>
-    
-    <!-- Meca drive -->
-    <xacro:if value="${rox_typ == 'meca'}">
-        <xacro:include filename="$(find rox_description)/urdf/xacros/meca_drive.xacro" />
-        <xacro:meca_drive parent="base_footprint"/>
+
+    <!-- Trike drive -->
+    <xacro:if value="${rox_typ == 'trike'}">
+        <xacro:include filename="$(find rox_description)/urdf/xacros/trike_drive.xacro" />
+        <xacro:trike_drive parent="base_footprint"/>
     </xacro:if>
 
     <!-- Sensors -->

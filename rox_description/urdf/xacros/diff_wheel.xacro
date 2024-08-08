@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <xacro:macro name="diff_wheel" params="name parent *origin joint_type">
+    <joint name="${name}_joint" type="${joint_type}">
+      <xacro:insert_block name="origin" />
+      <axis xyz="1 0 0" />
+      <parent link="${parent}" />
+      <child link="${name}_link" />
+    </joint>
+
+    <link name="${name}_link">
+      <inertial>
+      <!-- These are not accurate value -->
+        <mass value="5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.02" iyz="0" izz="0.02" />
+      </inertial>
+      <visual>
+        <origin rpy="0 0 ${pi/2}" xyz="0 0.0 0" />
+        <geometry>
+        <mesh filename="package://rox_description/meshes/diff_wheel.dae" scale="0.1 0.1 0.1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0.0 0" />
+        <geometry>
+        <mesh filename="package://rox_description/meshes/diff_wheel.dae" scale="0.1 0.1 0.1"/>
+        </geometry>
+      </collision>
+    </link>
+   
+  </xacro:macro>
+  
+</robot>
