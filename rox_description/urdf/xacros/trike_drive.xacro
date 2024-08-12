@@ -8,8 +8,8 @@
     <xacro:diff_caster name="caster_back" parent="${parent}"
         vis_rot="-${pi/2} 0 -${pi/2}" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="0 0 0" xyz="-${0.2785 - 0.04 + frame_len} 0.0 0.123"/>
-        <!-- For the caster position 0.2785 is   -->
+        <origin rpy="0 0 0" xyz="-${0.2785 - 0.045 + frame_len} 0.0 0.124"/>
+        <!-- For the caster position 0.2785 is L3.2 and 0.045 is the Swivel lead -->
     </xacro:diff_caster>
 
     <xacro:diff_wheel name="wheel_left" parent="${parent}"
