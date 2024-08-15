@@ -57,20 +57,21 @@
     <!-- Argo drives -->
     <xacro:if value="${rox_typ == 'argo'}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/argo_drive.xacro" />
-        <xacro:argo_drive parent="base_footprint"/>
+        <xacro:argo_drive parent="base_link"/>
     </xacro:if>
 
     <!-- Diff drive -->
     <!-- Includes both Trike and Diff -->
     <xacro:if value="${rox_typ == 'diff'}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/diff_drive.xacro" />
-        <xacro:trike_drive parent="base_footprint"/>
+        <xacro:trike_drive parent="base_link"/>
     </xacro:if>
 
     <!-- Trike drive -->
     <xacro:if value="${rox_typ == 'trike'}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/trike_drive.xacro" />
-        <xacro:trike_drive parent="base_footprint"/>
+        <xacro:trike_drive parent="base_link"/>
+        <xacro:property name="frame_len" value="-0.2435" />
     </xacro:if>
 
     <!-- Sensors -->
@@ -79,23 +80,23 @@
     <!-- Nanoscans -->
 
     <xacro:if value="${scanner_typ == 'nanoscan'}">
-        <xacro:sick_nanoscan name="lidar_1" parent="base_footprint">
+        <xacro:sick_nanoscan name="lidar_1" parent="base_link">
             <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995 + frame_len} 0.269 0.19"/>
         </xacro:sick_nanoscan>
 
-        <xacro:sick_nanoscan name="lidar_2" parent="base_footprint">
-            <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 + frame_len} -0.269 0.19"/>
+        <xacro:sick_nanoscan name="lidar_2" parent="base_link">
+            <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995 - frame_len} -0.269 0.19"/>
         </xacro:sick_nanoscan>
     </xacro:if>
     
     <!-- Pilz -->
 
     <xacro:if value="${scanner_typ == 'psenscan'}">
-        <xacro:pilz_psenscan name="lidar_1" parent="base_footprint">
+        <xacro:pilz_psenscan name="lidar_1" parent="base_link">
             <origin rpy="0 0 ${pi/4}" xyz="${0.3016 + frame_len} 0.2719 0.191"/>
         </xacro:pilz_psenscan>
 
-        <xacro:pilz_psenscan name="lidar_2" parent="base_footprint">
+        <xacro:pilz_psenscan name="lidar_2" parent="base_link">
             <origin rpy="0 0 -${pi - pi/4}" xyz="-${0.3016 + frame_len} -0.2719 0.191"/>
         </xacro:pilz_psenscan>
     </xacro:if>

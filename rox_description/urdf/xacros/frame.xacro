@@ -11,20 +11,20 @@
    <link name="${name}">
       <inertial>
       <!-- These are not accurate value -->
-        <mass value="80.1" />
-        <origin xyz="0 0 0.18" rpy="0.00 0.00 0.0"/>
-        <inertia ixx="3.947" ixy="0.000" ixz="0.000"
-                 iyy="6.249" iyz="0.000" 
-                 izz="8.467" />
+        <mass value="8.0" />
+        <origin xyz="-0.243 0 0.18" rpy="0.0 0.0 0.0"/>
+        <inertia ixx="0.299" ixy="0.0" ixz="0.0"
+                 iyy="0.351" iyz="0.0" 
+                 izz="0.360" />
       </inertial>
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="-0.243 0.0 0.0" rpy="0 0 0" />
         <geometry>
           <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <origin xyz="-0.243 0.0 0.0" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/${type}_frame.dae" scale="0.1 0.1 0.1"/>
         </geometry>
