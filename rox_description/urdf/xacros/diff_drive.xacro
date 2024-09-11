@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <xacro:include filename="$(find rox_description)/urdf/xacros/diff_caster.xacro" />
+  <xacro:include filename="$(find rox_description)/urdf/xacros/diff_fixed.xacro" />
+
+  <xacro:macro name="diff_drive" params="parent">
+    <xacro:diff_caster name="caster_wheel_front_left" parent="${parent}">
+        <origin rpy="0 0 ${pi}" xyz="${0.1885 + frame_len} -0.226 0.123"/>
+    </xacro:diff_caster>
+
+    <xacro:diff_caster name="caster_wheel_front_right" parent="${parent}">
+        <origin rpy="0 0 0" xyz="${0.1885 + frame_len} 0.226 0.04"/>
+    </xacro:diff_caster>
+
+    <xacro:diff_caster name="caster_wheel_back_left" parent="${parent}">
+        <origin rpy="0 0 ${pi}" xyz="-${0.2785 + frame_len} -0.226 0.04"/>
+    </xacro:diff_caster>
+
+    <xacro:diff_caster name="caster_wheel_back_right" parent="${parent}">
+        <origin rpy="0 0 0" xyz="-${0.2785 + frame_len} 0.226 0.04"/>
+    </xacro:diff_caster>
+
+    <xacro:diff_fixed name="drive_wheel_middle_left" parent="${parent}"> 
+        <origin xyz="0.0 -0.113 0.075" rpy="0 0 0" />
+    </xacro:diff_fixed>
+
+    <xacro:diff_fixed name="drive_wheel_middle_right" parent="${parent}">  
+        <origin xyz="0.0 0.113 0.075" rpy="0 0 ${pi}" />
+    </xacro:diff_fixed>
+
+  </xacro:macro> 
+
+</robot>
+
