@@ -22,10 +22,14 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
     rox_typ = str(rox_type.perform(context))
     d435 = str(use_d435.perform(context))
     imu = str(use_imu.perform(context))
+    joint_type = "fixed"
 
     if (rox_typ == "meca"):
         frame_typ = "long"
-        print("Meca only supports long frame")   
+        print("Meca only supports long frame")
+
+    if (rox_typ == "diff" or rox_typ == "trike"):
+        joint_type = "revolute"
     
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
@@ -58,6 +62,8 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
             arm_typ,
             " ", 'rox_type:=',
             rox_type,
+            " ", 'joint_type:=',
+            joint_type,
             " ", 'use_imu:=',
             imu,
             " ", 'use_d435:=',
@@ -81,7 +87,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         output='screen',
         parameters=[{'config_file': bridge_config_file}])
 
-    return [start_robot_state_publisher_cmd, spawn_robot, ignition, gz_bridge, teleop]
+    return [start_robot_state_publisher_cmd, ignition, gz_bridge, teleop, spawn_robot]
 
 def generate_launch_description():
     opq_function = OpaqueFunction(function=execution_stage,
