@@ -100,12 +100,13 @@
           name="gz::sim::systems::Imu">
       </plugin>
 
-      <!-- <xacro:if value="${rox_typ == 'argo'}">
+      <!-- For ArgoDrive platforms -->
+      <xacro:if value="${rox_typ == 'argo'}">
         <plugin filename="gz-sim-velocity-control-system"
             name="gz::sim::systems::VelocityControl">
             <topic>cmd_vel</topic>
         </plugin>
-      </xacro:if> -->
+      </xacro:if>
 
       <!-- DiffDrive control for trike and diff -->
       <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
