@@ -64,7 +64,7 @@
     <!-- Includes both Trike and Diff -->
     <xacro:if value="${rox_typ == 'diff'}">
         <xacro:include filename="$(find rox_description)/urdf/xacros/diff_drive.xacro" />
-        <xacro:trike_drive parent="base_link"/>
+        <xacro:diff_drive parent="base_link"/>
     </xacro:if>
 
     <!-- Trike drive -->
