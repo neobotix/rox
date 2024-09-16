@@ -87,8 +87,8 @@
     </gazebo>
 
     <gazebo>
-      <plugin filename="gz-sim-odometry-publisher-system"
-          name="gz::sim::systems::OdometryPublisher">
+      <plugin filename="ignition-gazebo-odometry-publisher-system"
+          name="ignition::gazebo::systems::OdometryPublisher">
           <odom_frame>odom</odom_frame> 
           <odom_covariance_topic>odom</odom_covariance_topic>
           <tf_topic>tf</tf_topic>
@@ -96,22 +96,22 @@
           <odom_publish_frequency>100</odom_publish_frequency>
       </plugin>
 
-      <plugin filename="gz-sim-imu-system"
-          name="gz::sim::systems::Imu">
+      <plugin filename="ignition-gazebo-imu-system"
+          name="ignition::gazebo::systems::Imu">
       </plugin>
 
       <!-- For ArgoDrive platforms -->
       <xacro:if value="${rox_typ == 'argo'}">
-        <plugin filename="gz-sim-velocity-control-system"
-            name="gz::sim::systems::VelocityControl">
+        <plugin filename="ignition-gazebo-velocity-control-system"
+            name="ignition::gazebo::systems::VelocityControl">
             <topic>cmd_vel</topic>
         </plugin>
       </xacro:if>
 
       <!-- DiffDrive control for trike and diff -->
       <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
-        <plugin filename="gz-sim-diff-drive-system"
-          name="gz::sim::systems::DiffDrive">
+        <plugin filename="ignition-gazebo-diff-drive-system"
+          name="ignition::gazebo::systems::DiffDrive">
           <left_joint>wheel_left_joint</left_joint>
           <right_joint>wheel_right_joint</right_joint>
           <wheel_separation>0.555</wheel_separation>
@@ -131,8 +131,8 @@
         </plugin>
 
         <plugin
-          filename="gz-sim-joint-state-publisher-system"
-          name="gz::sim::systems::JointStatePublisher">
+          filename="ignition-gazebo-joint-state-publisher-system"
+          name="ignition::gazebo::systems::JointStatePublisher">
           <joint_name>wheel_left_joint</joint_name>
           <joint_name>wheel_right_joint</joint_name>
           <topic>joint_states</topic>
@@ -141,8 +141,8 @@
 
       </xacro:if>
 
-      <plugin filename="gz-sim-sensors-system"
-        name="gz::sim::systems::Sensors">
+      <plugin filename="ignition-gazebo-sensors-system"
+        name="ignition::gazebo::systems::Sensors">
       </plugin>
       
     </gazebo>
