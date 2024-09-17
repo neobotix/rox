@@ -1,0 +1,27 @@
+{
+	"kinematic_type": "DIFFERENTIAL",
+	"motor_map": {
+		"LEFT": {
+			"DRIVE": {
+				"canopen_node": {
+					"id": 2
+				},
+				"mode": "VELOCITY_CONTROL",
+				"gear_ratio": 12,
+				"rot_sign": -1,
+				"enc_ticks_per_rev": 4096
+			}
+		},
+		"RIGHT": {
+			"DRIVE": {
+				"canopen_node": {
+					"id": 3
+				},
+				"mode": "VELOCITY_CONTROL",
+				"gear_ratio": 12,
+				"rot_sign": -1,
+				"enc_ticks_per_rev": 4096
+			}
+		}
+	}
+}
