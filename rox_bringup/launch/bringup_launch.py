@@ -65,15 +65,27 @@ def execution_stage(context: LaunchContext,
     launches.append(start_robot_state_publisher_cmd)
 
     # kinematics
-    kinematics = Node(
-            package='rox_argo_kinematics',
-            executable='rox_argo_kinematics_node',
-            output='screen',
-            name='argo_kinematics_node',
-            parameters = [os.path.join(rox,'configs/kinematics', rox_typ + '_kinematics.yaml')]
-        )
+    if (rox_typ == "argo"):
+        kinematics = Node(
+                package='rox_argo_kinematics',
+                executable='rox_argo_kinematics_node',
+                output='screen',
+                name='argo_kinematics_node',
+                parameters = [os.path.join(rox,'configs/kinematics', rox_typ + '_kinematics.yaml')]
+            )
 
-    launches.append(kinematics)
+        launches.append(kinematics)
+    
+    if (rox_typ == "diff"):
+        kinematics = Node(
+                package='neo_kinematics_differential',
+                executable='neo_differential_node',
+                output='screen',
+                name='diff_kinematics_node',
+                parameters = [os.path.join(rox,'configs/kinematics', rox_typ + '_kinematics.yaml')]
+            )
+
+        launches.append(kinematics)
 
     # teleop
     teleop = Node(
