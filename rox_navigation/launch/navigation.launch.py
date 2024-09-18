@@ -19,29 +19,23 @@ from launch.launch_context import LaunchContext
 
 def execution_stage(
         context: LaunchContext,
-        frame_type, rox_type, use_sim_time,
+        rox_type, use_sim_time,
         autostart, namespace, use_multi_robots,
         head_robot, use_amcl, map_dir, param_dir):
     
     launches = []
 
-    frame_typ = str(frame_type.perform(context))
     rox_typ = str(rox_type.perform(context))
     params = param_dir
-
-    if (rox_typ == "meca"):
-        frame_typ = "long"
-        print("Meca only supports long frame")
-
-    use_diff = LaunchConfiguration('use_diff', default='false')
+    kinematics_type = "omni"
+    
     if (rox_typ == "diff" or rox_typ == "trike"):
-        use_diff = SetLaunchConfiguration('use_diff', 'true'),
+        kinematics_type = "diff"
 
-    if (frame_type == "long"):
-        params = os.path.join(
-                get_package_share_directory('rox_navigation'),
-                'configs',
-                'navigation_long_frame.yaml')
+    params = os.path.join(
+            get_package_share_directory('rox_navigation'),
+            'configs',
+            'navigation_' + kinematics_type + ".yaml")
    
     nav2_launch_file_dir = os.path.join(get_package_share_directory('neo_nav2_bringup'), 'launch')
 
@@ -75,7 +69,6 @@ def execution_stage(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_neo.launch.py']),
             launch_arguments={'namespace': namespace,
                               'use_sim_time': use_sim_time,
-                              'use_diff': use_diff,
                               'params_file': params}.items()),
     ])
 
@@ -117,19 +110,13 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
     autostart = LaunchConfiguration('autostart')
     namespace = LaunchConfiguration('robot_namespace')
-    frame_type = LaunchConfiguration('frame_type')
     rox_type = LaunchConfiguration('rox_type')
     map_dir = LaunchConfiguration('map')
     param_dir = LaunchConfiguration('nav2_params_file')
-
-    declare_frame_type_cmd = DeclareLaunchArgument(
-            'frame_type', default_value='short',
-            description='Frame type - Options: short/long'
-        )
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            description='Robot type - Options: argo/diff/trike/meca'
+            description='Robot type - Options: argo/diff/trike'
         )
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
@@ -179,7 +166,6 @@ def generate_launch_description():
         )
     
     # Adding all the necessary launch description actions
-    launch_desc.add_action(declare_frame_type_cmd)
     launch_desc.add_action(declare_rox_type_cmd)
     launch_desc.add_action(declare_use_sim_time_cmd)
     launch_desc.add_action(declare_autostart_cmd)
@@ -190,7 +176,7 @@ def generate_launch_description():
     launch_desc.add_action(declare_map_cmd)
     launch_desc.add_action(declare_nav2_param_file_cmd)
 
-    context_arguments = [frame_type, rox_type, use_sim_time, autostart, namespace,
+    context_arguments = [rox_type, use_sim_time, autostart, namespace,
                          use_multi_robots, head_robot, use_amcl, map_dir, param_dir]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
