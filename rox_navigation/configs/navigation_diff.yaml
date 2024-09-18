@@ -125,9 +125,9 @@ bt_navigator:
     action_server_result_timeout: 900.0
     navigators: ["navigate_to_pose", "navigate_through_poses"]
     navigate_to_pose:
-      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+      plugin: "nav2_bt_navigator/NavigateToPoseNavigator"
     navigate_through_poses:
-      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+      plugin: "nav2_bt_navigator/NavigateThroughPosesNavigator"
     plugin_lib_names:
       - nav2_compute_path_to_pose_action_bt_node
       - nav2_compute_path_through_poses_action_bt_node
@@ -248,7 +248,7 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       footprint_padding: 0.0
-      footprint:  "[ [0.25,0.5],[-0.75,0.5],[-0.75,-0.5],[0.25,-0.5] ]"
+      footprint:  "[ [0.5,0.5],[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5] ]"
       use_sim_time: False
       rolling_window: True
       width: 5
@@ -290,7 +290,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       footprint_padding: 0.
-      footprint:  "[ [0.25,0.5],[-0.75,0.5],[-0.75,-0.5],[0.25,-0.5] ]"
+      footprint:  "[ [0.5,0.5],[-0.5,0.5],[-0.5,-0.5],[0.5,-0.5] ]"
       use_sim_time: False
       # robot_radius: 0.22
       resolution: 0.05
@@ -345,7 +345,7 @@ planner_server:
     use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_navfn_planner::NavfnPlanner"
+      plugin: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.5
       use_astar: false
       allow_unknown: true
@@ -357,11 +357,11 @@ behavior_server:
     cycle_frequency: 10.0
     behavior_plugins: ["spin", "backup", "wait"]
     spin:
-      plugin: "nav2_behaviors::Spin"
+      plugin: "nav2_behaviors/Spin"
     backup:
-      plugin: "nav2_behaviors::BackUp"
+      plugin: "nav2_behaviors/BackUp"
     wait:
-      plugin: "nav2_behaviors::Wait"
+      plugin: "nav2_behaviors/Wait"
     global_frame: odom
     robot_base_frame: base_link
     transform_timeout: 0.1
