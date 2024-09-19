@@ -78,8 +78,8 @@ def execution_stage(context: LaunchContext,
     
     if (rox_typ == "diff"):
         kinematics = Node(
-                package='neo_kinematics_differential',
-                executable='neo_differential_node',
+                package='rox_diff_kinematics',
+                executable='rox_diff_kinematics_node',
                 output='screen',
                 name='diff_kinematics_node',
                 parameters = [os.path.join(rox,'configs/kinematics', rox_typ + '_kinematics.yaml')]
