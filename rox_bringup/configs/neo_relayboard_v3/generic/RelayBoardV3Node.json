@@ -19,6 +19,7 @@
 	},
 	"topics_from_board": [
         "vnx.log_out",
+		"platform.incidents",
 		"platform.system_state",
 		"platform.power_state"
 	],
