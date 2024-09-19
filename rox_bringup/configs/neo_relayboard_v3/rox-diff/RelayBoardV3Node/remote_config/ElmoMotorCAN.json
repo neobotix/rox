@@ -7,7 +7,7 @@
 					"id": 2
 				},
 				"mode": "VELOCITY_CONTROL",
-				"gear_ratio": 12,
+				"gear_ratio": 16,
 				"rot_sign": -1,
 				"enc_ticks_per_rev": 4096
 			}
@@ -18,7 +18,7 @@
 					"id": 3
 				},
 				"mode": "VELOCITY_CONTROL",
-				"gear_ratio": 12,
+				"gear_ratio": 16,
 				"rot_sign": -1,
 				"enc_ticks_per_rev": 4096
 			}
