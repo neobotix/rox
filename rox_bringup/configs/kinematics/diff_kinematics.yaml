@@ -2,6 +2,6 @@
 /**:
   ros__parameters:
     wheelDiameter: 0.15
-    robotWidth: 0.5849
+    robotWidth: 0.6341
     odomFrame: "odom"
     robotBaseFrame: "base_link"
