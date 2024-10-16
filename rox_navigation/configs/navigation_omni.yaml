@@ -206,7 +206,7 @@ controller_server:
       yaw_goal_tolerance: 0.01
       stateful: True
     FollowPath:
-      plugin: "neo_local_planner2::NeoLocalPlanner"
+      plugin: neo_local_planner2::NeoLocalPlanner
       acc_lim_x : 0.25
       acc_lim_y : 0.25
       acc_lim_theta : 0.6
