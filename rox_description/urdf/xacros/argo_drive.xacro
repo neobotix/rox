@@ -8,25 +8,25 @@
     <xacro:argo_caster name="caster_front_left" parent="${parent}"
         vis_rot="0 0 0" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="0 0 ${pi}" xyz="${0.234 + frame_len} 0.238 0.123"/>
+        <origin rpy="0 0 ${pi}" xyz="${0.239 + frame_len} 0.229 0.123"/>
     </xacro:argo_caster>
 
     <xacro:argo_caster name="caster_front_right" parent="${parent}"
         vis_rot="0 0 ${pi}" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="0 0 0" xyz="${0.234 + frame_len} -0.238 0.123"/>
+        <origin rpy="0 0 0" xyz="${0.239 + frame_len} -0.229 0.123"/>
     </xacro:argo_caster>
 
     <xacro:argo_caster name="caster_back_left" parent="${parent}"
         vis_rot="0 0 0" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="0 0 ${pi}" xyz="-${0.234 + frame_len} 0.238 0.123"/>
+        <origin rpy="0 0 ${pi}" xyz="-${0.239 + frame_len} 0.229 0.123"/>
     </xacro:argo_caster>
 
     <xacro:argo_caster name="caster_back_right" parent="${parent}"
         vis_rot="0 0 ${pi}" vis_pos="0 0 0"
         joint_type="${joint_typ}">
-        <origin rpy="0 0 0" xyz="-${0.234 + frame_len} -0.238 0.123"/>
+        <origin rpy="0 0 0" xyz="-${0.239 + frame_len} -0.229 0.123"/>
     </xacro:argo_caster>
 
     <xacro:argo_wheel name="wheel_front_left" parent="caster_front_left_link"

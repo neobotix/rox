@@ -15,23 +15,23 @@
     wheel0:
       drive_joint_name: "wheel_front_left_joint"
       steer_joint_name: "caster_front_left_joint"
-      center_pos_x: 0.234
-      center_pos_y: 0.238
+      center_pos_x: 0.239
+      center_pos_y: 0.229
 
     wheel1:
       drive_joint_name: "wheel_back_left_joint"
       steer_joint_name: "caster_back_left_joint"
-      center_pos_x: -0.234
-      center_pos_y: 0.238
+      center_pos_x: -0.239
+      center_pos_y: 0.229
 
     wheel2:
       drive_joint_name: "wheel_front_right_joint"
       steer_joint_name: "caster_front_right_joint"
-      center_pos_x: 0.234
-      center_pos_y: -0.238
+      center_pos_x: 0.239
+      center_pos_y: -0.229
 
     wheel3:
       drive_joint_name: "wheel_back_right_joint"
       steer_joint_name: "caster_back_right_joint"
-      center_pos_x: -0.234
-      center_pos_y: -0.238
+      center_pos_x: -0.239
+      center_pos_y: -0.229
