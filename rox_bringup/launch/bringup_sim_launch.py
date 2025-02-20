@@ -122,8 +122,7 @@ def execution_stage(context: LaunchContext,
         'GZ_SIM_RESOURCE_PATH',
         os.path.join(get_package_share_directory('neo_gz_worlds'), 'models') + ':' +
         # Use dirname to include the parent directory of rox_description
-        os.path.dirname(get_package_share_directory('rox_description')) + ':' +
-        os.path.dirname(get_package_share_directory('elite_description'))
+        os.path.dirname(get_package_share_directory('rox_description'))
     )
 
     launch_actions = [set_env_vars_resources, start_robot_state_publisher_cmd, gz_sim, gz_bridge, teleop, spawn_robot]

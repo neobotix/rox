@@ -19,8 +19,6 @@
   <exec_depend>ur_robot_driver</exec_depend>
   <exec_depend>ur_simulation_gz</exec_depend>
   
-  <!-- Dependencies for Elite Arms -->
-  <exec_depend>elite_description</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
