@@ -21,7 +21,8 @@ def execution_stage(context: LaunchContext,
                     arm_type, 
                     d435_enable, 
                     imu_enable, 
-                    ur_dc):
+                    ur_dc,
+                    headless_sim):
 
     launch_actions = []
 
@@ -32,6 +33,7 @@ def execution_stage(context: LaunchContext,
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
+    headless_sim = str(headless_sim.perform(context)).lower()
     joint_type = "fixed"
 
     if (rox_typ == "diff" or rox_typ == "trike"):
@@ -48,11 +50,16 @@ def execution_stage(context: LaunchContext,
             '-topic', "robot_description",
             '-name', "rox"])
 
+    # Define gz_args based on headless_simulation argument
+    gz_args = f"-r {default_world_path}"
+
+    if headless_sim == 'true':
+        gz_args = f"-r -s {default_world_path}"
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
-        )
-        , launch_arguments={'gz_args': ['-r ', default_world_path]}.items()
+        ), 
+        launch_arguments={'gz_args': gz_args}.items()
       )
 
     arm_manufacturer = None
@@ -193,6 +200,11 @@ def generate_launch_description():
             description='Set this argument to True if you have an UR arm with DC variant'
         )
 
+    declare_headless_sim_cmd = DeclareLaunchArgument(
+            'headless_simulation', default_value='False',
+            description='Run Gazebo in headless mode (no GUI) - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -200,7 +212,8 @@ def generate_launch_description():
             LaunchConfiguration('arm_type'),
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('imu_enable'),
-            LaunchConfiguration('use_ur_dc')
+            LaunchConfiguration('use_ur_dc'),
+            LaunchConfiguration('headless_simulation')
             ])
 
     ld = LaunchDescription([
@@ -209,6 +222,7 @@ def generate_launch_description():
         declare_arm_type_cmd,
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
+        declare_headless_sim_cmd,
         opq_function
     ])
     return ld
