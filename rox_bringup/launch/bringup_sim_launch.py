@@ -124,7 +124,8 @@ def execution_stage(context: LaunchContext,
         executable='parameter_bridge',
         name='parameter_bridge',
         output='screen',
-        parameters=[{'config_file': bridge_config_file}])
+        parameters=[{'config_file': bridge_config_file}]
+    )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",

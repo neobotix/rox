@@ -25,7 +25,7 @@ def execution_stage(context: LaunchContext,
                     use_imu,
                     ur_dc,
                     mock_arm):
-    
+
     launch_actions = []
 
     rox = get_package_share_directory('rox_bringup')
@@ -43,11 +43,11 @@ def execution_stage(context: LaunchContext,
         joint_type = "fixed"
 
     launches = []
-    
+
     rp_ns = ""
     if (robot_namespace.perform(context) != "/"):
         rp_ns = robot_namespace.perform(context) + "/"
-    
+
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
     start_robot_state_publisher_cmd = Node(
@@ -73,7 +73,7 @@ def execution_stage(context: LaunchContext,
             'frame_prefix': rp_ns # Not yet supported
         }]
     )
-        
+
     launch_actions.append(start_robot_state_publisher_cmd)
 
     # 1. Relayboard
@@ -87,7 +87,7 @@ def execution_stage(context: LaunchContext,
         ],
         condition=UnlessCondition(mock_arm)
     )
-    
+
     launch_actions.append(relayboard)
                     
     # 2. Kinematics
@@ -102,7 +102,7 @@ def execution_stage(context: LaunchContext,
         )
 
         launch_actions.append(kinematics)
-    
+
     if (rox_typ == "diff"):
         kinematics = Node(
             package='rox_diff_kinematics',
@@ -168,9 +168,9 @@ def execution_stage(context: LaunchContext,
                     ('/scan', '/lidar_2/scan_filtered'),
                 ]
             )
-        
+
         launch_actions.append(scan2)
-    
+
     # Laser - PsenScan
     elif scanner_typ == "psenscan":
         scan = IncludeLaunchDescription(
@@ -185,7 +185,7 @@ def execution_stage(context: LaunchContext,
                 'host_ip': "192.168.1.10"
             }.items()
         )
-    
+
         launch_actions.append(scan)
 
     # 1. Relayboard
@@ -199,9 +199,9 @@ def execution_stage(context: LaunchContext,
         ],
         condition=UnlessCondition(mock_arm)
     )
-    
+
     launches.append(relayboard)
-                    
+
     # 2. Kinematics
     if (rox_typ == "argo"):
         kinematics = Node(
@@ -214,7 +214,7 @@ def execution_stage(context: LaunchContext,
         )
 
         launches.append(kinematics)
-    
+
     if (rox_typ == "diff"):
         kinematics = Node(
             package='rox_diff_kinematics',
@@ -265,7 +265,7 @@ def execution_stage(context: LaunchContext,
                     ('/scan', '/lidar_1/scan_filtered')
                 ]
             )
-        
+
         launches.append(scan1)
 
         scan2 = Node(
@@ -280,9 +280,9 @@ def execution_stage(context: LaunchContext,
                     ('/scan', '/lidar_2/scan_filtered'),
                 ]
             )
-        
+
         launches.append(scan2)
-    
+
     # Laser - PsenScan
     elif scanner_typ == "psenscan":
         scan = IncludeLaunchDescription(
@@ -297,7 +297,7 @@ def execution_stage(context: LaunchContext,
                 'host_ip': "192.168.1.10"
             }.items()
         )
-    
+
         launches.append(scan)
 
     # 5. IMU
@@ -311,6 +311,7 @@ def execution_stage(context: LaunchContext,
             }.items(),
             condition=UnlessCondition(mock_arm)
         )
+
         launch_actions.append(imu)
 
     # 6. Arm - Bringing up drivers for Universal Arm
@@ -320,7 +321,7 @@ def execution_stage(context: LaunchContext,
         arm_typ == "ur10" or
         arm_typ == "ur5e" or
         arm_typ == "ur10e"):
-        
+
         initial_joint_controller = "scaled_joint_trajectory_controller"
         if use_mock:
             initial_joint_controller = "joint_trajectory_controller"
@@ -380,7 +381,7 @@ def execution_stage(context: LaunchContext,
     return launch_actions
 
 def generate_launch_description():
-    
+
     # Launch configuration
     robot_namespace = LaunchConfiguration('robot_namespace')
     rox_type = LaunchConfiguration('rox_type')
@@ -393,14 +394,14 @@ def generate_launch_description():
     context_arguments = [robot_namespace, rox_type, arm_type, scanner_type, imu_enable, ur_dc, mock_arm]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
-    
+
     declare_namespace_cmd = DeclareLaunchArgument(
             'robot_namespace', default_value='', description='Top-level namespace'
         )
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            choices = ['', 'argo', 'diff', 'trike', 'meca'],
+            choices = ['', 'argo', 'diff', 'trike'],
             description='Robot type\n\t'
         )
 
@@ -453,4 +454,3 @@ def generate_launch_description():
         opq_function
     ])
     return ld
-
