@@ -175,7 +175,7 @@ def generate_launch_description():
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            choices = ['', 'argo', 'diff', 'trike'],
+            choices = ['', 'argo', 'argo-trio', 'diff', 'trike'],
             description='ROX Drive Type\n\t'
         )
 

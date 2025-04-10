@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <xacro:include filename="$(find rox_description)/urdf/xacros/argo_caster.xacro" />
+  <xacro:include filename="$(find rox_description)/urdf/xacros/argo_wheel.xacro" />
+
+  <xacro:macro name="argo_trio_drive" params="parent">
+    <xacro:argo_caster name="caster_front_left" parent="${parent}"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin rpy="0 0 ${pi}" xyz="0.234 0.238 0.123"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_caster name="caster_front_right" parent="${parent}"
+        vis_rot="0 0 ${pi}" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin rpy="0 0 0" xyz="0.234 -0.238 0.123"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_caster name="caster_back" parent="${parent}"
+        vis_rot="0 0 0" vis_pos="0 0 0"
+        joint_type="${joint_typ}">
+        <origin rpy="0 0 ${pi}" xyz="-0.234 0.0 0.123"/>
+    </xacro:argo_caster>
+
+    <xacro:argo_wheel name="wheel_front_left" parent="caster_front_left_link"
+        joint_type="${joint_typ}">
+        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 0" />
+    </xacro:argo_wheel>
+
+    <xacro:argo_wheel name="wheel_front_right" parent="caster_front_right_link"
+        joint_type="${joint_typ}">
+        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 ${pi}" />
+    </xacro:argo_wheel>
+
+    <xacro:argo_wheel name="wheel_back" parent="caster_back_link"
+        joint_type="${joint_typ}">
+        <origin xyz="0.0 0.0 -0.07225" rpy="0 0 0" />
+    </xacro:argo_wheel>
+
+  </xacro:macro>
+  
+</robot>

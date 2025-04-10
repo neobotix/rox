@@ -1,0 +1,77 @@
+{
+	"kinematic_type": "OMNIDRIVE",
+	"drive_map": {
+		"FRONT_LEFT": {
+			"master": {
+				"canopen_node": {
+					"id": 1
+				}
+			},
+			"slave": {
+				"canopen_node": {
+					"id": 2
+				}
+			},
+			"rot_sign": 1,
+			"angular_direction": -1,
+			"polarity": 1,
+			"gear_ratio": 11.88,
+			"angular_resolution": 4096,
+			"max_motor_revolutions_rpm": 4540,
+			"feedback_mode": "ABSOLUTE_MODULO",
+			"quick_stop": {
+				"disable_motors": false,
+				"digital_input_1": true
+			},
+			"home_offset_enc": 0
+		},
+		"BACK": {
+			"master": {
+				"canopen_node": {
+					"id": 11
+				}
+			},
+			"slave": {
+				"canopen_node": {
+					"id": 12
+				}
+			},
+			"rot_sign": 1,
+			"angular_direction": -1,
+			"polarity": 1,
+			"gear_ratio": 11.88,
+			"angular_resolution": 4096,
+			"max_motor_revolutions_rpm": 4540,
+			"feedback_mode": "ABSOLUTE_MODULO",
+			"quick_stop": {
+				"disable_motors": false,
+				"digital_input_1": true
+			},
+			"home_offset_enc": 0
+		},
+		"FRONT_RIGHT": {
+			"master": {
+				"canopen_node": {
+					"id": 31
+				}
+			},
+			"slave": {
+				"canopen_node": {
+					"id": 32
+				}
+			},
+			"rot_sign": 1,
+			"angular_direction": -1,
+			"polarity": 1,
+			"gear_ratio": 11.88,
+			"angular_resolution": 4096,
+			"max_motor_revolutions_rpm": 4540,
+			"feedback_mode": "ABSOLUTE_MODULO",
+			"quick_stop": {
+				"disable_motors": false,
+				"digital_input_1": true
+			},
+			"home_offset_enc": 2048
+		}
+	}
+}

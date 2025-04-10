@@ -48,16 +48,18 @@ def generate_launch_description():
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            description='Robot type - Options: argo/diff/trike'
+            choices = ['', 'argo', 'argo-trio', 'diff', 'trike'],
+            description='ROX Drive Type\n\t'
         )
 
-    declare_arm_cmd = DeclareLaunchArgument(
+    declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            description='Arm used in the robot - currently only support universal'
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
+            description='Arm Types\n\t'        
         )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
-            'use_ur_dc', default_value='false',
+            'use_ur_dc', default_value='False',
             description='Set this argument to True if you have an UR arm with DC variant'
         )
 
@@ -68,7 +70,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(declare_rox_type_cmd)
-    ld.add_action(declare_arm_cmd)
+    ld.add_action(declare_arm_type_cmd)
     ld.add_action(declare_ur_pwr_variant_cmd)
     ld.add_action(opq_function)
 

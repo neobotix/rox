@@ -102,7 +102,7 @@
       </plugin>
 
       <!-- For ArgoDrive platforms -->
-      <xacro:if value="${rox_typ == 'argo'}">
+      <xacro:if value="${rox_typ == 'argo' or rox_typ == 'argo-trio'}">
         <plugin filename="gz-sim-velocity-control-system"
             name="gz::sim::systems::VelocityControl">
             <topic>cmd_vel</topic>
@@ -188,6 +188,13 @@
       <xacro:rox_argo_wheel_gazebo_macro name="wheel_back_right"/>
     </xacro:if>
 
+    <!--Argo Trio Drive-->
+    <xacro:if value="${rox_typ == 'argo-trio'}">
+      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_left"/>
+      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_right"/>
+      <xacro:rox_argo_wheel_gazebo_macro name="wheel_back"/>
+    </xacro:if>
+    
     <!--Diff Drive-->
     <xacro:if value="${rox_typ == 'diff'}">
       <xacro:rox_diff_wheel_gazebo_macro name="wheel_left"/>
