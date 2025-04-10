@@ -1,15 +1,15 @@
 # Neobotix GmbH
 # Author: Pradheep Padmanabhan
+# Contributor: Adarsh Karan K P
 
 import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, OpaqueFunction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import ThisLaunchFileDir, LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable, PythonExpression
+from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
-from launch.conditions import IfCondition
+from launch_ros.descriptions import ParameterValue
 import os
 from pathlib import Path
 import xacro
@@ -27,14 +27,16 @@ def execution_stage(context: LaunchContext, rox_type, arm_type, ur_dc):
         name='robot_state_publisher',
         output='screen',
         parameters=[{
-            'robot_description': Command([
-                "xacro", " ", urdf,
-                " ", 'arm_type:=', arm_typ,
-                " ", 'rox_type:=', rox_typ,
-                " ", 'use_ur_dc:=', use_ur_dc
-            ])
-        }],
-        arguments=[urdf]
+            'robot_description': ParameterValue(
+                Command([
+                    "xacro", " ", urdf,
+                    " ", 'arm_type:=', arm_typ,
+                    " ", 'rox_type:=', rox_typ,
+                    " ", 'use_ur_dc:=', use_ur_dc,
+                ]), 
+                value_type=str
+            )
+        }]
     )
 
     return [start_robot_state_publisher_cmd]
