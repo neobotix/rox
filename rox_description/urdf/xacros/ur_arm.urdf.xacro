@@ -12,6 +12,7 @@ Contributor: Adarsh Karan K P
 
   <!-- Set use_gz = true for simulation -->
   <xacro:arg name="use_gz" default="false"/>
+  <xacro:arg name="include_arm_ros2_control" default="false"/>
 
   <!-- arm parameters -->
   <xacro:arg name="arm_type" default="ur10"/>
@@ -61,60 +62,61 @@ Contributor: Adarsh Karan K P
 
   <!-- this condition is to ensure that ros2_control doesn't interfere with gz_ros2_control during simulation  -->
   <xacro:unless value="$(arg use_gz)">
+    <xacro:if value="$(arg include_arm_ros2_control)">
+      <!-- ros2_control related parameters -->
+      <xacro:arg name="headless_mode" default="false" />
+      <xacro:arg name="robot_ip" default="192.168.1.102" />
+      <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
+      <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+      <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
+      <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+      <xacro:arg name="script_command_port" default="50004"/>
+      <xacro:arg name="reverse_port" default="50001"/>
+      <xacro:arg name="script_sender_port" default="50002"/>
+      <xacro:arg name="trajectory_port" default="50003"/>
+      <!-- tool communication related parameters-->
+      <xacro:arg name="use_tool_communication" default="false" />
+      <xacro:arg name="tool_voltage" default="0" />
+      <xacro:arg name="tool_parity" default="0" />
+      <xacro:arg name="tool_baud_rate" default="115200" />
+      <xacro:arg name="tool_stop_bits" default="1" />
+      <xacro:arg name="tool_rx_idle_chars" default="1.5" />
+      <xacro:arg name="tool_tx_idle_chars" default="3.5" />
+      <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
+      <xacro:arg name="tool_tcp_port" default="54321" />
+      
+      <xacro:arg name="use_mock_hardware" default="false" />
+      <xacro:arg name="mock_sensor_commands" default="false" />
 
-    <!-- ros2_control related parameters -->
-    <xacro:arg name="headless_mode" default="false" />
-    <xacro:arg name="robot_ip" default="192.168.1.102" />
-    <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
-    <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
-    <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
-    <xacro:arg name="reverse_ip" default="0.0.0.0"/>
-    <xacro:arg name="script_command_port" default="50004"/>
-    <xacro:arg name="reverse_port" default="50001"/>
-    <xacro:arg name="script_sender_port" default="50002"/>
-    <xacro:arg name="trajectory_port" default="50003"/>
-    <!-- tool communication related parameters-->
-    <xacro:arg name="use_tool_communication" default="false" />
-    <xacro:arg name="tool_voltage" default="0" />
-    <xacro:arg name="tool_parity" default="0" />
-    <xacro:arg name="tool_baud_rate" default="115200" />
-    <xacro:arg name="tool_stop_bits" default="1" />
-    <xacro:arg name="tool_rx_idle_chars" default="1.5" />
-    <xacro:arg name="tool_tx_idle_chars" default="3.5" />
-    <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
-    <xacro:arg name="tool_tcp_port" default="54321" />
-    
-    <xacro:arg name="use_mock_hardware" default="false" />
-    <xacro:arg name="mock_sensor_commands" default="false" />
-
-    <xacro:ur_ros2_control
-      name="$(arg arm_type)"
-      tf_prefix="$(arg tf_prefix)"
-      kinematics_parameters_file="$(arg kinematics_params)"
-      transmission_hw_interface="$(arg transmission_hw_interface)"
-      headless_mode="$(arg headless_mode)"
-      initial_positions="${ur_initial_positions}"
-      use_tool_communication="$(arg use_tool_communication)"
-      tool_voltage="$(arg tool_voltage)"
-      tool_parity="$(arg tool_parity)"
-      tool_baud_rate="$(arg tool_baud_rate)"
-      tool_stop_bits="$(arg tool_stop_bits)"
-      tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
-      tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
-      tool_device_name="$(arg tool_device_name)"
-      tool_tcp_port="$(arg tool_tcp_port)"
-      robot_ip="$(arg robot_ip)"
-      script_filename="$(arg script_filename)"
-      output_recipe_filename="$(arg output_recipe_filename)"
-      input_recipe_filename="$(arg input_recipe_filename)"
-      reverse_ip="$(arg reverse_ip)"
-      script_command_port="$(arg script_command_port)"
-      reverse_port="$(arg reverse_port)"
-      script_sender_port="$(arg script_sender_port)"
-      trajectory_port="$(arg trajectory_port)"
-      use_mock_hardware="$(arg use_mock_hardware)"
-      mock_sensor_commands="$(arg mock_sensor_commands)"
-      />
+      <xacro:ur_ros2_control
+        name="$(arg arm_type)"
+        tf_prefix="$(arg tf_prefix)"
+        kinematics_parameters_file="$(arg kinematics_params)"
+        transmission_hw_interface="$(arg transmission_hw_interface)"
+        headless_mode="$(arg headless_mode)"
+        initial_positions="${ur_initial_positions}"
+        use_tool_communication="$(arg use_tool_communication)"
+        tool_voltage="$(arg tool_voltage)"
+        tool_parity="$(arg tool_parity)"
+        tool_baud_rate="$(arg tool_baud_rate)"
+        tool_stop_bits="$(arg tool_stop_bits)"
+        tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+        tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+        tool_device_name="$(arg tool_device_name)"
+        tool_tcp_port="$(arg tool_tcp_port)"
+        robot_ip="$(arg robot_ip)"
+        script_filename="$(arg script_filename)"
+        output_recipe_filename="$(arg output_recipe_filename)"
+        input_recipe_filename="$(arg input_recipe_filename)"
+        reverse_ip="$(arg reverse_ip)"
+        script_command_port="$(arg script_command_port)"
+        reverse_port="$(arg reverse_port)"
+        script_sender_port="$(arg script_sender_port)"
+        trajectory_port="$(arg trajectory_port)"
+        use_mock_hardware="$(arg use_mock_hardware)"
+        mock_sensor_commands="$(arg mock_sensor_commands)"
+        />
+    </xacro:if>
   </xacro:unless>
 
   <!-- If gz simulation is used -->
@@ -140,9 +142,7 @@ Contributor: Adarsh Karan K P
       transmission_hw_interface="$(arg transmission_hw_interface)"
       initial_positions="${ur_initial_positions}"
       />
-  </xacro:if>
 
-  <!-- include robotiq gripper-->
-  <!-- <xacro:include filename="$(find neo_simulation2)/components/arm/robotiq_gripper.urdf.xacro"/> -->
+  </xacro:if>
 
 </robot>
