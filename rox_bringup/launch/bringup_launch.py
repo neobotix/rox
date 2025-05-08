@@ -23,7 +23,6 @@ def execution_stage(context: LaunchContext,
                     arm_type,
                     scanner_type,
                     use_imu,
-                    d435_enable,
                     ur_dc,
                     mock_arm,
                     robot_ip,
@@ -35,7 +34,6 @@ def execution_stage(context: LaunchContext,
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
-    d435_enabl = str(d435_enable.perform(context))
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
@@ -223,20 +221,6 @@ def execution_stage(context: LaunchContext,
 
         launch_actions.append(imu)
 
-    # 6. D435
-    # TODO: Add support for namespacing
-    if d435_enabl.lower == 'true':
-        d435 = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(rox,
-                        'configs/realsense',
-                        'rs_launch.py')
-                ),
-                condition=UnlessCondition(mock_arm)
-            )
-
-        launch_actions.append(d435)
-
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
     # TODO: Add support for namespacing
@@ -361,11 +345,6 @@ def generate_launch_description():
             description='Enable IMU - Options: True/False'
         )
 
-    declare_realsense_cmd = DeclareLaunchArgument(
-            'd435_enable', default_value='False',
-            description='Enable Realsense - Options: True/False'
-        )
-
     declare_scanner_cmd = DeclareLaunchArgument(
             'scanner_type', default_value='nanoscan',
             description='Scanner options available: nanoscan/psenscan'
@@ -415,7 +394,6 @@ def generate_launch_description():
             LaunchConfiguration('arm_type'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('imu_enable'),
-            LaunchConfiguration('d435_enable'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_mock_arm'),
             LaunchConfiguration('robot_ip'),
@@ -429,7 +407,6 @@ def generate_launch_description():
         declare_arm_cmd,
         declare_scanner_cmd,
         declare_imu_cmd,
-        declare_realsense_cmd,
         declare_ur_pwr_variant_cmd,
         declare_mock_arm_cmd,
         declare_robot_ip_cmd,
