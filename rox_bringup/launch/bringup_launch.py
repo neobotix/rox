@@ -177,7 +177,10 @@ def execution_stage(context: LaunchContext,
                 condition=UnlessCondition(mock_arm),
                 remappings=[
                     ('/scan', '/lidar_1/scan_filtered'),
-                    ('/extended_scan', '/lidar_1/extended_scan')
+                    ('/extended_scan', '/lidar_1/extended_scan'),
+                    ('/output_paths', '/lidar_1/output_paths'),
+                    ('/raw_data', '/lidar_1/raw_data'),
+                    ('/field_data', '/lidar_1/field_data')
                 ]
             )
 
@@ -195,7 +198,10 @@ def execution_stage(context: LaunchContext,
                 condition=UnlessCondition(mock_arm),
                 remappings=[
                     ('/scan', '/lidar_2/scan_filtered'),
-                    ('/extended_scan', '/lidar_2/extended_scan')
+                    ('/extended_scan', '/lidar_2/extended_scan'),
+                    ('/output_paths', '/lidar_2/output_paths'),
+                    ('/raw_data', '/lidar_2/raw_data'),
+                    ('/field_data', '/lidar_2/field_data')
                 ]
             )
 
