@@ -151,7 +151,8 @@ def execution_stage(context: LaunchContext,
                 emulate_tty=True,
                 parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_1.yaml')],
                 remappings=[
-                    ('/scan', '/lidar_1/scan_filtered')
+                    ('/scan', '/lidar_1/scan_filtered'),
+                    ('/extended_scan', '/lidar_1/extended_scan')
                 ]
             )
         
@@ -167,6 +168,7 @@ def execution_stage(context: LaunchContext,
                 parameters=[os.path.join(rox, 'configs/sick_lidar', 'nanoscan_2.yaml')],
                 remappings=[
                     ('/scan', '/lidar_2/scan_filtered'),
+                    ('/extended_scan', '/lidar_2/extended_scan')
                 ]
             )
         
