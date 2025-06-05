@@ -10,6 +10,7 @@ Contributor: Adarsh Karan K P
 
   <!-- arm parameters -->
   <xacro:arg name="arm_type" default="ec66"/>
+  <xacro:property name="arm_height" default="0.376" />
 
   <!-- Include macros -->
   <xacro:include filename="$(find elite_description)/urdf/xacros/elite_macro.xacro" />
@@ -48,7 +49,7 @@ Contributor: Adarsh Karan K P
     <xacro:include filename="$(find elite_description)/urdf/xacros/elite_ros2_control_macro.xacro" />
 
     <xacro:arg name="simulation_controllers" default="$(find rox_bringup)/configs/elite/$(arg arm_type)/elite_controllers.yaml"/>
-    
+
     <gazebo reference="$(arg arm_parent)">
     </gazebo>
     <gazebo>
@@ -58,7 +59,7 @@ Contributor: Adarsh Karan K P
     </gazebo>
 
     <!-- Use the Elite_ros2_control macro -->
-    <xacro:elite_ros2_control 
+    <xacro:elite_ros2_control
       name="GazeboSimSystem"
       tf_prefix="$(arg tf_prefix)" 
       plugin="gz_ros2_control/GazeboSimSystem"
