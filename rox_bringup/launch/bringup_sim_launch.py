@@ -177,6 +177,29 @@ def execution_stage(context: LaunchContext,
         arguments=[initial_gripper_controller_name, "-c", "/controller_manager"]
     )
 
+    # Relaying lidar data to /scan topic
+    relay_topic_lidar1 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar1',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_2/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
+    relay_topic_lidar2 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar2',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_2/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
     env_var_value = (
         os.path.join(get_package_share_directory('neo_gz_worlds'), 'models') +
         ':' +
@@ -201,6 +224,8 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(start_robot_state_publisher_cmd)
     launch_actions.append(gz_sim)
     launch_actions.append(gz_bridge)
+    launch_actions.append(relay_topic_lidar1)
+    launch_actions.append(relay_topic_lidar2)
     launch_actions.append(teleop)
     launch_actions.append(spawn_robot)
 

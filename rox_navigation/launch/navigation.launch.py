@@ -1,5 +1,6 @@
 # Neobotix GmbH
 # Author: Pradheep Padmanabhan
+# Contributor: Adarsh Karan K P
 
 import os
 from ament_index_python.packages import get_package_share_directory
@@ -9,7 +10,6 @@ from launch.actions import (
   IncludeLaunchDescription,
   GroupAction,
   OpaqueFunction,
-  SetLaunchConfiguration
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PythonExpression
@@ -33,16 +33,18 @@ def execution_stage(
     launches = []
 
     rox_typ = str(rox_type.perform(context))
-    params = param_dir
+    params = str(param_dir.perform(context))
+    
     kinematics_type = "omni"
-
     if (rox_typ == "diff" or rox_typ == "trike"):
         kinematics_type = "diff"
 
-    params = os.path.join(
-            get_package_share_directory('rox_navigation'),
-            'configs',
-            'navigation_' + kinematics_type + ".yaml")
+    # If the parameter file is not provided, use the default one based on the robot type
+    if not params:
+        params = os.path.join(
+                get_package_share_directory('rox_navigation'),
+                'configs',
+                'navigation_' + kinematics_type + ".yaml")
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('neo_nav2_bringup'), 'launch')
 
@@ -75,9 +77,12 @@ def execution_stage(
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_neo.launch.py']),
-            launch_arguments={'namespace': namespace,
-                              'use_sim_time': use_sim_time,
-                              'params_file': params}.items()),
+            launch_arguments={
+                'namespace': namespace,
+                'use_sim_time': use_sim_time,
+                'params_file': params,
+                'use_rviz': use_rviz}.items()
+        )
     ])
 
     # Start map_server if this robot is assigned as the head robot and if there is no multi-robot,
@@ -105,22 +110,8 @@ def execution_stage(
         ]
     )
 
-    # Start RViz if use_rviz is True
-    start_rviz = IncludeLaunchDescription(
-        condition=IfCondition(use_rviz),
-        launch_description_source=PythonLaunchDescriptionSource(
-            [nav2_launch_file_dir, '/rviz_launch.py']),
-        launch_arguments={
-            'namespace': namespace,
-            'use_namespace': use_multi_robots,
-            'use_sim_time': use_sim_time,
-            'rviz_output': 'log' ,
-        }.items(),
-    )
-
     launches.append(start_navigation)
     launches.append(start_map_server)
-    launches.append(start_rviz)
 
     return launches
 
@@ -139,16 +130,17 @@ def generate_launch_description():
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            description='Robot type - Options: argo/diff/trike'
+            choices = ['', 'argo', 'argo-trio', 'diff', 'trike'],
+            description='Robot type\n\t'
         )
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
-            'use_sim_time', default_value='false',
+            'use_sim_time', default_value='False',
             description='Use simulation clock if true'
         )
     
     declare_autostart_cmd = DeclareLaunchArgument(
-            'autostart', default_value='true',
+            'autostart', default_value='True',
             description='Automatically start the nav2 stack'
         )
     
@@ -181,11 +173,9 @@ def generate_launch_description():
         )
     
     declare_nav2_param_file_cmd = DeclareLaunchArgument(
-            'nav2_params_file', default_value=os.path.join(
-                get_package_share_directory('rox_navigation'),
-                'configs',
-                'navigation_omni.yaml'),
-            description='Full path to the Nav2 parameters file to load'
+            'nav2_params_file', default_value="",
+            description='Full path to the Nav2 parameters file to load.\n'
+                        '\tLeave empty to use the default file based on the robot type'
         )
     
     declare_use_rviz_cmd = DeclareLaunchArgument(
