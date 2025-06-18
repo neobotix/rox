@@ -184,7 +184,7 @@ def execution_stage(context: LaunchContext,
         name='relay_lidar1',
         output='screen',
         parameters=[{
-            'input_topic':  '/lidar_2/scan_filtered',
+            'input_topic':  '/lidar_1/scan_filtered',
             'output_topic': '/scan'
         }],
     )
