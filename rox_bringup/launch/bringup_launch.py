@@ -28,13 +28,15 @@ def execution_stage(context: LaunchContext,
                     initial_controller_arm,
                     robot_ip,
                     controllers_yaml,
-                    gripper_type):
+                    gripper_type,
+                    ioboard):
 
     rox = get_package_share_directory('rox_bringup')
     
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
+    ioboard_enable = str(ioboard.perform(context))
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
@@ -72,6 +74,15 @@ def execution_stage(context: LaunchContext,
     ]
     if arm_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
+
+    # If user wants to deliberately set it to True, then they have to change it manually in the configs
+    if ioboard_enable.lower() == 'true':
+        file_path = (
+            "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/"
+            "neo_relayboard_v3/generic/RelayBoardV3Node/remote_config/enable_io_board"
+        )
+        with open(file_path, "w") as file:
+            file.write("true")
 
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
@@ -397,6 +408,12 @@ def generate_launch_description():
             description="Enables gripper and it's controllers"
         )
 
+    declare_enable_ioboard = DeclareLaunchArgument(
+            'enable_io_board', default_value='False',
+            choices=['True', 'False'],
+            description="Enables or Disables IOBoard if present - might require restart of the robot"
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -411,6 +428,7 @@ def generate_launch_description():
             LaunchConfiguration('robot_ip'),
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
+            LaunchConfiguration('enable_io_board')
             ])  
 
     ld = LaunchDescription([
@@ -425,6 +443,7 @@ def generate_launch_description():
         declare_robot_ip_cmd,
         declare_controllers_file_cmd,
         declare_robotiq_cmd,
+        declare_enable_ioboard,
         opq_function
     ])
     return ld
