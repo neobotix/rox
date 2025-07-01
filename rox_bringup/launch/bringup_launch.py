@@ -2,20 +2,20 @@
 # Author: Pradheep Padmanabhan
 # Contributor: Adarsh Karan K P
 
-import launch
+import os
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import (DeclareLaunchArgument, IncludeLaunchDescription,
+                            OpaqueFunction)
+from launch.conditions import UnlessCondition
+from launch.launch_context import LaunchContext
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
-from launch.launch_context import LaunchContext
-from launch.conditions import UnlessCondition
-import os
-from pathlib import Path
-import xacro
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
+
 
 def execution_stage(context: LaunchContext,
                     robot_namespace,
@@ -32,7 +32,7 @@ def execution_stage(context: LaunchContext,
                     ioboard):
 
     rox = get_package_share_directory('rox_bringup')
-    
+
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
@@ -47,42 +47,43 @@ def execution_stage(context: LaunchContext,
 
     launch_actions = []
 
-    joint_type = "revolute"
-    if use_mock.lower() == "true":
-        joint_type = "fixed"
+    joint_type = 'revolute'
+    if use_mock.lower() == 'true':
+        joint_type = 'fixed'
 
-    rp_ns = ""
-    if (robot_namespace.perform(context) != "/"):
-        rp_ns = robot_namespace.perform(context) + "/"
+    rp_ns = ''
+    if (robot_namespace.perform(context) != '/'):
+        rp_ns = robot_namespace.perform(context) + '/'
 
-    urdf = os.path.join(get_package_share_directory('rox_description'), 
-                        'urdf', 
+    urdf = os.path.join(get_package_share_directory('rox_description'),
+                        'urdf',
                         'rox.urdf.xacro')
 
     xacro_args = [
-        "xacro", " ", urdf,
-        " ", 'rox_type:=', rox_typ,
-        " ", 'arm_type:=', arm_typ,
-        " ", 'robot_ip:=', robot_ip,
-        " ", 'gripper_type:=', gripper_typ,
-        " ", 'use_mock_hardware:=', use_mock,
-        " ", 'use_mock_sensor_commands:=', use_mock,
-        " ", 'scanner_type:=', scanner_typ,
-        " ", 'use_imu:=', imu_enable,
-        " ", 'use_ur_dc:=', use_ur_dc,
-        " ", 'joint_type:=', joint_type
+        'xacro', ' ', urdf,
+        ' ', 'rox_type:=', rox_typ,
+        ' ', 'arm_type:=', arm_typ,
+        ' ', 'robot_ip:=', robot_ip,
+        ' ', 'gripper_type:=', gripper_typ,
+        ' ', 'use_mock_hardware:=', use_mock,
+        ' ', 'use_mock_sensor_commands:=', use_mock,
+        ' ', 'scanner_type:=', scanner_typ,
+        ' ', 'use_imu:=', imu_enable,
+        ' ', 'use_ur_dc:=', use_ur_dc,
+        ' ', 'joint_type:=', joint_type
     ]
-    if arm_typ != "":
-        xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
+    if arm_typ != '':
+        # Include only the arm ros2_control tags
+        xacro_args.extend([' include_arm_ros2_control:=', 'true'])
 
-    # If user wants to deliberately set it to True, then they have to change it manually in the configs
+    # If user wants to deliberately set it to True, then they have to change
+    # it manually in the configs
     if ioboard_enable.lower() == 'true':
         file_path = (
-            "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/"
-            "neo_relayboard_v3/generic/RelayBoardV3Node/remote_config/enable_io_board"
-        )
-        with open(file_path, "w") as file:
-            file.write("true")
+            '/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/'
+            'neo_relayboard_v3/generic/RelayBoardV3Node/remote_config/enable_io_board')
+        with open(file_path, 'w') as file:
+            file.write('true')
 
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
@@ -96,7 +97,7 @@ def execution_stage(context: LaunchContext,
         remappings=[
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
-            ],
+        ],
     )
 
     launch_actions.append(start_robot_state_publisher_cmd)
@@ -104,40 +105,48 @@ def execution_stage(context: LaunchContext,
     #  Launch hardware nodes
     # 1. Relayboard
     relayboard = Node(
-        package='neo_relayboard_v3', 
+        package='neo_relayboard_v3',
         executable='relayboardv3_node',
         output='screen',
         name='neo_relayboard_v3_node',
-        parameters = [
-            {"pilot_config": "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/rox-" + rox_typ + "/"}
+        parameters=[
+            {'pilot_config': '/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/'
+             + 'neo_relayboard_v3/rox-'
+                + rox_typ + '/'}
         ],
         condition=UnlessCondition(mock_arm)
     )
 
     launch_actions.append(relayboard)
-                    
+
     # 2. Kinematics
-    if (rox_typ == "argo" or rox_typ == "argo-trio"):
+    if (rox_typ == 'argo' or rox_typ == 'argo-trio'):
         kinematics = Node(
             package='rox_argo_kinematics',
             executable='rox_argo_kinematics_node',
             output='screen',
             name='argo_kinematics_node',
-            parameters = [os.path.join(rox,'configs/kinematics', f'{rox_typ}_kinematics.yaml')],
-            condition=UnlessCondition(mock_arm)
-        )
+            parameters=[
+                os.path.join(
+                    rox,
+                    'configs/kinematics',
+                    f'{rox_typ}_kinematics.yaml')],
+            condition=UnlessCondition(mock_arm))
 
         launch_actions.append(kinematics)
 
-    if (rox_typ == "diff" or rox_typ == "trike"):
+    if (rox_typ == 'diff' or rox_typ == 'trike'):
         kinematics = Node(
             package='rox_diff_kinematics',
             executable='rox_diff_kinematics_node',
             output='screen',
             name='diff_kinematics_node',
-            parameters = [os.path.join(rox,'configs/kinematics', f'{rox_typ}_kinematics.yaml')],
-            condition=UnlessCondition(mock_arm)
-        )
+            parameters=[
+                os.path.join(
+                    rox,
+                    'configs/kinematics',
+                    f'{rox_typ}_kinematics.yaml')],
+            condition=UnlessCondition(mock_arm))
 
         launch_actions.append(kinematics)
 
@@ -147,80 +156,83 @@ def execution_stage(context: LaunchContext,
         executable='neo_teleop2_node',
         output='screen',
         name='neo_teleop2_node',
-        parameters = [os.path.join(rox,'configs/teleop', f'{rox_typ}_teleop.yaml')],
-        condition=UnlessCondition(mock_arm)
-    )
+        parameters=[
+            os.path.join(
+                rox,
+                'configs/teleop',
+                f'{rox_typ}_teleop.yaml')],
+        condition=UnlessCondition(mock_arm))
 
     launch_actions.append(teleop)
 
     # Joy
     joy = Node(
-            package='joy', 
-            executable='joy_node', 
-            output='screen',
-            name='joy_node',
-            parameters = [{'dev': "/dev/input/js0"}, {'deadzone':0.12}],
-            condition=UnlessCondition(mock_arm)
-        )
+        package='joy',
+        executable='joy_node',
+        output='screen',
+        name='joy_node',
+        parameters=[{'dev': '/dev/input/js0'}, {'deadzone': 0.12}],
+        condition=UnlessCondition(mock_arm)
+    )
 
     launch_actions.append(joy)
 
     # 4. Laser - Nanoscan
-    if scanner_typ == "nanoscan":
+    if scanner_typ == 'nanoscan':
         scan1 = Node(
-                package="sick_safetyscanners2",
-                executable="sick_safetyscanners2_node",
-                name="lidar_1_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[os.path.join(rox, 
-                                'configs/sick_lidar', 
-                                'nanoscan_1.yaml')],
-                condition=UnlessCondition(mock_arm),
-                remappings=[
+            package='sick_safetyscanners2',
+            executable='sick_safetyscanners2_node',
+            name='lidar_1_node',
+            output='screen',
+            emulate_tty=True,
+            parameters=[os.path.join(rox,
+                                     'configs/sick_lidar',
+                                     'nanoscan_1.yaml')],
+            condition=UnlessCondition(mock_arm),
+            remappings=[
                     ('/scan', '/lidar_1/scan_filtered'),
                     ('/extended_scan', '/lidar_1/extended_scan'),
                     ('/output_paths', '/lidar_1/output_paths'),
                     ('/raw_data', '/lidar_1/raw_data'),
                     ('/field_data', '/lidar_1/field_data')
-                ]
-            )
+            ]
+        )
 
         launch_actions.append(scan1)
 
         scan2 = Node(
-                package="sick_safetyscanners2",
-                executable="sick_safetyscanners2_node",
-                name="lidar_2_node",
-                output="screen",
-                emulate_tty=True,
-                parameters=[os.path.join(rox, 
-                                'configs/sick_lidar', 
-                                'nanoscan_2.yaml')],
-                condition=UnlessCondition(mock_arm),
-                remappings=[
+            package='sick_safetyscanners2',
+            executable='sick_safetyscanners2_node',
+            name='lidar_2_node',
+            output='screen',
+            emulate_tty=True,
+            parameters=[os.path.join(rox,
+                                     'configs/sick_lidar',
+                                     'nanoscan_2.yaml')],
+            condition=UnlessCondition(mock_arm),
+            remappings=[
                     ('/scan', '/lidar_2/scan_filtered'),
                     ('/extended_scan', '/lidar_2/extended_scan'),
                     ('/output_paths', '/lidar_2/output_paths'),
                     ('/raw_data', '/lidar_2/raw_data'),
                     ('/field_data', '/lidar_2/field_data')
-                ]
-            )
+            ]
+        )
 
         launch_actions.append(scan2)
 
     # Laser - PsenScan
-    elif scanner_typ == "psenscan":
+    elif scanner_typ == 'psenscan':
         scan = IncludeLaunchDescription(
             XMLLaunchDescriptionSource(
                 os.path.join(get_package_share_directory('psen_scan_v2'),
-                    'launch',
-                    'psen_scan_v2.launch.xml')
+                             'launch',
+                             'psen_scan_v2.launch.xml')
             ),
             condition=UnlessCondition(mock_arm),
             launch_arguments={
-                'sensor_ip': "192.168.1.30",
-                'host_ip': "192.168.1.10"
+                'sensor_ip': '192.168.1.30',
+                'host_ip': '192.168.1.10'
             }.items()
         )
 
@@ -230,9 +242,9 @@ def execution_stage(context: LaunchContext,
     if imu_enable.lower == 'true':
         imu = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(rox, 
-                    'configs/phidget_imu', 
-                    'imu_launch.py')
+                os.path.join(rox,
+                             'configs/phidget_imu',
+                             'imu_launch.py')
             ),
             launch_arguments={
                 'namespace': robot_namespace
@@ -245,71 +257,70 @@ def execution_stage(context: LaunchContext,
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
     # TODO: Add support for namespacing
-    if (arm_typ == "ur5" or
-        arm_typ == "ur10" or
-        arm_typ == "ur5e" or
-        arm_typ == "ur10e"):
+    if (arm_typ == 'ur5' or
+        arm_typ == 'ur10' or
+        arm_typ == 'ur5e' or
+            arm_typ == 'ur10e'):
 
         # Mock hardware supports only `joint_trajectory_controller`
         if use_mock.lower() == 'true':
-            initial_controller_arm_name = "joint_trajectory_controller"
-            
+            initial_controller_arm_name = 'joint_trajectory_controller'
+
         ur_arm = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(rox,
-                        'configs/ur',
-                        'ur_control.launch.py') 
-                ),
-                launch_arguments={
-                    'ur_type': arm_typ,
-                    'robot_ip': robot_ip,
-                    'tf_prefix': arm_typ,
-                    'use_mock_hardware': mock_arm,
-                    'mock_sensor_commands': mock_arm,
-                    'initial_joint_controller': initial_controller_arm_name,
-                    'controllers_file': controllers_yaml,
-                }.items()
-            )
+            PythonLaunchDescriptionSource(
+                os.path.join(rox,
+                             'configs/ur',
+                             'ur_control.launch.py')
+            ),
+            launch_arguments={
+                'ur_type': arm_typ,
+                'robot_ip': robot_ip,
+                'tf_prefix': arm_typ,
+                'use_mock_hardware': mock_arm,
+                'mock_sensor_commands': mock_arm,
+                'initial_joint_controller': initial_controller_arm_name,
+                'controllers_file': controllers_yaml,
+            }.items()
+        )
 
         launch_actions.append(ur_arm)
 
         # Conditionally add grippers
-        if gripper_typ != "":
+        if gripper_typ != '':
             gripper_xacro_args = xacro_args.copy()
             gripper_xacro_args.extend([
-                " include_gripper_ros2_control:=", "true",# Include only the gripper ros2_control tags
-                " include_arm_ros2_control:=", "false"])
+                # Include only the gripper ros2_control tags
+                ' include_gripper_ros2_control:=', 'true',
+                ' include_arm_ros2_control:=', 'false'])
 
             # For 2f_140
-            if (gripper_typ == "2f_140" or gripper_typ == "2f_85"):
+            if (gripper_typ == '2f_140' or gripper_typ == '2f_85'):
                 robotiq_2f_gripper = IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
-                        os.path.join(rox,
-                                'configs/robotiq',
-                                'robotiq_control.launch.py')
-                        ),
-                        launch_arguments={
-                            'robot_description_content': Command(gripper_xacro_args),
-                            'use_mock_hardware': use_mock,
-                            'model': os.path.join(get_package_share_directory('robotiq_description'),
-                                            "urdf", 
-                                            f"robotiq_{gripper_typ}_gripper.urdf.xacro"
-                                            ),
-                            'controllers_file': f"robotiq_{gripper_typ}_controllers.yaml"
-                        }.items()
-                    )
+                        os.path.join(
+                            rox,
+                            'configs/robotiq',
+                            'robotiq_control.launch.py')),
+                    launch_arguments={
+                        'robot_description_content': Command(gripper_xacro_args),
+                        'use_mock_hardware': use_mock,
+                        'model': os.path.join(
+                            get_package_share_directory('robotiq_description'),
+                            'urdf',
+                            f'robotiq_{gripper_typ}_gripper.urdf.xacro'),
+                        'controllers_file': f'robotiq_{gripper_typ}_controllers.yaml'}.items())
 
                 launch_actions.append(robotiq_2f_gripper)
 
             # For Epick
-            elif (gripper_typ == "epick"):
+            elif (gripper_typ == 'epick'):
                 gripper_epick = IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         os.path.join(rox,
-                                'configs/robotiq',
-                                'robotiq_epick_control.launch.py')
-                        )
+                                     'configs/robotiq',
+                                     'robotiq_epick_control.launch.py')
                     )
+                )
 
                 launch_actions.append(gripper_epick)
 
@@ -320,7 +331,8 @@ def execution_stage(context: LaunchContext,
         name='relay_lidar1',
         namespace=rp_ns,
         output='screen',
-        parameters=[{'input_topic': rp_ns + "lidar_1/scan_filtered",'output_topic': rp_ns + "scan"}],
+        parameters=[{'input_topic': rp_ns +
+                     'lidar_1/scan_filtered', 'output_topic': rp_ns + 'scan'}],
         condition=UnlessCondition(mock_arm)
     )
 
@@ -330,7 +342,8 @@ def execution_stage(context: LaunchContext,
         name='relay_lidar2',
         namespace=rp_ns,
         output='screen',
-        parameters=[{'input_topic': rp_ns + "lidar_2/scan_filtered",'output_topic': rp_ns + "scan"}],
+        parameters=[{'input_topic': rp_ns +
+                     'lidar_2/scan_filtered', 'output_topic': rp_ns + 'scan'}],
         condition=UnlessCondition(mock_arm)
     )
 
@@ -340,7 +353,8 @@ def execution_stage(context: LaunchContext,
         executable='relay',
         name='relay_joint_states',
         output='screen',
-        parameters=[{'input_topic': "drive/joint_states",'output_topic': "joint_states"}],
+        parameters=[{'input_topic': 'drive/joint_states',
+                     'output_topic': 'joint_states'}],
         condition=UnlessCondition(mock_arm)
     )
 
@@ -350,75 +364,79 @@ def execution_stage(context: LaunchContext,
 
     return launch_actions
 
+
 def generate_launch_description():
 
     declare_namespace_cmd = DeclareLaunchArgument(
-            'robot_namespace', default_value='', description='Top-level namespace'
-        )
+        'robot_namespace', default_value='', description='Top-level namespace'
+    )
 
     declare_rox_type_cmd = DeclareLaunchArgument(
-            'rox_type', default_value='argo',
-            choices = ['', 'argo', 'argo-trio', 'diff', 'trike'],
-            description='Robot type\n\t'
-        )
+        'rox_type', default_value='argo',
+        choices=['', 'argo', 'argo-trio', 'diff', 'trike'],
+        description='Robot type\n\t'
+    )
 
     declare_imu_cmd = DeclareLaunchArgument(
-            'imu_enable', default_value='False',
-            description='Enable IMU - Options: True/False'
-        )
+        'imu_enable', default_value='False',
+        description='Enable IMU - Options: True/False'
+    )
 
     declare_scanner_cmd = DeclareLaunchArgument(
-            'scanner_type', default_value='nanoscan',
-            description='Scanner options available: nanoscan/psenscan'
-        )
+        'scanner_type', default_value='nanoscan',
+        description='Scanner options available: nanoscan/psenscan'
+    )
 
     declare_arm_cmd = DeclareLaunchArgument(
-            'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
-            description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
-        )
+        'arm_type', default_value='',
+        choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+        description='Arm used in the robot - currently only Universal Robotics arms are supported'
+    )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
-            'use_ur_dc', default_value='False',
-            description='Set this argument to True if you have an UR arm with DC variant'
-        )
+        'use_ur_dc',
+        default_value='False',
+        description='Set this argument to True if you have an UR arm with DC variant')
 
     declare_mock_arm_cmd = DeclareLaunchArgument(
-            'use_mock_arm', default_value='False',
-            description="Mock arm and gripper (if available)"
-        )
+        'use_mock_arm', default_value='False',
+        description='Mock arm and gripper (if available)'
+    )
 
     declare_initial_controller_arm_cmd = DeclareLaunchArgument(
-            'initial_controller_arm', default_value='scaled_joint_trajectory_controller',
-            choices=['', 'joint_trajectory_controller', 'scaled_joint_trajectory_controller'],
-            description='Initial controller for the arm\n\t'
-        )
+        'initial_controller_arm',
+        default_value='scaled_joint_trajectory_controller',
+        choices=[
+            '',
+            'joint_trajectory_controller',
+            'scaled_joint_trajectory_controller'],
+        description='Initial controller for the arm\n\t')
 
     declare_robot_ip_cmd = DeclareLaunchArgument(
-            'robot_ip', default_value='192.168.1.102',
-            description='IP address of the robot arm.'
-        )
+        'robot_ip', default_value='192.168.1.102',
+        description='IP address of the robot arm.'
+    )
 
     declare_controllers_file_cmd = DeclareLaunchArgument(
-            'controllers_file',
-            default_value=os.path.join(
-                get_package_share_directory('rox_bringup'),
-                'configs/ur/ur_controllers.yaml'
-            ),
-            description='YAML file with the arm controllers configuration.',
-        )
+        'controllers_file',
+        default_value=os.path.join(
+            get_package_share_directory('rox_bringup'),
+            'configs/ur/ur_controllers.yaml'
+        ),
+        description='YAML file with the arm controllers configuration.',
+    )
 
     declare_robotiq_cmd = DeclareLaunchArgument(
-            'gripper_type', default_value='',
-            choices=['', '2f_140', '2f_85', 'epick'],
-            description="Enables gripper and it's controllers"
-        )
+        'gripper_type', default_value='',
+        choices=['', '2f_140', '2f_85', 'epick'],
+        description='Enables gripper and its controllers'
+    )
 
     declare_enable_ioboard = DeclareLaunchArgument(
-            'enable_io_board', default_value='False',
-            choices=['True', 'False'],
-            description="Enables or Disables IOBoard if present - might require restart of the robot"
-        )
+        'enable_io_board', default_value='False',
+        choices=['True', 'False'],
+        description='Enables or Disables IOBoard if present - might require restart of the robot'
+    )
 
     opq_function = OpaqueFunction(
         function=execution_stage,
@@ -435,7 +453,7 @@ def generate_launch_description():
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board')
-            ])  
+        ])
 
     ld = LaunchDescription([
         declare_namespace_cmd,
