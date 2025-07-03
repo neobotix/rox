@@ -108,9 +108,7 @@ def execution_stage(context: LaunchContext,
         executable='relayboardv3_node',
         output='screen',
         name='neo_relayboard_v3_node',
-        parameters = [
-            {"pilot_config": "/home/neobotix/ros2_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/rox-" + rox_typ + "/"}
-        ],
+        parameters = [os.path.join(rox,'configs/neo_relayboard_v3', 'relayboard_v3.yaml')],
         condition=UnlessCondition(mock_arm)
     )
 
