@@ -111,8 +111,7 @@ def execution_stage(context: LaunchContext,
         executable='relayboardv3_node',
         output='screen',
         name='neo_relayboard_v3_node',
-        parameters = [os.path.join(rox,'configs/neo_relayboard_v3', 'relayboard_v3.yaml')],
-        condition=UnlessCondition(mock_arm)
+        parameters = [os.path.join(rox,'configs/neo_relayboard_v3', 'relayboard_v3.yaml')]
     )
     
     launches.append(relayboard)
