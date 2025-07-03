@@ -12,6 +12,16 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>ros-gz</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
+  <exec_depend>teleop_twist_keyboard</exec_depend>
+
+  <!-- Dependencies for Sick SafetyScanners -->
+  <exec_depend>sick_safetyscanners_base</exec_depend>
+  <exec_depend>sick_safetyscanners2_interfaces</exec_depend>
+  <exec_depend>sick_safetyscanners2</exec_depend>
+
+  <!-- Dependencies for Phidget IMU -->
+  <exec_depend>phidgets_drivers</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
