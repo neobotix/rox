@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+  
+  <node pkg="gmapping" name="slam_gmapping" type="slam_gmapping" output="screen">
+    <remap from="scan" to="lidar_1/scan_filtered"/>
+    <rosparam file="$(find rox_navigation)/configs/gmapping/gmapping_basic.yaml" command="load" />
+  </node>
+
+</launch>

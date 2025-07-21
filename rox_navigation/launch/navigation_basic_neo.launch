@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+        <include file="$(find rox_navigation)/configs/move_base/move_base.launch"/>
+        <include file="$(find rox_navigation)/configs/neo_localization/neo_localization.launch"/>
+
+</launch>
