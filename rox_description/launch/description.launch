@@ -1,0 +1,36 @@
+<launch>
+  <!-- Arguments -->
+  <arg name="use_sim_time" default="false" />
+  <arg name="use_joint_state_publisher_gui" default="true" />
+  <arg name="rox_type" default="argo" />
+  <arg name="imu_enable" default="false" />
+  <arg name="d435_enable" default="false" />
+  <arg name="arm_type" default="" />
+  <arg name="use_ur_dc" default="false" />
+  <arg name="use_rviz" default="true" />
+
+  <!-- xacro to generate robot_description -->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find rox_description)/urdf/rox.urdf.xacro' arm_type:=$(arg arm_type) rox_type:=$(arg rox_type) joint_type:=$(eval 'revolute' if arg('rox_type') in ['diff','trike'] else 'fixed') use_imu:=$(arg imu_enable) d435_enable:=$(arg d435_enable) use_ur_dc:=$(arg use_ur_dc)" />
+
+  <!-- Joint State Publisher (GUI or not) -->
+  <group if="$(arg use_joint_state_publisher_gui)">
+    <node pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" name="joint_state_publisher_gui" output="screen">
+      <param name="use_sim_time" value="$(arg use_sim_time)" />
+    </node>
+  </group>
+  <group unless="$(arg use_joint_state_publisher_gui)">
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen">
+      <param name="use_sim_time" value="$(arg use_sim_time)" />
+    </node>
+  </group>
+
+  <!-- Robot State Publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+    <param name="use_sim_time" value="$(arg use_sim_time)" />
+  </node>
+
+  <!-- Optionally launch RViz -->
+  <group if="$(arg use_rviz)">
+    <include file="$(find rox_rviz)/launch/rox_rviz_launch.launch" />
+  </group>
+</launch> 

@@ -1,18 +1,10 @@
-cmake_minimum_required(VERSION 3.5)
-
+cmake_minimum_required(VERSION 3.0.2)
 project(rox_description)
 
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+find_package(catkin REQUIRED)
 
-find_package(ament_cmake REQUIRED)
+catkin_package()
 
 install(DIRECTORY launch meshes urdf
-    
-  DESTINATION share/${PROJECT_NAME})
-
-ament_package()
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

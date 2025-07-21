@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-
+cmake_minimum_required(VERSION 3.0.2)
 project(rox_bringup)
 
 if(NOT CMAKE_CXX_STANDARD)
@@ -9,14 +8,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(catkin REQUIRED)
+
+catkin_package()
 
 install(DIRECTORY launch configs
-    
-  DESTINATION share/${PROJECT_NAME})
-
-# Install Python modules
-ament_python_install_package(${PROJECT_NAME})
-ament_python_install_module(${PROJECT_NAME}/param_file_utils.py)
-
-ament_package()
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

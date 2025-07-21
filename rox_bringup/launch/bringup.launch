@@ -1,0 +1,62 @@
+<launch>
+  <!-- Arguments -->
+  <arg name="scanner_type" default="nanoscan" />
+
+	<!--robot model-->
+	<param name="robot_description" command="$(find xacro)/xacro '$(find rox_description)/urdf/rox.urdf.xacro' rox_type:=argo scanner_type:=$(arg scanner_type) joint_type:=revolute" />
+
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+		<param name="use_gui" value="false" />
+	</node>
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <!-- Relayboard -->
+	<rosparam command="load" file="/home/ros_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/relayboard_v3.yaml" />
+
+	<!-- Start relayboardv3_node -->
+	<node pkg="neo_relayboard_v3" type="relayboardv3_node" name="neo_relayboard_v3_node" output="screen" />
+
+  <!-- Kinematics (argo/argo-trio only) -->
+    <node pkg="rox_argo_kinematics" type="rox_argo_kinematics_node" name="argo_kinematics_node" output="screen">
+      <rosparam file="$(find rox_bringup)/configs/kinematics/argo_kinematics.yaml" command="load" />
+    </node>
+
+  <!-- Teleop -->
+  <node pkg="neo_teleop" type="neo_teleop" name="neo_teleop" ns="neo_teleop" output="screen">
+    <rosparam file="$(find rox_bringup)/configs/teleop/argo_teleop.yaml" command="load" />
+  </node>
+
+  <!-- Joy -->
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen">
+    <param name="dev" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- Scanners -->
+  <group if="$(eval scanner_type == 'nanoscan')">
+    <!-- Nanoscan 1 -->
+    <node pkg="sick_safetyscanners" type="sick_safetyscanners_node" name="lidar_1_node" output="screen">
+      <rosparam file="$(find rox_bringup)/configs/sick_lidar/nanoscan_1.yaml" command="load" />
+      <remap from="/scan" to="/lidar_1/scan_filtered" />
+      <remap from="/extended_scan" to="/lidar_1/extended_scan" />
+      <remap from="/output_paths" to="/lidar_1/output_paths" />
+      <remap from="/raw_data" to="/lidar_1/raw_data" />
+      <remap from="/field_data" to="/lidar_1/field_data" />
+    </node>
+
+    <!-- Nanoscan 2 -->
+    <node pkg="sick_safetyscanners" type="sick_safetyscanners_node" name="lidar_2_node" output="screen">
+      <rosparam file="$(find rox_bringup)/configs/sick_lidar/nanoscan_2.yaml" command="load" />
+      <remap from="/scan" to="/lidar_2/scan_filtered" />
+      <remap from="/extended_scan" to="/lidar_2/extended_scan" />
+      <remap from="/output_paths" to="/lidar_2/output_paths" />
+      <remap from="/raw_data" to="/lidar_2/raw_data" />
+      <remap from="/field_data" to="/lidar_2/field_data" />
+    </node>
+  </group>
+
+  <!-- Topic Relays -->
+  <node pkg="topic_tools" type="relay" ns="/lidar_1" name="relay" args="/lidar_1/scan_filtered /scan" />
+  <node pkg="topic_tools" type="relay" ns="/lidar_2" name="relay" args="/lidar_2/scan_filtered /scan" />
+</launch>
