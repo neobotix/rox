@@ -12,7 +12,7 @@
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
     <!-- Relayboard -->
-	<rosparam command="load" file="/home/ros_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/relayboard_v3.yaml" />
+	<rosparam command="load" file="/home/neobotix/ros_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/relayboard_v3.yaml" />
 
 	<!-- Start relayboardv3_node -->
 	<node pkg="neo_relayboard_v3" type="relayboardv3_node" name="neo_relayboard_v3_node" output="screen" />
