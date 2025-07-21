@@ -2,25 +2,25 @@
   <!-- Arguments -->
   <arg name="scanner_type" default="nanoscan" />
 
-	<!--robot model-->
-	<param name="robot_description" command="$(find xacro)/xacro '$(find rox_description)/urdf/rox.urdf.xacro' rox_type:=argo scanner_type:=$(arg scanner_type) joint_type:=revolute" />
+  <!--robot model-->
+  <param name="robot_description" command="$(find xacro)/xacro '$(find rox_description)/urdf/rox.urdf.xacro' rox_type:=argo scanner_type:=$(arg scanner_type) joint_type:=revolute" />
 
-	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
-		<param name="use_gui" value="false" />
-	</node>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    <param name="use_gui" value="false" />
+  </node>
 
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-    <!-- Relayboard -->
-	<rosparam command="load" file="/home/neobotix/ros_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/relayboard_v3.yaml" />
+  <!-- Relayboard -->
+  <rosparam command="load" file="/home/neobotix/ros_workspace/src/rox/rox_bringup/configs/neo_relayboard_v3/relayboard_v3.yaml" />
 
-	<!-- Start relayboardv3_node -->
-	<node pkg="neo_relayboard_v3" type="relayboardv3_node" name="neo_relayboard_v3_node" output="screen" />
+  <!-- Start relayboardv3_node -->
+  <node pkg="neo_relayboard_v3" type="relayboardv3_node" name="neo_relayboard_v3_node" output="screen" />
+  
+  <rosparam command="load" file="$(find rox_bringup)/configs/kinematics/argo_kinematics.yaml" />
 
   <!-- Kinematics (argo/argo-trio only) -->
-    <node pkg="rox_argo_kinematics" type="rox_argo_kinematics_node" name="argo_kinematics_node" output="screen">
-      <rosparam file="$(find rox_bringup)/configs/kinematics/argo_kinematics.yaml" command="load" />
-    </node>
+  <node pkg="rox_argo_kinematics" type="rox_argo_kinematics_node" name="argo_kinematics_node" output="screen"/>
 
   <!-- Teleop -->
   <node pkg="neo_teleop" type="neo_teleop" name="neo_teleop" ns="neo_teleop" output="screen">
