@@ -1,15 +1,15 @@
 # Neobotix GmbH
 # Author: Pradheep Padmanabhan
+# Contributor: Adarsh Karan K P
 
 import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, AppendEnvironmentVariable, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import ThisLaunchFileDir, LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable, PythonExpression
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
-from launch.conditions import IfCondition
 import os
 from pathlib import Path
 import xacro
@@ -81,7 +81,47 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         output='screen',
         parameters=[{'config_file': bridge_config_file}])
 
-    return [start_robot_state_publisher_cmd, spawn_robot, ignition, gz_bridge, teleop]
+    # Relaying lidar data to /scan topic
+    relay_topic_lidar1 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar1',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_1/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
+    relay_topic_lidar2 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar2',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_2/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
+    # Setting environment variables for Gazebo resources
+    env_var_value = (
+        os.path.join(get_package_share_directory('neo_gz_worlds'), 'models') +
+        ':' +
+        os.path.dirname(get_package_share_directory('rox_description'))
+    )
+    set_env_vars_resources = AppendEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', env_var_value)
+
+    return [
+        set_env_vars_resources, 
+        start_robot_state_publisher_cmd, 
+        relay_topic_lidar1, 
+        relay_topic_lidar2, 
+        spawn_robot, 
+        ignition, 
+        gz_bridge, 
+        teleop
+    ]
 
 def generate_launch_description():
     opq_function = OpaqueFunction(function=execution_stage,
