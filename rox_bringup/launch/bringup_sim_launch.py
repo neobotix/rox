@@ -1,10 +1,11 @@
 # Neobotix GmbH
 # Author: Pradheep Padmanabhan
+# Contributor: Adarsh Karan K P
 
 import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import ThisLaunchFileDir, LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable, PythonExpression
 from launch_ros.actions import Node
@@ -14,7 +15,7 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu):
+def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu, loop_waypoints):
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
     frame_typ = str(frame_type.perform(context))
@@ -22,6 +23,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
     rox_typ = str(rox_type.perform(context))
     d435 = str(use_d435.perform(context))
     imu = str(use_imu.perform(context))
+    loop_wp = str(loop_waypoints.perform(context))
 
     if (rox_typ == "meca"):
         frame_typ = "long"
@@ -81,7 +83,76 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         output='screen',
         parameters=[{'config_file': bridge_config_file}])
 
-    return [start_robot_state_publisher_cmd, spawn_robot, ignition, gz_bridge, teleop]
+    # Relaying lidar data to /scan topic
+    relay_topic_lidar1 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar1',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_1/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
+    relay_topic_lidar2 = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_lidar2',
+        output='screen',
+        parameters=[{
+            'input_topic':  '/lidar_2/scan_filtered',
+            'output_topic': '/scan'
+        }],
+    )
+
+    # Waypoint server and looper
+    waypoints_yaml = os.path.join(get_package_share_directory('rox_bringup'), 'configs', 'waypoints.yaml')
+    start_save_waypoints_server = Node(
+        package='rox_bringup',
+        executable='save_waypoints_server',
+        name='save_waypoints_server',
+        output='screen',
+        parameters=[{
+            'waypoints_topic': '/waypoints', # Topic to listen to for waypoints
+            'output_file': waypoints_yaml # Path to save the waypoints YAML file
+        }],
+        condition=IfCondition(loop_wp)
+    )
+
+    start_waypoints_looper = Node(
+        package='rox_bringup',
+        executable='waypoint_looper',
+        name='waypoint_looper',
+        output='screen',
+        parameters=[{
+            'yaml_file': waypoints_yaml, # Path to the waypoints YAML file
+            'frame_id': 'map',
+            'repeat_count': 100, # Number of times to repeat the loop
+            'wait_at_waypoint_ms': 500 # Time to wait at each waypoint in milliseconds
+        }],
+        condition=IfCondition(loop_wp)
+    )
+    # Setting environment variables for Gazebo resources
+    env_var_value = (
+        os.path.join(get_package_share_directory('neo_gz_worlds'), 'models') +
+        ':' +
+        os.path.dirname(get_package_share_directory('rox_description'))
+    )
+    set_env_vars_resources = AppendEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', env_var_value)
+
+    return [
+        set_env_vars_resources, 
+        start_robot_state_publisher_cmd, 
+        relay_topic_lidar1, 
+        relay_topic_lidar2, 
+        spawn_robot, 
+        ignition, 
+        gz_bridge, 
+        teleop,
+        start_save_waypoints_server,
+        start_waypoints_looper
+    ]
 
 def generate_launch_description():
     opq_function = OpaqueFunction(function=execution_stage,
@@ -89,7 +160,8 @@ def generate_launch_description():
                                         LaunchConfiguration('rox_type'),
                                         LaunchConfiguration('arm_type'),
                                         LaunchConfiguration('d435_enable'),
-                                        LaunchConfiguration('imu_enable')
+                                        LaunchConfiguration('imu_enable'),
+                                        LaunchConfiguration('loop_waypoints')
                                         ])
     
     declare_frame_type_cmd = DeclareLaunchArgument(
@@ -117,11 +189,17 @@ def generate_launch_description():
             description='Arm used in the robot - currently only support universal'
         )
 
+    declare_loop_waypoints_cmd = DeclareLaunchArgument(
+            'loop_waypoints', default_value='False',
+            description='Starts the servers for waypoint looping - Options: True/False'
+        )
+
     return LaunchDescription([
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_arm_cmd,
         declare_frame_type_cmd,
         declare_rox_type_cmd,
+        declare_loop_waypoints_cmd,
         opq_function
     ])

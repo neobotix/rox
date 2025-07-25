@@ -7,7 +7,8 @@
   <maintainer email="ros@neobotix.de">Neobotix</maintainer>
   <license>BSD</license>
   <url type="website">http://www.neobotix-robots.com</url>
-  <author email="padmanabhan@neobotix.de">Pradheep Padmanabhan</author> 
+  <author email="padmanabhan@neobotix.de">Pradheep Padmanabhan</author>
+  <author email="adarshkaran01@gmail.com">Adarsh Karan K P</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <exec_depend>topic_tools</exec_depend>
@@ -22,6 +23,15 @@
 
   <!-- Dependencies for Phidget IMU -->
   <exec_depend>phidgets_drivers</exec_depend>
+
+  <!-- Dependencies for Waypoint Looper -->
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>yaml-cpp</depend>
+  <depend>std_srvs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>geometry_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
