@@ -159,7 +159,7 @@ def execution_stage(context: LaunchContext,
         output='screen',
         prefix = 'xterm -e',
         name='teleop',
-        parameters=[{'stamped': True}]  # Set stamped parameter to true for TwistStamped /cmd_vel
+        parameters=[{'stamped': False}]  # Set stamped parameter to true for TwistStamped /cmd_vel
     )
 
     gz_bridge = Node(
@@ -226,8 +226,8 @@ def execution_stage(context: LaunchContext,
         # Set environment variable for gripper description packages
         if gripper_typ == 'epick':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('epick_description'))
-        #else:      # commented out just for debugging
-        #    env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
+        else:
+            env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
             
     set_env_vars_resources = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', env_var_value)
 
