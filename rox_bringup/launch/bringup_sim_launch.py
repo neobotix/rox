@@ -8,15 +8,13 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
 from launch_ros.descriptions import ParameterValue
 from param_file_utils import generate_final_yaml
 import os
 from pathlib import Path
-import xacro
-from launch_ros.substitutions import FindPackageShare
 
 def execution_stage(context: LaunchContext, 
                     rox_type,
