@@ -258,7 +258,7 @@ def generate_launch_description():
         'spawn_y', default_value='0.0', description='Initial Y position of the robot in gz'
     )
     declare_spawn_z_cmd = DeclareLaunchArgument(
-        'spawn_z', default_value='0.1', description='Initial Z position of the robot in gz'
+        'spawn_z', default_value='0.0', description='Initial Z position of the robot in gz'
     )
     declare_spawn_R_cmd = DeclareLaunchArgument(
         'spawn_R', default_value='0.0', description='Initial roll of the robot in gz'
