@@ -7,7 +7,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
 from launch_ros.descriptions import ParameterValue
@@ -15,6 +16,7 @@ from param_file_utils import generate_final_yaml
 import os
 from pathlib import Path
 import xacro
+from launch_ros.substitutions import FindPackageShare
 
 def execution_stage(context: LaunchContext, 
                     rox_type,
@@ -24,7 +26,9 @@ def execution_stage(context: LaunchContext,
                     scanner_type,
                     ur_dc,
                     gripper_type,
-                    headless_sim):
+                    headless_sim,
+                    spawn_x, spawn_y, spawn_z,
+                    spawn_R, spawn_P, spawn_Y):
 
     launch_actions = []
 
@@ -48,7 +52,9 @@ def execution_stage(context: LaunchContext,
         joint_type = "revolute"
 
     # Getting the robot description xacro
-    urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
+    urdf = os.path.join(get_package_share_directory('rox_description'), 
+                    'urdf', 
+                    'rox.urdf.xacro')
 
     spawn_robot = Node(
         package='ros_gz_sim',
@@ -57,7 +63,15 @@ def execution_stage(context: LaunchContext,
         output='screen',
         arguments=[
             '-topic', "robot_description",
-            '-name', "rox"])
+            '-name', "rox",
+            '-x', spawn_x.perform(context),
+            '-y', spawn_y.perform(context),
+            '-z', spawn_z.perform(context),
+            '-R', spawn_R.perform(context),
+            '-P', spawn_P.perform(context),
+            '-Y', spawn_Y.perform(context)
+        ]
+    )
 
     # Define gz_args based on headless_simulation argument
     gz_args = f"-r {default_world_path}"
@@ -148,7 +162,7 @@ def execution_stage(context: LaunchContext,
         output='screen',
         prefix = 'xterm -e',
         name='teleop',
-        parameters=[{'stamped': False}]  # Set stamped parameter to true for TwistStamped /cmd_vel
+        parameters=[{'stamped': True}]  # Set stamped parameter to true for TwistStamped /cmd_vel
     )
 
     gz_bridge = Node(
@@ -215,8 +229,8 @@ def execution_stage(context: LaunchContext,
         # Set environment variable for gripper description packages
         if gripper_typ == 'epick':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('epick_description'))
-        else:
-            env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
+        #else:      # commented out just for debugging
+        #    env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
             
     set_env_vars_resources = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', env_var_value)
 
@@ -238,6 +252,25 @@ def execution_stage(context: LaunchContext,
     return launch_actions
 
 def generate_launch_description():
+
+    declare_spawn_x_cmd = DeclareLaunchArgument(
+        'spawn_x', default_value='0.0', description='Initial X position of the robot in gz'
+    )
+    declare_spawn_y_cmd = DeclareLaunchArgument(
+        'spawn_y', default_value='0.0', description='Initial Y position of the robot in gz'
+    )
+    declare_spawn_z_cmd = DeclareLaunchArgument(
+        'spawn_z', default_value='0.1', description='Initial Z position of the robot in gz'
+    )
+    declare_spawn_R_cmd = DeclareLaunchArgument(
+        'spawn_R', default_value='0.0', description='Initial roll of the robot in gz'
+    )
+    declare_spawn_P_cmd = DeclareLaunchArgument(
+        'spawn_P', default_value='0.0', description='Initial pitch of the robot in gz'
+    )
+    declare_spawn_Y_cmd = DeclareLaunchArgument(
+        'spawn_Y', default_value='0.0', description='Initial yaw of the robot in gz'
+    )
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type',default_value='argo',
@@ -293,7 +326,13 @@ def generate_launch_description():
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('gripper_type'),
-            LaunchConfiguration('headless_simulation')
+            LaunchConfiguration('headless_simulation'),
+            LaunchConfiguration('spawn_x'),
+            LaunchConfiguration('spawn_y'),
+            LaunchConfiguration('spawn_z'),
+            LaunchConfiguration('spawn_R'),
+            LaunchConfiguration('spawn_P'),
+            LaunchConfiguration('spawn_Y'),
             ])
 
     ld = LaunchDescription([
@@ -305,6 +344,12 @@ def generate_launch_description():
         declare_ur_pwr_variant_cmd,
         declare_gripper_type_cmd,
         declare_headless_sim_cmd,
+        declare_spawn_x_cmd,
+        declare_spawn_y_cmd,
+        declare_spawn_z_cmd,
+        declare_spawn_R_cmd,
+        declare_spawn_P_cmd,
+        declare_spawn_Y_cmd,
         opq_function
     ])
     return ld
