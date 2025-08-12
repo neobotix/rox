@@ -1,217 +1,132 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+<robot name="rox" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="gazebo_plugins">
-
-    <gazebo reference="lidar_1_link">
-      <sensor name="lidar_1_sensor" type="gpu_lidar">
-        <always_on>true</always_on>
-        <pose>0 0 0 0 0 0</pose>
-        <visualize>false</visualize>
-        <update_rate>10</update_rate>
-        <topic>scan</topic>
-        <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
-        <output_type>sensor_msgs/LaserScan</output_type>
-        <gz_frame_id>lidar_1_link</gz_frame_id>
-        <lidar>
-          <scan>
-            <horizontal>
-              <samples>720</samples>
-              <resolution>1</resolution>
-              <min_angle>-1.48</min_angle>
-              <max_angle>1.48</max_angle>
-            </horizontal>
-          </scan>
-          <range>
-            <min>0.10</min>
-            <max>30.0</max>
-            <resolution>0.05</resolution>
-          </range>
-          <noise>
-            <type>gaussian</type>
-            <!-- Noise parameters based on published spec for Hokuyo laser
-                    achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
-                    stddev of 0.01m will put 99.7% of samples within 0.03m of the true
-                    reading. -->
-            <mean>0.0</mean>
-            <stddev>0.01</stddev>
-          </noise>
-        </lidar>
-      </sensor>
-    </gazebo>
-
-    <gazebo reference="lidar_2_link">
-      <sensor name="lidar_2_sensor" type="gpu_lidar">
-        <always_on>true</always_on>
-        <pose>0 0 0 0 0 0</pose>
-        <visualize>false</visualize>
-        <update_rate>10</update_rate>
-        <topic>scan2</topic>
-        <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
-        <output_type>sensor_msgs/LaserScan</output_type>
-        <gz_frame_id>lidar_2_link</gz_frame_id>
-        <lidar>
-          <scan>
-            <horizontal>
-              <samples>720</samples>
-              <resolution>1</resolution>
-              <min_angle>-1.48</min_angle>
-              <max_angle>1.48</max_angle>
-            </horizontal>
-          </scan>
-          <range>
-            <min>0.10</min>
-            <max>30.0</max>
-            <resolution>0.05</resolution>
-          </range>
-          <noise>
-            <type>gaussian</type>
-            <!-- Noise parameters based on published spec for Hokuyo laser
-                    achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
-                    stddev of 0.01m will put 99.7% of samples within 0.03m of the true
-                    reading. -->
-            <mean>0.0</mean>
-            <stddev>0.01</stddev>
-          </noise>
-        </lidar>
-      </sensor>
-    </gazebo>
-
-    <gazebo reference="imu_link">
-        <sensor name="imu_sensor" type="imu">
-            <gz_frame_id>imu_link</gz_frame_id>
-            <update_rate>50</update_rate>
-            <visualize>false</visualize>
-            <topic>imu</topic>
-            <always_on>true</always_on>
+  <gazebo reference="lidar_1_link">
+      <sensor type="ray" name="lidar_1_sensor">
+          <pose>0 0 0 0 0 0</pose>
+          <visualize>false</visualize>
+          <update_rate>40</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>720</samples>
+                <resolution>1</resolution>
+                <min_angle>-1.48</min_angle>
+                <max_angle>1.48</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.10</min>
+              <max>30.0</max>
+              <resolution>0.05</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <!-- Noise parameters based on published spec for Hokuyo laser
+                   achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+                   stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+                   reading. -->
+              <mean>0.0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </ray>
+          <plugin name="lidar_1" filename="libgazebo_ros_laser.so">
+            <topicName>lidar_1/scan_filtered</topicName>
+            <frameName>lidar_1_link</frameName>
+          </plugin>
         </sensor>
-    </gazebo>
+  </gazebo>
 
-    <gazebo>
-      <plugin filename="gz-sim-odometry-publisher-system"
-          name="gz::sim::systems::OdometryPublisher">
-          <odom_frame>odom</odom_frame> 
-          <odom_covariance_topic>odom</odom_covariance_topic>
-          <tf_topic>tf</tf_topic>
-          <robot_base_frame>base_link</robot_base_frame>
-          <odom_publish_frequency>100</odom_publish_frequency>
+  <gazebo reference="lidar_2_link">
+      <sensor type="ray" name="lidar_2_sensor">
+          <pose>0 0 0 0 0 0</pose>
+          <visualize>false</visualize>
+          <update_rate>40</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>720</samples>
+                <resolution>1</resolution>
+                <min_angle>-1.48</min_angle>
+                <max_angle>1.48</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.10</min>
+              <max>30.0</max>
+              <resolution>0.05</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <!-- Noise parameters based on published spec for Hokuyo laser
+                   achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+                   stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+                   reading. -->
+              <mean>0.0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </ray>
+          <plugin name="lidar_2" filename="libgazebo_ros_laser.so">
+            <topicName>lidar_2/scan_filtered</topicName>
+            <frameName>lidar_2_link</frameName>
+          </plugin>
+        </sensor>
+  </gazebo>
+
+  <!-- Robot controller --> 
+ <gazebo>
+    <plugin name="rox_controller" filename="libgazebo_ros_planar_move.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometryRate>100.0</odometryRate>
+      <robotBaseFrame>base_link</robotBaseFrame>
+    </plugin>
+  </gazebo>
+
+  <!-- camera -->
+  <!-->
+  <gazebo reference="camera_link">
+    <sensor type="camera" name="camera1">
+      <update_rate>30.0</update_rate>
+      <camera name="head">
+        <horizontal_fov>1.3962634</horizontal_fov>
+  <image>
+    <width>800</width>
+    <height>800</height>
+    <format>R8G8B8</format>
+  </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+           Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. 
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>robot/camera1</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>camera_link</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
       </plugin>
+    </sensor>
+  </gazebo>
+  <-->
 
-      <plugin filename="gz-sim-imu-system"
-          name="gz::sim::systems::Imu">
-      </plugin>
-
-      <!-- For ArgoDrive platforms -->
-      <xacro:if value="${rox_typ == 'argo' or rox_typ == 'argo-trio'}">
-        <plugin filename="gz-sim-velocity-control-system"
-            name="gz::sim::systems::VelocityControl">
-            <topic>cmd_vel</topic>
-        </plugin>
-      </xacro:if>
-
-      <!-- DiffDrive control for trike and diff -->
-      <xacro:if value="${rox_typ == 'diff' or rox_typ == 'trike'}">
-        <plugin filename="gz-sim-diff-drive-system"
-          name="gz::sim::systems::DiffDrive">
-          <left_joint>wheel_left_joint</left_joint>
-          <right_joint>wheel_right_joint</right_joint>
-          <wheel_separation>${wheel_separation}</wheel_separation>
-          <wheel_radius>0.075</wheel_radius>
-          <max_linear_acceleration>1</max_linear_acceleration>
-          <min_linear_acceleration>-1</min_linear_acceleration>
-          <max_angular_acceleration>10.0</max_angular_acceleration>
-          <min_angular_acceleration>-10.0</min_angular_acceleration>
-          <max_linear_velocity>2.0</max_linear_velocity>
-          <min_linear_velocity>-2.0</min_linear_velocity>
-          <max_angular_velocity>10.0</max_angular_velocity>
-          <min_angular_velocity>-10.0</min_angular_velocity>
-          <topic>/cmd_vel</topic>
-          <odom_topic>/odom</odom_topic>
-          <tf_topic>/tf</tf_topic>
-          <odom_publish_frequency>50</odom_publish_frequency>
-        </plugin>
-
-        <plugin
-          filename="gz-sim-joint-state-publisher-system"
-          name="gz::sim::systems::JointStatePublisher">
-          <joint_name>wheel_left_joint</joint_name>
-          <joint_name>wheel_right_joint</joint_name>
-          <topic>joint_states</topic>
-          <update_rate>30</update_rate>
-        </plugin>
-
-      </xacro:if>
-
-      <plugin filename="gz-sim-sensors-system"
-        name="gz::sim::systems::Sensors">
-      </plugin>
-
-    </gazebo>
-
-    <!-- Gazebo macro for Argo Wheels -->
-    <xacro:macro name="rox_argo_wheel_gazebo_macro" params="name">
-      <gazebo reference="${name}_link">
-        <mu1>0.001</mu1>
-        <mu2>0.001</mu2>
-        <kp>100000.0</kp>
-        <kd>1.0</kd>
-        <minDepth>0.000</minDepth>
-        <fdir1>1 0 0</fdir1>
-      </gazebo>
-    </xacro:macro>
-
-    <!-- Gazebo macro for Differential Castor Wheels -->
-    <xacro:macro name="rox_caster_wheel_gazebo_macro" params="name">
-      <gazebo reference="${name}_link">
-        <mu1>0.001</mu1>
-        <mu2>0.001</mu2>
-      </gazebo>
-    </xacro:macro>
-
-    <!-- Gazebo macro for Differential Wheels -->
-    <xacro:macro name="rox_diff_wheel_gazebo_macro" params="name">
-      <gazebo reference="${name}_link">
-        <mu1>1.0</mu1>
-        <mu2>1.0</mu2>
-        <kp>1000000.0</kp>
-        <kd>1.0</kd>
-        <minDepth>0.000</minDepth>
-        <fdir1>1 0 0</fdir1>
-      </gazebo>
-    </xacro:macro>
-
-    <!--Argo Drive-->
-    <xacro:if value="${rox_typ == 'argo'}">
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_left"/>
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_right"/>
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_back_left"/>
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_back_right"/>
-    </xacro:if>
-
-    <!--Argo Trio Drive-->
-    <xacro:if value="${rox_typ == 'argo-trio'}">
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_left"/>
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_front_right"/>
-      <xacro:rox_argo_wheel_gazebo_macro name="wheel_back"/>
-    </xacro:if>
-    
-    <!--Diff Drive-->
-    <xacro:if value="${rox_typ == 'diff'}">
-      <xacro:rox_diff_wheel_gazebo_macro name="wheel_left"/>
-      <xacro:rox_diff_wheel_gazebo_macro name="wheel_right"/>
-      <xacro:rox_caster_wheel_gazebo_macro name="caster_wheel_front_left"/>
-      <xacro:rox_caster_wheel_gazebo_macro name="caster_wheel_front_right"/>
-      <xacro:rox_caster_wheel_gazebo_macro name="caster_wheel_back_left"/>
-      <xacro:rox_caster_wheel_gazebo_macro name="caster_wheel_back_right"/>
-    </xacro:if>
-
-    <!--Trike Drive-->
-    <xacro:if value="${rox_typ == 'trike'}">
-      <xacro:rox_diff_wheel_gazebo_macro name="wheel_left"/>
-      <xacro:rox_diff_wheel_gazebo_macro name="wheel_right"/>
-      <xacro:rox_caster_wheel_gazebo_macro name="caster_back"/>
-    </xacro:if>
-
-  </xacro:macro>
 
 </robot>
+
