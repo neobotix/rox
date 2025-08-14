@@ -7,6 +7,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, AppendEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
@@ -24,7 +25,8 @@ def execution_stage(context: LaunchContext,
                     scanner_type,
                     ur_dc,
                     gripper_type,
-                    headless_sim):
+                    headless_sim,
+                    start_webserver):
 
     launch_actions = []
 
@@ -36,6 +38,11 @@ def execution_stage(context: LaunchContext,
     imu = str(imu_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
+    webserver = str(start_webserver.perform(context)).lower()
+
+    if webserver == "true":
+        headless_sim = "true"
+
     joint_type = "fixed"
 
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
@@ -220,6 +227,15 @@ def execution_stage(context: LaunchContext,
             
     set_env_vars_resources = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', env_var_value)
 
+    if (webserver):
+        starting_webserver =  IncludeLaunchDescription(
+        XMLLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('rosbridge_server'), 'launch', 'rosbridge_websocket_launch.xml')
+            )
+        )
+        launch_actions.append(starting_webserver)
+
+
     launch_actions.append(set_env_vars_resources)
     launch_actions.append(start_robot_state_publisher_cmd)
     launch_actions.append(gz_sim)
@@ -283,6 +299,11 @@ def generate_launch_description():
             description='Run Gazebo in headless mode (no GUI) - Options: True/False'
         )
 
+    declare_start_webserver_cmd = DeclareLaunchArgument(
+            'start_webserver', default_value='False',
+            description='If it needs to be connected with the webserver'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -293,7 +314,8 @@ def generate_launch_description():
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('gripper_type'),
-            LaunchConfiguration('headless_simulation')
+            LaunchConfiguration('headless_simulation'),
+            LaunchConfiguration('start_webserver')
             ])
 
     ld = LaunchDescription([
@@ -305,6 +327,7 @@ def generate_launch_description():
         declare_ur_pwr_variant_cmd,
         declare_gripper_type_cmd,
         declare_headless_sim_cmd,
+        declare_start_webserver_cmd,
         opq_function
     ])
     return ld
