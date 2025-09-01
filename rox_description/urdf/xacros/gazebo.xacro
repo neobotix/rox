@@ -126,14 +126,6 @@
     </gazebo>
 
     <gazebo>
-      <plugin filename="gz-sim-odometry-publisher-system"
-          name="gz::sim::systems::OdometryPublisher">
-          <odom_frame>odom</odom_frame> 
-          <odom_covariance_topic>odom</odom_covariance_topic>
-          <tf_topic>tf</tf_topic>
-          <robot_base_frame>base_link</robot_base_frame>
-          <odom_publish_frequency>100</odom_publish_frequency>
-      </plugin>
 
       <plugin filename="gz-sim-imu-system"
           name="gz::sim::systems::Imu">
@@ -144,6 +136,14 @@
         <plugin filename="gz-sim-velocity-control-system"
             name="gz::sim::systems::VelocityControl">
             <topic>cmd_vel</topic>
+        </plugin>
+        <plugin filename="gz-sim-odometry-publisher-system"
+            name="gz::sim::systems::OdometryPublisher">
+            <odom_frame>odom</odom_frame> 
+            <odom_covariance_topic>odom</odom_covariance_topic>
+            <tf_topic>tf</tf_topic>
+            <robot_base_frame>base_link</robot_base_frame>
+            <odom_publish_frequency>50</odom_publish_frequency>
         </plugin>
       </xacro:if>
 
