@@ -95,7 +95,7 @@
         <always_on>true</always_on>
         <visualize>true</visualize>
         <camera>
-          <optical_frame_id>d435_camera_depth_optical_frame</optical_frame_id>
+          <optical_frame_id>d435_camera_link</optical_frame_id>
           <!-- at 640×480 HFOV is 74 degrees -->
           <horizontal_fov>1.29154</horizontal_fov>
           <image>
