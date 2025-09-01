@@ -134,8 +134,9 @@ Contributor: Adarsh Karan K P
   <!-- Realsense D435 -->
   <xacro:if value="${d435 == True}">
     <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
-    <xacro:sensor_d435 parent="base_link">
-      <origin xyz="0.292 0.0 0.716" rpy="0 0 0"/>
+    <!-- use_nominal_extrinsics is True for simulation-->
+    <xacro:sensor_d435 parent="base_link" name="d435_camera" use_nominal_extrinsics="true">
+      <origin xyz="0.375 0.0 0.220" rpy="0 0 0"/>
     </xacro:sensor_d435>
   </xacro:if>
 
