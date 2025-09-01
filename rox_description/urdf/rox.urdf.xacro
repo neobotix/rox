@@ -136,7 +136,7 @@ Contributor: Adarsh Karan K P
     <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
     <!-- use_nominal_extrinsics is True for simulation-->
     <xacro:sensor_d435 parent="base_link" name="d435_camera" use_nominal_extrinsics="true">
-      <origin xyz="0.375 0.0 0.210" rpy="0 ${pi/6} 0"/>
+      <origin xyz="0.375 0.0 0.220" rpy="0 0 0"/>
     </xacro:sensor_d435>
   </xacro:if>
 
