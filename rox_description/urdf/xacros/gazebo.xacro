@@ -87,6 +87,44 @@
         </sensor>
     </gazebo>
 
+    <gazebo reference="d435_camera_link">
+      <sensor name="camera" type="rgbd_camera">
+        <topic>camera</topic>
+        <gz_frame_id>d435_camera_link</gz_frame_id>
+        <update_rate>30.0</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <camera>
+          <optical_frame_id>d435_camera_link</optical_frame_id>
+          <!-- at 640×480 HFOV is 74 degrees -->
+          <horizontal_fov>1.29154</horizontal_fov>
+          <image>
+            <!--VGA format-->
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>100</far>
+          </clip>
+          <!--d435 min depth range is 0.175m at 640×480
+           maximum range is ~10 m-->
+          <depth_camera>
+            <clip>
+              <near>0.175</near>
+              <far>10</far>
+            </clip>
+          </depth_camera>
+          <noise>
+            <type>gaussian</type>
+            <mean>0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </gazebo>
+
     <gazebo>
       <plugin filename="gz-sim-odometry-publisher-system"
           name="gz::sim::systems::OdometryPublisher">
