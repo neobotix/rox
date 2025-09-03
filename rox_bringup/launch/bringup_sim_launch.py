@@ -24,7 +24,8 @@ def execution_stage(context: LaunchContext,
                     scanner_type,
                     ur_dc,
                     gripper_type,
-                    headless_sim):
+                    headless_sim,
+                    use_wall_time):
 
     launch_actions = []
 
@@ -36,6 +37,7 @@ def execution_stage(context: LaunchContext,
     imu = str(imu_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
+    use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
     joint_type = "fixed"
 
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
@@ -156,7 +158,7 @@ def execution_stage(context: LaunchContext,
         executable='parameter_bridge',
         name='parameter_bridge',
         output='screen',
-        parameters=[{'config_file': bridge_config_file}]
+        parameters=[{'config_file': bridge_config_file, 'override_timestamps_with_wall_time': use_wall_time}]
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -283,6 +285,11 @@ def generate_launch_description():
             description='Run Gazebo in headless mode (no GUI) - Options: True/False'
         )
 
+    declare_use_wall_time_cmd = DeclareLaunchArgument(
+            'use_wall_time', default_value='False',
+            description='Run gz_bridge with override_timestamps_with_wall_time:=True - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -293,7 +300,8 @@ def generate_launch_description():
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('gripper_type'),
-            LaunchConfiguration('headless_simulation')
+            LaunchConfiguration('headless_simulation'),
+            LaunchConfiguration('use_wall_time')
             ])
 
     ld = LaunchDescription([
@@ -305,6 +313,7 @@ def generate_launch_description():
         declare_ur_pwr_variant_cmd,
         declare_gripper_type_cmd,
         declare_headless_sim_cmd,
+        declare_use_wall_time_cmd,
         opq_function
     ])
     return ld
