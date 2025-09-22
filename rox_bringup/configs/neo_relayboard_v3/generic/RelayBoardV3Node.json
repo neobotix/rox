@@ -13,7 +13,7 @@
 		"trajectory_msgs/JointTrajectory": {
 			"drive/joint_trajectory": "kinematics.drive_cmd"
 		},
-		"neo_msgs2/KinematicsState":{
+		"neo_msgs/KinematicsState":{
 			"/kinematics_state": "kinematics.state"
 		}
 	},

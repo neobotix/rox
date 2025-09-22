@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="env_map" default="$(find rox_navigation)/configs/maps/$(env MAP_NAME).yaml" />
+  <arg name="env_map" default="$(find rox_navigation)/configs/maps/neo_workshop.yaml" />
 
   <!-- MAP SERVER -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg env_map)">
