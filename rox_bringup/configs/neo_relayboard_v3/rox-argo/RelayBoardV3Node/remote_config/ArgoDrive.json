@@ -15,7 +15,7 @@
 			"rot_sign": 1,
 			"angular_direction": -1,
 			"polarity": 1,
-			"gear_ratio": 11.88,
+			"gear_ratio": 24.97,
 			"angular_resolution": 4096,
 			"max_motor_revolutions_rpm": 4540,
 			"feedback_mode": "ABSOLUTE_MODULO",
@@ -23,7 +23,7 @@
 				"disable_motors": false,
 				"digital_input_1": true
 			},
-			"home_offset_enc": 0
+			"home_offset_enc": 2048
 		},
 		"BACK_LEFT": {
 			"master": {
@@ -39,7 +39,7 @@
 			"rot_sign": 1,
 			"angular_direction": -1,
 			"polarity": 1,
-			"gear_ratio": 11.88,
+			"gear_ratio": 24.97,
 			"angular_resolution": 4096,
 			"max_motor_revolutions_rpm": 4540,
 			"feedback_mode": "ABSOLUTE_MODULO",
@@ -47,7 +47,7 @@
 				"disable_motors": false,
 				"digital_input_1": true
 			},
-			"home_offset_enc": 0
+			"home_offset_enc": 2048
 		},
 		"BACK_RIGHT": {
 			"master": {
@@ -63,7 +63,7 @@
 			"rot_sign": 1,
 			"angular_direction": -1,
 			"polarity": 1,
-			"gear_ratio": 11.88,
+			"gear_ratio": 24.97,
 			"angular_resolution": 4096,
 			"max_motor_revolutions_rpm": 4540,
 			"feedback_mode": "ABSOLUTE_MODULO",
@@ -71,7 +71,7 @@
 				"disable_motors": false,
 				"digital_input_1": true
 			},
-			"home_offset_enc": 2048
+			"home_offset_enc": 0
 		},
 		"FRONT_RIGHT": {
 			"master": {
@@ -87,7 +87,7 @@
 			"rot_sign": 1,
 			"angular_direction": -1,
 			"polarity": 1,
-			"gear_ratio": 11.88,
+			"gear_ratio": 24.97,
 			"angular_resolution": 4096,
 			"max_motor_revolutions_rpm": 4540,
 			"feedback_mode": "ABSOLUTE_MODULO",
@@ -95,7 +95,7 @@
 				"disable_motors": false,
 				"digital_input_1": true
 			},
-			"home_offset_enc": 2048
+			"home_offset_enc": 0
 		}
 	}
 }
