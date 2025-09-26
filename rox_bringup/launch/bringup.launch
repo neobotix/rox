@@ -23,8 +23,8 @@
   <node pkg="rox_argo_kinematics" type="rox_argo_kinematics_node" name="argo_kinematics_node" output="screen"/>
 
   <!-- Teleop -->
+  <rosparam command="load" ns="neo_teleop" file="$(find rox_bringup)/configs/teleop/argo_teleop.yaml"/>
   <node pkg="neo_teleop" type="neo_teleop" name="neo_teleop" ns="neo_teleop" output="screen">
-    <rosparam file="$(find rox_bringup)/configs/teleop/argo_teleop.yaml" command="load" />
   </node>
 
   <!-- Joy -->
