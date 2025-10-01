@@ -4,6 +4,48 @@
 |:--:|:--:|
 | **ROX – Omnidirectional Platform** | **EMROX – Omnidirectional Mobile Manipulator** |
 
+# ROS Noetic Real robot Setup Guide
+
+## **Getting Started with the Real Robot**
+
+Please follow the instructions given Starting with [ROS 2 on the Robot from our documentation website](https://neobotix-docs.de/ros/ros2/starting_with_ROS.html). The equivalent autostart scripts and desktop applications are in place to start the robot. Similar to ROS 2, you can also use commandline for starting ROS
+
+```bash
+roslaunch rox_bringup bringup.launch
+```
+
+If you would like to reconfigure the autostart bringup or the desktop application, then please check the ros_settings.sh script and ROS_AUTOSTART.sh script located in `/home/neobotix/`
+
+If you are looking to visualize the robot in RViz, you can simply use:
+
+```bash
+roslaunch rox_rviz rox_rviz.launch
+```
+
+Mapping using Gmapping can be started using the following command
+
+```bash
+#Start Mapping
+roslaunch rox_navigation gmapping_basic.launch
+
+#start rviz to see the map
+roslaunch rox_rviz rviz_navigation.launch
+```
+
+Autonomous navigation utilizing the move_base has also been configured, simply use the following commands to launch the autonomous navigation:
+
+```bash
+#start navigation
+roslaunch rox_navigation navigation_basic_neo.launch
+
+#start rviz to send goals
+roslaunch rox_rviz rviz_navigation.launch
+```
+
+By default neo_local_planner along with NavFn planner has been configured for autonomous navigation. Feel free to change and update the configs according to your requirements at:
+
+`/home/neobotix/ros_workspace/src/rox/rox_navigation/configs`
+
 
 # ROS Noetic Simulation Setup Guide
 
@@ -145,30 +187,3 @@ roslaunch rox_rviz rviz_navigation.launch
 - **Robot Description:** `src/rox/rox_description/urdf/rox.urdf.xacro`
 - **Gazebo Configuration:** `src/rox/rox_description/urdf/xacros/gazebo.xacro`
 
-### **Key Configuration Parameters**
-```xml
-<!-- World Configuration -->
-<arg name="world_name_global" default="$(find rox_description)/worlds/neo_workshop.world"/>
-
-<!-- Gazebo Settings -->
-<arg name="gui" default="true"/>
-<arg name="use_sim_time" default="true"/>
-<arg name="paused" default="false"/>
-
-<!-- Robot Control -->
-<arg name="software_joystick" value="true"/>
-```
-
-## 🎮 **Simulation Features**
-
-### **Available Plugins**
-- **Planar Movement:** `libgazebo_ros_planar_move.so`
-- **Laser Scanner:** `libgazebo_ros_laser.so`
-- **Camera:** `libgazebo_ros_camera.so`
-
-### **Robot Capabilities**
-- 2D planar movement (x, y, yaw)
-- Laser scanner simulation
-- Camera simulation
-- Realistic physics
-- Odometry publishing
