@@ -25,6 +25,7 @@ def execution_stage(context: LaunchContext,
                     ur_dc,
                     # gripper_type,
                     battery_enable,
+                    battery_type,
                     headless_sim,
                     use_wall_time):
 
@@ -37,6 +38,7 @@ def execution_stage(context: LaunchContext,
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
     battery = str(battery_enable.perform(context))
+    battery_typ = str(battery_type.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
@@ -126,6 +128,7 @@ def execution_stage(context: LaunchContext,
         " ", 'use_imu:=', imu,
         " ", 'use_d435:=', d435,
         " ", 'use_battery:=', battery,
+        " ", 'battery_type:=', battery_typ,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'arm_type:=', arm_typ,
         # " ", 'gripper_type:=', gripper_typ,
@@ -265,6 +268,12 @@ def generate_launch_description():
             description='Enable Battery in Simulation - Options: True/False'
         )
 
+    declare_battery_type_cmd = DeclareLaunchArgument(
+            'battery_type', default_value='lfp',
+            choices=['lfp', 'agm'],
+            description='Battery Type - Options: lfp (Lithium Iron Phosphate), agm (Absorbent Glass Mat)'
+        )
+
     declare_scanner_cmd = DeclareLaunchArgument(
             'scanner_type', default_value='nanoscan',
             choices = ['', 'nanoscan', 'psenscan'],
@@ -309,6 +318,7 @@ def generate_launch_description():
             LaunchConfiguration('use_ur_dc'),
             # LaunchConfiguration('gripper_type'),
             LaunchConfiguration('battery_enable'),
+            LaunchConfiguration('battery_type'),
             LaunchConfiguration('headless_simulation'),
             LaunchConfiguration('use_wall_time')
             ])
@@ -317,6 +327,7 @@ def generate_launch_description():
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_battery_cmd,
+        declare_battery_type_cmd,
         declare_scanner_cmd,
         declare_arm_type_cmd,
         declare_rox_type_cmd,

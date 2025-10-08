@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
+  <!-- Include battery configuration macro -->
+  <xacro:include filename="$(find rox_description)/urdf/xacros/gazebo_battery.xacro" />
+
   <xacro:macro name="gazebo_plugins">
 
     <gazebo reference="lidar_1_link">
@@ -133,39 +136,7 @@
 
       <!-- Battery plugin for all rox platforms -->
       <xacro:if value="${battery == True}">
-        <plugin filename="gz-sim-linearbatteryplugin-system"
-          name="gz::sim::systems::LinearBatteryPlugin">
-          <!--Li-ion battery spec from LIR18650 datasheet-->
-          <battery_name>linear_battery</battery_name>
-          <voltage>4.2</voltage>
-          <open_circuit_voltage_constant_coef>4.2</open_circuit_voltage_constant_coef>
-          <open_circuit_voltage_linear_coef>-2.0</open_circuit_voltage_linear_coef>
-
-          <!--Total charge that the battery can hold (Ah)- based on soc overcharging limit-->
-          <initial_charge>0.9</initial_charge>
-          <capacity>1.0 </capacity> <!-- was 50 Ah -->
-          <!-- Internal resistance of the battery (Ohm)-->
-          <resistance>0.05</resistance>
-          <!-- Coefficient for smoothing current-->
-          <smooth_current_tau>2.0</smooth_current_tau>
-
-          <!-- charging I = c / t, discharging I = P / V, 
-          charging I should be > discharging I -->
-          <enable_recharge>true</enable_recharge>
-          <recharge_by_topic>true</recharge_by_topic>
-          <!-- Charging time = capacity/()-->
-          <charging_time>3.0</charging_time>
-
-          <!-- <soc_threshold>0.51</soc_threshold> not in plugin, deprecated-->
-          <!-- Consumer-specific -->
-          <power_load>2.1</power_load>
-          <!-- <start_draining>true</start_draining> -->
-
-          <power_draining_topic>/start_power_draining</power_draining_topic>
-          <stop_power_draining_topic>/stop_power_draining</stop_power_draining_topic>
-
-          <!-- battery_runtime (hours) = <capacity> * <voltage> / <power_load> -->
-        </plugin>
+        <xacro:battery_plugin battery_type="${battery_typ}"/>
       </xacro:if>
 
       <!-- For ArgoDrive platforms -->
