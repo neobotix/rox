@@ -10,6 +10,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="use_gz" default="false"/>
   <xacro:arg name="use_imu" default="false"/>
   <xacro:arg name="use_d435" default="false"/>
+  <xacro:arg name="use_battery" default="false"/>
   <xacro:arg name="scanner_type" default="nanoscan"/>
   <xacro:arg name="rox_type" default="argo"/>
   <xacro:arg name="joint_type" default="fixed"/>
@@ -31,6 +32,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="gz" value="$(arg use_gz)"/>
   <xacro:property name="imu" value="$(arg use_imu)"/>
   <xacro:property name="d435" value="$(arg use_d435)"/>
+  <xacro:property name="battery" value="$(arg use_battery)"/>
   <xacro:property name="scanner" value="$(arg scanner_type)"/>
   <xacro:property name="rox_typ" value="$(arg rox_type)"/>
   <xacro:property name="joint_typ" value="$(arg joint_type)"/>
