@@ -10,7 +10,13 @@
   <author email="padmanabhan@neobotix.de">Pradheep Padmanabhan</author> 
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  
   <exec_depend>neo_nav2_bringup</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>nav2_simple_commander</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

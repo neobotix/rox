@@ -376,7 +376,7 @@ route_server:
       plugin: "nav2_route::AdjustSpeedLimit"
     CollisionMonitor:
       plugin: "nav2_route::CollisionMonitor"
-      max_collision_dist: 3.0
+      max_collision_dist: 1.0
     edge_cost_functions: ["DistanceScorer", "CostmapScorer"]
     DistanceScorer:
       plugin: "nav2_route::DistanceScorer"

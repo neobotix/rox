@@ -1,0 +1,12 @@
+# Route configuration for neo_route node
+# Define start and goal poses for autonomous navigation
+
+neo_route_node:
+  ros__parameters:
+    start_pose.x: 0.0
+    start_pose.y: 0.0
+    start_pose.yaw: 0.0
+
+    goal_pose.x: -4.4
+    goal_pose.y: -3.0
+    goal_pose.yaw: 0.0

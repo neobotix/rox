@@ -29,7 +29,9 @@ def execution_stage(
         map_dir, 
         param_dir, 
         use_rviz,
-        graph_filepath):
+        graph_filepath,
+        use_route,
+        route_param_file):
 
     launches = []
 
@@ -115,6 +117,27 @@ def execution_stage(
     launches.append(start_navigation)
     launches.append(start_map_server)
 
+    # Start neo_route node if use_route is enabled
+    route_config_file = str(route_param_file.perform(context))
+
+    if not route_config_file:
+        route_config_file = os.path.join(
+            get_package_share_directory('rox_navigation'),
+            'configs',
+            'route.yaml'
+        )
+    
+    start_neo_route = Node(
+        condition=IfCondition(use_route),
+        package='rox_navigation',
+        executable='neo_route.py',
+        name='neo_route_node',
+        output='screen',
+        parameters=[route_config_file, {'use_sim_time': use_sim_time}]
+    )
+
+    launches.append(start_neo_route)
+
     return launches
 
 def generate_launch_description():
@@ -130,6 +153,20 @@ def generate_launch_description():
     param_dir = LaunchConfiguration('nav2_params_file')
     use_rviz = LaunchConfiguration('use_rviz')
     graph_filepath = LaunchConfiguration('graph_filepath')
+    use_route = LaunchConfiguration('use_route')
+    route_param_file = LaunchConfiguration('route_config')
+
+    default_route_yaml = os.path.join(
+        get_package_share_directory('rox_navigation'),
+        'configs',
+        'route.yaml'
+    )
+
+    default_graph_path = os.path.join(
+        get_package_share_directory('rox_navigation'),
+        'maps',
+        'test4.geojson'
+    )
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
@@ -187,8 +224,18 @@ def generate_launch_description():
         )
     
     declare_graph_filepath_cmd = DeclareLaunchArgument(
-            'graph_filepath', default_value='',
+            'graph_filepath', default_value=default_graph_path,
             description='Full path to the graph file for route planning'
+        )
+    
+    declare_use_route_cmd = DeclareLaunchArgument(
+            'use_route', default_value='False',
+            description='Launch neo_route node for route-based navigation'
+        )
+
+    declare_route_param_cmd = DeclareLaunchArgument(
+            'route_config', default_value=default_route_yaml,
+            description='YAML file containing neo_route parameters'
         )
     
     # Adding all the necessary launch description actions
@@ -203,9 +250,12 @@ def generate_launch_description():
     launch_desc.add_action(declare_nav2_param_file_cmd)
     launch_desc.add_action(declare_use_rviz_cmd)
     launch_desc.add_action(declare_graph_filepath_cmd)
+    launch_desc.add_action(declare_use_route_cmd)
+    launch_desc.add_action(declare_route_param_cmd)
 
     context_arguments = [rox_type, use_sim_time, autostart, namespace,
-                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz, graph_filepath]
+                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir,
+                         use_rviz, graph_filepath, use_route, route_param_file]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
 

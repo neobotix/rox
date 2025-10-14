@@ -31,11 +31,10 @@ def toPoseStamped(pt: Point, header: Header) -> PoseStamped:
     pose.header = header
     return pose
 
-
 def main() -> None:
     rclpy.init()
 
-    node = rclpy.create_node('route_example')
+    node = rclpy.create_node('neo_route_node')
 
     node.declare_parameter('start_pose.x', 0.0)
     node.declare_parameter('start_pose.y', 0.0)
@@ -72,7 +71,7 @@ def main() -> None:
     # navigator.lifecycleStartup()
 
     # Wait for navigation to fully activate, since autostarting nav2
-    # navigator.waitUntilNav2Active('bt_navigator', 'neo_localization2_node')
+    navigator.waitUntilNav2Active('bt_navigator', 'robot_localization')
 
     # If desired, you can change or load the map as well
     # navigator.changeMap('/path/to/map.yaml')
@@ -160,10 +159,14 @@ def main() -> None:
     else:
         print('Goal has an invalid return status!')
 
-    navigator.lifecycleShutdown()
+    while rclpy.ok():
+        rclpy.spin_once(navigator, timeout_sec=0.5)
 
-    exit(0)
+    navigator.destroy_node()
+    rclpy.shutdown()
 
+    # navigator.lifecycleShutdown()
+    # exit(0)
 
 if __name__ == '__main__':
     main()
