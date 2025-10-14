@@ -9,6 +9,8 @@
   <url type="website">http://www.neobotix-robots.com</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
@@ -17,6 +19,12 @@
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>gz_ros2_control</exec_depend>
+
+  <!-- Dependencies for navigation script -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>nav2_simple_commander</exec_depend>
 
   <!-- Dependencies for Sick SafetyScanners -->
   <exec_depend>sick_safetyscanners_base</exec_depend>

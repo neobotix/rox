@@ -28,7 +28,8 @@ def execution_stage(
         use_amcl, 
         map_dir, 
         param_dir, 
-        use_rviz):
+        use_rviz,
+        graph_filepath):
 
     launches = []
 
@@ -81,7 +82,8 @@ def execution_stage(
                 'namespace': namespace,
                 'use_sim_time': use_sim_time,
                 'params_file': params,
-                'use_rviz': use_rviz}.items()
+                'use_rviz': use_rviz,
+                'graph_filepath': graph_filepath}.items()
         )
     ])
 
@@ -127,6 +129,7 @@ def generate_launch_description():
     map_dir = LaunchConfiguration('map')
     param_dir = LaunchConfiguration('nav2_params_file')
     use_rviz = LaunchConfiguration('use_rviz')
+    graph_filepath = LaunchConfiguration('graph_filepath')
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
@@ -183,6 +186,11 @@ def generate_launch_description():
             description='Launch RViz for visualization'
         )
     
+    declare_graph_filepath_cmd = DeclareLaunchArgument(
+            'graph_filepath', default_value='',
+            description='Full path to the graph file for route planning'
+        )
+    
     # Adding all the necessary launch description actions
     launch_desc.add_action(declare_rox_type_cmd)
     launch_desc.add_action(declare_use_sim_time_cmd)
@@ -194,9 +202,10 @@ def generate_launch_description():
     launch_desc.add_action(declare_map_cmd)
     launch_desc.add_action(declare_nav2_param_file_cmd)
     launch_desc.add_action(declare_use_rviz_cmd)
+    launch_desc.add_action(declare_graph_filepath_cmd)
 
     context_arguments = [rox_type, use_sim_time, autostart, namespace,
-                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz]
+                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz, graph_filepath]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
 

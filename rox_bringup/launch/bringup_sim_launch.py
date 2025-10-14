@@ -16,6 +16,20 @@ import os
 from pathlib import Path
 import xacro
 
+# Define route poses for autonomous navigation
+ROUTE_POSES_DICT = {
+    'start': {
+        'x': 0.0,
+        'y': 0.0,
+        'yaw': 0.0
+    },
+    'goal': {
+        'x': -4.4,
+        'y': -3.0,
+        'yaw': 0.0
+    }
+}
+
 def execution_stage(context: LaunchContext, 
                     rox_type,
                     arm_type,
@@ -25,7 +39,8 @@ def execution_stage(context: LaunchContext,
                     ur_dc,
                     gripper_type,
                     headless_sim,
-                    use_wall_time):
+                    use_wall_time,
+                    auto_start):
 
     launch_actions = []
 
@@ -38,6 +53,7 @@ def execution_stage(context: LaunchContext,
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
+    auto_start = str(auto_start.perform(context)) in ('true', 'True')
     joint_type = "fixed"
 
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
@@ -179,6 +195,26 @@ def execution_stage(context: LaunchContext,
         arguments=[initial_gripper_controller_name, "-c", "/controller_manager"]
     )
 
+    # Demo autonomy task for automatic navigation
+    demo_cmd = Node(
+        package='rox_bringup',
+        executable='neo_route.py',
+        parameters=[{
+            'start_pose': {
+                'x': ROUTE_POSES_DICT['start']['x'],
+                'y': ROUTE_POSES_DICT['start']['y'],
+                'yaw': ROUTE_POSES_DICT['start']['yaw']
+            },
+            'goal_pose': {
+                'x': ROUTE_POSES_DICT['goal']['x'],
+                'y': ROUTE_POSES_DICT['goal']['y'],
+                'yaw': ROUTE_POSES_DICT['goal']['yaw']
+            },
+        }],
+        emulate_tty=True,
+        output='screen'
+    )
+
     # Relaying lidar data to /scan topic
     relay_topic_lidar1 = Node(
         package='topic_tools',
@@ -290,6 +326,11 @@ def generate_launch_description():
             description='Run gz_bridge with override_timestamps_with_wall_time:=True - Options: True/False'
         )
 
+    declare_auto_start_cmd = DeclareLaunchArgument(
+            'auto_start', default_value='True',
+            description='Automatically start autonomous navigation to goal pose - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -301,7 +342,8 @@ def generate_launch_description():
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
-            LaunchConfiguration('use_wall_time')
+            LaunchConfiguration('use_wall_time'),
+            LaunchConfiguration('auto_start')
             ])
 
     ld = LaunchDescription([
@@ -314,6 +356,7 @@ def generate_launch_description():
         declare_gripper_type_cmd,
         declare_headless_sim_cmd,
         declare_use_wall_time_cmd,
+        declare_auto_start_cmd,
         opq_function
     ])
     return ld
