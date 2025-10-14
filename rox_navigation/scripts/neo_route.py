@@ -94,7 +94,7 @@ def main() -> None:
     # [path, route] = navigator.getRoute(initial_pose, goal_pose)
 
     # May also use NodeIDs on the graph if they are known by passing them instead as `int`
-    route_tracking_task = navigator.getAndTrackRoute(initial_pose, goal_pose)
+    route_tracking_task = navigator.getAndTrackRoute(1,2)
 
     # Note for the route server, we have a special route argument in the API b/c it may be
     # providing feedback messages simultaneously to others (e.g. controller or WPF as below)
