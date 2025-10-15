@@ -12,7 +12,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
-install(DIRECTORY launch configs maps scripts rox_navigation
+install(DIRECTORY launch configs maps scripts graphs rox_navigation
   DESTINATION share/${PROJECT_NAME})
 
 # Install Python modules

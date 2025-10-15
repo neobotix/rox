@@ -164,8 +164,8 @@ def generate_launch_description():
 
     default_graph_path = os.path.join(
         get_package_share_directory('rox_navigation'),
-        'maps',
-        'test4.geojson'
+        'graphs',
+        'neo_workshop.geojson'
     )
     
     declare_rox_type_cmd = DeclareLaunchArgument(

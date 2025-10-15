@@ -3,10 +3,15 @@
 
 neo_route_node:
   ros__parameters:
-    start_pose.x: 0.0
-    start_pose.y: 0.0
-    start_pose.yaw: 0.0
+    # Uncomment this to use start and goal poses
+    # start_pose.x: 0.0
+    # start_pose.y: 0.0
+    # start_pose.yaw: 0.0
 
-    goal_pose.x: -4.4
-    goal_pose.y: -3.0
-    goal_pose.yaw: 0.0
+    # goal_pose.x: -4.4
+    # goal_pose.y: -3.0
+    # goal_pose.yaw: 0.0
+
+    # Use start and end IDs from the route graph
+    start_node_id: 6
+    end_node_id: 12

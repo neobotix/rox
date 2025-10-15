@@ -51,7 +51,7 @@
         <RateController hz="1.0">
           <RecoveryNode number_of_retries="1" name="ComputePathToPose">
             <Sequence>
-              <RemovePassedGoals input_goals="{route_goals}" output_goals="{route_goals}" radius="3.0"/>
+              <RemovePassedGoals input_goals="{route_goals}" output_goals="{route_goals}" radius="0.7"/>
               <GetNextFewGoals input_goals="{route_goals}" num_goals="2" output_goals="{planning_goals}"/>
               <ComputePathThroughPoses goals="{planning_goals}" path="{path}" planner_id="{selected_planner}" error_code_id="{compute_path_error_code}" error_msg="{compute_path_error_msg}"/>
             </Sequence>

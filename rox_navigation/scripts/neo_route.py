@@ -44,6 +44,9 @@ def main() -> None:
     node.declare_parameter('goal_pose.y', 0.0)
     node.declare_parameter('goal_pose.yaw', 0.0)
 
+    node.declare_parameter('start_node_id', 0)
+    node.declare_parameter('end_node_id', 0)
+
     start_x = node.get_parameter('start_pose.x').value
     start_y = node.get_parameter('start_pose.y').value
     start_yaw = node.get_parameter('start_pose.yaw').value
@@ -51,6 +54,9 @@ def main() -> None:
     goal_x = node.get_parameter('goal_pose.x').value
     goal_y = node.get_parameter('goal_pose.y').value
     goal_yaw = node.get_parameter('goal_pose.yaw').value
+
+    start_node_id = node.get_parameter('start_node_id').value
+    end_node_id = node.get_parameter('end_node_id').value
 
     node.destroy_node()
 
@@ -89,12 +95,15 @@ def main() -> None:
     goal_pose.pose.position.y = goal_y
     goal_pose.pose.orientation = euler_to_quaternion(0.0, 0.0, goal_yaw)
 
-    # Sanity check a valid route exists using PoseStamped.
-    # May also use NodeIDs on the graph if they are known by passing them instead as `int`
-    # [path, route] = navigator.getRoute(initial_pose, goal_pose)
+    # Whether to use poses or node IDs
+    use_node_ids = (start_node_id != 0 and end_node_id != 0)
 
-    # May also use NodeIDs on the graph if they are known by passing them instead as `int`
-    route_tracking_task = navigator.getAndTrackRoute(1,2)
+    if use_node_ids:
+        print(f'Using node ID-based navigation: start_node_id={start_node_id} -> end_node_id={end_node_id}')
+        route_tracking_task = navigator.getAndTrackRoute(start_node_id, end_node_id)
+    else:
+        print(f'Using pose-based navigation: start({start_x}, {start_y}, {start_yaw}) -> goal({goal_x}, {goal_y}, {goal_yaw})')
+        route_tracking_task = navigator.getAndTrackRoute(initial_pose, goal_pose)
 
     # Note for the route server, we have a special route argument in the API b/c it may be
     # providing feedback messages simultaneously to others (e.g. controller or WPF as below)
