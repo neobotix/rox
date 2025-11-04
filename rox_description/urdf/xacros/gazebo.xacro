@@ -136,7 +136,7 @@
 
       <!-- Battery plugin for all rox platforms -->
       <xacro:if value="${battery == True}">
-        <xacro:battery_plugin battery_type="${battery_typ}"/>
+        <xacro:battery_plugin/>
       </xacro:if>
 
       <!-- For ArgoDrive platforms -->

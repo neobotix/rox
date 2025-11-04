@@ -1,77 +1,37 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
-  <!-- Battery configuration macro for different battery types -->
-  <xacro:macro name="battery_plugin" params="battery_type">
+  <!-- Battery configuration macro - LFP (Lithium Iron Phosphate) -->
+  <xacro:macro name="battery_plugin">
+    <plugin filename="gz-sim-linearbatteryplugin-system"
+      name="gz::sim::systems::LinearBatteryPlugin">
+      <battery_name>linear_battery</battery_name>
+      <voltage>54.0</voltage>
+      <open_circuit_voltage_constant_coef>54.0</open_circuit_voltage_constant_coef>
 
-    <!-- LFP (Lithium Iron Phosphate) Battery Configuration -->
-    <xacro:if value="${battery_type == 'lfp'}">
-      <plugin filename="gz-sim-linearbatteryplugin-system"
-        name="gz::sim::systems::LinearBatteryPlugin">
-        <battery_name>linear_battery</battery_name>
-        <voltage>48.0</voltage>
-        <open_circuit_voltage_constant_coef>48.0</open_circuit_voltage_constant_coef>
-        <!-- <open_circuit_voltage_linear_coef>-2.8</open_circuit_voltage_linear_coef> --> <!-- Missing -->
+      <!-- Initial charge set to 100% of capacity -->
+      <initial_charge>26.0</initial_charge>
+      <capacity>26.0</capacity>
+      <!-- Internal resistance of the battery (Ohm) -->
+      <resistance>0.01</resistance>
+      <!-- Coefficient for smoothing current -->
+      <smooth_current_tau>2.0</smooth_current_tau>
 
-        <!--Total charge that the battery can hold (Ah)- based on soc overcharging limit-->
-        <initial_charge>${0.9 * 21.0}</initial_charge> <!-- since the plugin internally clamps the SoC to 90% on full charge-->
-        <capacity>21.0</capacity>
-        <!-- Internal resistance of the battery (Ohm)-->
-        <resistance>0.03</resistance> <!-- Missing -->
-        <!-- Coefficient for smoothing current-->
-        <smooth_current_tau>2.0</smooth_current_tau> <!-- Missing -->
+      <!-- charging I = c / t, discharging I = P / V, 
+      charging I should be > discharging I -->
+      <enable_recharge>true</enable_recharge>
+      <recharge_by_topic>true</recharge_by_topic>
+      <!-- Charging time: 30 minutes = 0.5 hours -->
+      <charging_time>0.5</charging_time>
 
-        <!-- charging I = c / t, discharging I = P / V, 
-        charging I should be > discharging I -->
-        <enable_recharge>true</enable_recharge>
-        <recharge_by_topic>true</recharge_by_topic>
-        <!-- Charging time = capacity/()-->
-        <charging_time>3.0</charging_time> <!-- Missing -->
+      <!-- Robot power draw (Wh) -->
+      <power_load>260.0</power_load>
 
-        <!-- Robot power draw (W) -->
-        <power_load>100.0</power_load> <!-- Missing -->
+      <power_draining_topic>/start_power_draining</power_draining_topic>
+      <stop_power_draining_topic>/stop_power_draining</stop_power_draining_topic>
 
-        <power_draining_topic>/start_power_draining</power_draining_topic>
-        <stop_power_draining_topic>/stop_power_draining</stop_power_draining_topic>
-
-        <!-- battery_runtime (hours) = <capacity> * <voltage> / <power_load> -->
-      </plugin>
-    </xacro:if>
-
-    <!-- AGM (Absorbent Glass Mat) Battery Configuration -->
-    <xacro:if value="${battery_type == 'agm'}">
-      <plugin filename="gz-sim-linearbatteryplugin-system"
-        name="gz::sim::systems::LinearBatteryPlugin">
-        <battery_name>linear_battery</battery_name>
-        <voltage>48.0</voltage>
-        <open_circuit_voltage_constant_coef>48.0</open_circuit_voltage_constant_coef>
-        <open_circuit_voltage_linear_coef>-2.2</open_circuit_voltage_linear_coef>
-
-        <!--Total charge that the battery can hold (Ah)- based on soc overcharging limit-->
-        <initial_charge>${0.9 * 26.0}</initial_charge> <!-- since the plugin internally clamps the SoC to 90% on full charge-->
-        <capacity>26.0</capacity>
-        <!-- Internal resistance of the battery (Ohm)-->
-        <resistance>0.08</resistance> <!-- Missing -->
-        <!-- Coefficient for smoothing current-->
-        <smooth_current_tau>2.0</smooth_current_tau> <!-- Missing -->
-
-        <!-- charging I = c / t, discharging I = P / V, 
-        charging I should be > discharging I -->
-        <enable_recharge>true</enable_recharge>
-        <recharge_by_topic>true</recharge_by_topic>
-        <!-- Charging time = capacity/()-->
-        <charging_time>2.0</charging_time> <!-- Missing -->
-
-        <!-- Consumer-specific -->
-        <power_load>100.0</power_load> <!-- Missing -->
-
-        <power_draining_topic>/start_power_draining</power_draining_topic>
-        <stop_power_draining_topic>/stop_power_draining</stop_power_draining_topic>
-
-        <!-- battery_runtime (hours) = <capacity> * <voltage> / <power_load> -->
-      </plugin>
-    </xacro:if>
-
+      <!-- battery_runtime (hours) = <capacity> * <voltage> / <power_load> -->
+    </plugin>
   </xacro:macro>
 
 </robot>
