@@ -18,6 +18,7 @@ from nav2_simple_commander.robot_navigator import BasicNavigator, RunningTask, T
 from nav2_simple_commander.utils import euler_to_quaternion
 import rclpy
 from std_msgs.msg import Header
+from typing import List
 
 """
 Basic navigation demo to using the route server.
@@ -36,47 +37,33 @@ def main() -> None:
 
     node = rclpy.create_node('neo_route_node')
 
-    node.declare_parameter('start_pose.x', 0.0)
-    node.declare_parameter('start_pose.y', 0.0)
-    node.declare_parameter('start_pose.yaw', 0.0)
+    node.declare_parameter('initial_pose.x', 0.0)
+    node.declare_parameter('initial_pose.y', 0.0)
+    node.declare_parameter('initial_pose.yaw', 0.0)
 
-    node.declare_parameter('goal_pose.x', 0.0)
-    node.declare_parameter('goal_pose.y', 0.0)
-    node.declare_parameter('goal_pose.yaw', 0.0)
+    initial_pose_x = node.get_parameter('initial_pose.x').value
+    initial_pose_y = node.get_parameter('initial_pose.y').value
+    initial_pose_yaw = node.get_parameter('initial_pose.yaw').value
 
-    node.declare_parameter('start_node_id', 0)
-    node.declare_parameter('end_node_id', 0)
+    # List of node IDs
+    node.declare_parameter('node_ids', [0])
 
-    start_x = node.get_parameter('start_pose.x').value
-    start_y = node.get_parameter('start_pose.y').value
-    start_yaw = node.get_parameter('start_pose.yaw').value
-
-    goal_x = node.get_parameter('goal_pose.x').value
-    goal_y = node.get_parameter('goal_pose.y').value
-    goal_yaw = node.get_parameter('goal_pose.yaw').value
-
-    start_node_id = node.get_parameter('start_node_id').value
-    end_node_id = node.get_parameter('end_node_id').value
+    node_ids = node.get_parameter('node_ids').value
 
     node.destroy_node()
 
     navigator = BasicNavigator()
 
-    # Set our demo's initial pose
+    # Set robot initial pose
     initial_pose = PoseStamped()
     initial_pose.header.frame_id = 'map'
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x = start_x
-    initial_pose.pose.position.y = start_y
-    initial_pose.pose.orientation = euler_to_quaternion(0.0, 0.0, start_yaw)
+    initial_pose.pose.position.x = initial_pose_x
+    initial_pose.pose.position.y = initial_pose_y
+    initial_pose.pose.orientation = euler_to_quaternion(0.0, 0.0, initial_pose_yaw)
     navigator.setInitialPose(initial_pose)
 
-    # Activate navigation, if not autostarted. This should be called after setInitialPose()
-    # or this will initialize at the origin of the map and update the costmap with bogus readings.
-    # If autostart, you should `waitUntilNav2Active()` instead.
-    # navigator.lifecycleStartup()
-
-    # Wait for navigation to fully activate, since autostarting nav2
+    # Wait for navigation to fully activate
     navigator.waitUntilNav2Active('bt_navigator', 'robot_localization')
 
     # If desired, you can change or load the map as well
@@ -87,86 +74,96 @@ def main() -> None:
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    # Go to our demos first goal pose
-    goal_pose = PoseStamped()
-    goal_pose.header.frame_id = 'map'
-    goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose.pose.position.x = goal_x
-    goal_pose.pose.position.y = goal_y
-    goal_pose.pose.orientation = euler_to_quaternion(0.0, 0.0, goal_yaw)
+    # Validate the node_ids list
+    if not node_ids or len(node_ids) < 2:
+        print('Error: node_ids must contain at least 2 nodes')
+        navigator.destroy_node()
+        rclpy.shutdown()
+        return
 
-    # Whether to use poses or node IDs
-    use_node_ids = (start_node_id != 0 and end_node_id != 0)
+    print(f'Navigating through {len(node_ids)} nodes: {node_ids}')
 
-    if use_node_ids:
-        print(f'Using node ID-based navigation: start_node_id={start_node_id} -> end_node_id={end_node_id}')
-        route_tracking_task = navigator.getAndTrackRoute(start_node_id, end_node_id)
-    else:
-        print(f'Using pose-based navigation: start({start_x}, {start_y}, {start_yaw}) -> goal({goal_x}, {goal_y}, {goal_yaw})')
-        route_tracking_task = navigator.getAndTrackRoute(initial_pose, goal_pose)
-
-    # Note for the route server, we have a special route argument in the API b/c it may be
-    # providing feedback messages simultaneously to others (e.g. controller or WPF as below)
+    # Navigate through each pair of consecutive node IDs
     task_canceled = False
-    last_feedback = None
-    follow_path_task = RunningTask.NONE
-    while not navigator.isTaskComplete(task=route_tracking_task):
-        ################################################
-        #
-        # Implement some code here for your application!
-        #
-        ################################################
+    full_task_success = True
+    
+    for i in range(len(node_ids) - 1):
+        start_node = node_ids[i]
+        end_node = node_ids[i + 1]
+        
+        route_tracking_task = navigator.getAndTrackRoute(start_node, end_node)
 
-        # Do something with the feedback, which contains the route / path if tracking
-        feedback = navigator.getFeedback(task=route_tracking_task)
-        while feedback is not None:
-            if not last_feedback or \
-                (feedback.last_node_id != last_feedback.last_node_id or
-                    feedback.next_node_id != last_feedback.next_node_id):
-                print('Passed node ' + str(feedback.last_node_id) +
-                      ' to next node ' + str(feedback.next_node_id) +
-                      ' along edge ' + str(feedback.current_edge_id) + '.')
+        # Note for the route server, we have a special route argument in the API b/c it may be
+        # providing feedback messages simultaneously to others (e.g. controller or WPF as below)
+        last_feedback = None
+        follow_path_task = RunningTask.NONE
+        while not navigator.isTaskComplete(task=route_tracking_task):
+            ################################################
+            #
+            # Implement some code here for your application!
+            #
+            ################################################
 
-            last_feedback = feedback
-
-            if feedback.rerouted:  # or follow_path_task == RunningTask.None
-                # Follow the path from the route server using the controller server
-                print('Passing new route to controller!')
-                follow_path_task = navigator.followPath(feedback.path)
-
-                # May instead use the waypoint follower
-                # (or nav through poses) and use the route's sparse nodes!
-                # print("Passing route to waypoint follower!")
-                # nodes =
-                # [toPoseStamped(x.position, feedback.route.header) for x in feedback.route.nodes]
-                # navigator.followWaypoints(nodes)
-                # Or navigator.navigateThroughPoses(nodes)
-                # Consider sending only the first few and iterating
-
+            # Do something with the feedback, which contains the route / path if tracking
             feedback = navigator.getFeedback(task=route_tracking_task)
+            while feedback is not None:
+                if not last_feedback or \
+                    (feedback.last_node_id != last_feedback.last_node_id or
+                        feedback.next_node_id != last_feedback.next_node_id):
+                    print('Passed node ' + str(feedback.last_node_id) +
+                          ' to next node ' + str(feedback.next_node_id) +
+                          ' along edge ' + str(feedback.current_edge_id) + '.')
 
-        # Check if followPath or WPF task is done (or failed),
-        # will cancel all current tasks, including route
-        if navigator.isTaskComplete(task=follow_path_task):
-            print('Controller or waypoint follower server completed its task!')
-            navigator.cancelTask()
-            task_canceled = True
+                last_feedback = feedback
 
-    # Route server will return completed status before the controller / WPF server
-    # so wait for the actual robot task processing server to complete
-    while not navigator.isTaskComplete(task=follow_path_task) and not task_canceled:
-        pass
+                if feedback.rerouted:  # or follow_path_task == RunningTask.None
+                    # Follow the path from the route server using the controller server
+                    print('Passing new route to controller!')
+                    follow_path_task = navigator.followPath(feedback.path)
 
-    # Do something depending on the return code
-    result = navigator.getResult()
-    if result == TaskResult.SUCCEEDED:
-        print('Goal succeeded!')
-    elif result == TaskResult.CANCELED:
-        print('Goal was canceled!')
-    elif result == TaskResult.FAILED:
-        print('Goal failed!')
+                    # May instead use the waypoint follower
+                    # (or nav through poses) and use the route's sparse nodes!
+                    # print("Passing route to waypoint follower!")
+                    # nodes =
+                    # [toPoseStamped(x.position, feedback.route.header) for x in feedback.route.nodes]
+                    # navigator.followWaypoints(nodes)
+                    # Or navigator.navigateThroughPoses(nodes)
+                    # Consider sending only the first few and iterating
+
+                feedback = navigator.getFeedback(task=route_tracking_task)
+
+            # Check if followPath or WPF task is done (or failed),
+            # will cancel all current tasks, including route
+            if navigator.isTaskComplete(task=follow_path_task):
+                print('Controller or waypoint follower server completed its task!')
+                navigator.cancelTask()
+                task_canceled = True
+
+        # Route server will return completed status before the controller / WPF server
+        # so wait for the actual robot task processing server to complete
+        while not navigator.isTaskComplete(task=follow_path_task) and not task_canceled:
+            pass
+
+        # Check result for this segment
+        segment_result = navigator.getResult()
+        if segment_result == TaskResult.SUCCEEDED:
+            print(f'Nodes {i+1} completed successfully')
+        elif segment_result == TaskResult.CANCELED:
+            print(f'Nodes {i+1} was canceled, stopping route')
+            full_task_success = False
+            break
+        elif segment_result == TaskResult.FAILED:
+            print(f'Nodes {i+1} failed, stopping route')
+            full_task_success = False
+            break
+
+    # Final result
+    if full_task_success and not task_canceled:
+        print('All nodes were successfully traversed!')
+    elif task_canceled:
+        print('Route navigation was canceled!')
     else:
-        print('Goal has an invalid return status!')
+        print('Route navigation failed!')
 
     while rclpy.ok():
         rclpy.spin_once(navigator, timeout_sec=0.5)
