@@ -1,35 +1,39 @@
-controller_manager:
-  ros__parameters:
-    update_rate: 1000  # Hz
+/**: 
+  controller_manager:
+    ros__parameters:
+      update_rate: 1000  # Hz
+      thread_priority: 98
+      enable_overrun: false
 
-    fr3_arm_controller:
-      type: "joint_trajectory_controller/JointTrajectoryController"
+      fr3_arm_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
 
-fr3_arm_controller:
-  ros__parameters:
-    joints:
-      - fr3_joint1
-      - fr3_joint2
-      - fr3_joint3
-      - fr3_joint4
-      - fr3_joint5
-      - fr3_joint6
-      - fr3_joint7
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
 
-    command_interfaces:
-      - position
 
-    state_interfaces:
-      - position
-      - velocity
-
-    action_monitor_rate: 20.0
-    allow_partial_joints_goal: false
-    interpolate_from_desired_state: true
-
-    constraints:
-      stopped_velocity_tolerance: 0.01
-      goal_time: 0.0
-      joint1:
-        trajectory: 0.05
-        goal: 0.03
+      
+/**: 
+  fr3_arm_controller:
+    ros__parameters:
+      command_interfaces:
+        - position
+      state_interfaces:
+        - position
+        - velocity
+      joints:
+        - fr3_joint1
+        - fr3_joint2
+        - fr3_joint3
+        - fr3_joint4
+        - fr3_joint5
+        - fr3_joint6
+        - fr3_joint7
+      gains:
+        fr3_joint1: { p: 600., d: 30., i: 0., i_clamp: 1. }
+        fr3_joint2: { p: 600., d: 30., i: 0., i_clamp: 1. }
+        fr3_joint3: { p: 600., d: 30., i: 0., i_clamp: 1. }
+        fr3_joint4: { p: 600., d: 30., i: 0., i_clamp: 1. }
+        fr3_joint5: { p: 250., d: 10., i: 0., i_clamp: 1. }
+        fr3_joint6: { p: 150., d: 10., i: 0., i_clamp: 1. }
+        fr3_joint7: { p: 50., d: 5., i: 0., i_clamp: 1. }

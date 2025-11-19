@@ -219,6 +219,9 @@ def execution_stage(context: LaunchContext,
             env_var_value += ':' + os.path.dirname(get_package_share_directory('elite_description'))
         elif arm_typ == 'ur5' or arm_typ == 'ur10' or arm_typ == 'ur5e' or arm_typ == 'ur10e':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('ur_description'))
+        elif arm_typ == 'fr3':
+            env_var_value += ':' + os.path.dirname(get_package_share_directory('franka_description'))
+
         # Set environment variable for gripper description packages
         # if gripper_typ == 'epick':
         #     env_var_value += ':' + os.path.dirname(get_package_share_directory('epick_description'))

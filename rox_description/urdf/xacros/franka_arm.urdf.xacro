@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
-<!--
-Author: Ashin A
--->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="franka_arm">
 
-  <!-- Load Franka macros -->
   <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
   <xacro:include filename="$(find franka_description)/robots/common/franka_arm.ros2_control.xacro"/>
 
-  <!-- Load parameter YAMLs -->
+  <xacro:arg name="use_gz" default="false"/>
+  <xacro:arg name="include_arm_ros2_control" default="false"/>
+  <xacro:arg name="arm" default="fr3"/>
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="mock_sensor_commands" default="false"/>
+
   <xacro:property name="joint_limits"
         value="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}" />
   <xacro:property name="kinematics"
@@ -18,69 +19,42 @@ Author: Ashin A
   <xacro:property name="dynamics"
         value="${xacro.load_yaml('$(find franka_description)/robots/fr3/dynamics.yaml')}" />
 
-  <!-- Franka Arm -->
   <xacro:if value="${arm == 'fr3'}">
     <xacro:property name="arm_height" value="0.376"/>
     <xacro:arg name="arm_parent" default="world"/>
-
-    <!-- Initial joint positions -->
     <xacro:arg name="initial_positions_file"
                default="$(find rox_bringup)/configs/franka/initial_joint_positions.yaml"/>
-    <xacro:property 
-      name="ur_initial_positions"
-      value="${xacro.load_yaml('$(arg initial_positions_file)')}"/>
+    <xacro:property name="ur_initial_positions"
+                    value="${xacro.load_yaml('$(arg initial_positions_file)')}"/>
 
-    <!-- Create physical robot model -->
     <xacro:franka_robot
-        arm_id="fr3"
-        hand="false"
-        joint_limits="${joint_limits}"
-        kinematics="${kinematics}"
-        inertials="${inertials}"
-        dynamics="${dynamics}"
-        arm_prefix=""
-        xyz="0.218 0 ${arm_height}"
-        parent="cabinet_link"
-        gazebo="$(arg use_gz)"
-        ros2_control="$(arg include_arm_ros2_control)"
-        description_pkg="franka_description"/>
+      arm_id="fr3"
+      hand="false"
+      joint_limits="${joint_limits}"
+      kinematics="${kinematics}"
+      inertials="${inertials}"
+      dynamics="${dynamics}"
+      xyz="0.218 0 ${arm_height}"
+      parent="cabinet_link"
+      gazebo="$(arg use_gz)"
+      ros2_control="$(arg include_arm_ros2_control)"
+      description_pkg="franka_description"
+      gazebo_effort="false"
+    />
 
-    <!-- Real hardware branch (disabled when using Gazebo) -->
     <xacro:unless value="$(arg use_gz)">
       <xacro:if value="$(arg include_arm_ros2_control)">
         <xacro:franka_arm_ros2_control
-            arm_id="fr3"
-            robot_ip=""
-            gazebo="${0}"           
-            hand="false"
-            arm_prefix=""
-            gazebo_effort="false"
-            use_fake_hardware="$(arg use_mock_hardware)"   
-            fake_sensor_commands="$(arg mock_sensor_commands)"/>
+          arm_id="fr3"
+          robot_ip=""
+          gazebo="false"           
+          hand="false"
+          arm_prefix=""
+          gazebo_effort="false"
+          use_fake_hardware="$(arg use_mock_hardware)"   
+          fake_sensor_commands="$(arg mock_sensor_commands)"/>
       </xacro:if>
     </xacro:unless>
-
-    <!-- Gazebo simulation branch -->
-    <xacro:if value="$(arg use_gz)">
-     
-    <xacro:arg name="simulation_controllers" default="$(find rox_bringup)/configs/franka/simulation_controllers.yaml"/>
-
-    <gazebo reference="$(arg arm_parent)">
-    </gazebo>
-      
-      <!-- Gazebo–ROS 2 Control bridge plugin for Franka simulation -->
-      <gazebo>
-        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
-          <parameters>$(arg simulation_controllers)</parameters>
-        </plugin>
-      </gazebo>
-    </xacro:if>
   </xacro:if>
 
 </robot>
-
-
-
- <!-- <plugin name="gz_ros2_control::GZROS2ControlPlugin" filename="libfranka_gz_ros2_control-system.so"> -->
-
-           <!-- <parameters>$(find franka_fr3_moveit_config)/config/fr3_ros_controllers.yaml</parameters> -->
