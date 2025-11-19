@@ -84,13 +84,18 @@ def execution_stage(context: LaunchContext,
             initial_joint_controller_name = 'arm_controller'
         elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
             arm_manufacturer = 'ur'
-
+        elif arm_typ == 'fr3':
+        # new block for Franka FR3
+            arm_manufacturer = 'franka'
+            initial_joint_controller_name = 'fr3_arm_controller'
+        
         controllers_yaml = os.path.join(
             get_package_share_directory('rox_bringup'),
             'configs', 
             arm_manufacturer, 
             'simulation_controllers.yaml'
         )
+        print(f"Using controller config: {controllers_yaml}")
 
         # Generates a final YAML parameter file from the controllers template (with substitutions applied),
         # and returns file_path, shutdown_handler
@@ -265,7 +270,7 @@ def generate_launch_description():
 
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66','fr3'],
             description='Arm Types\n\t'
         )
 
