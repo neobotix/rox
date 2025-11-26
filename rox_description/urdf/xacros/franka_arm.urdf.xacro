@@ -24,7 +24,7 @@
     <xacro:arg name="arm_parent" default="world"/>
     <xacro:arg name="initial_positions_file"
                default="$(find rox_bringup)/configs/franka/initial_joint_positions.yaml"/>
-    <xacro:property name="ur_initial_positions"
+    <xacro:property name="franka_initial_positions"
                     value="${xacro.load_yaml('$(arg initial_positions_file)')}"/>
 
     <xacro:franka_robot
@@ -40,6 +40,7 @@
       ros2_control="$(arg include_arm_ros2_control)"
       description_pkg="franka_description"
       gazebo_effort="false"
+      use_default_controller_yaml="false"
     />
 
     <xacro:unless value="$(arg use_gz)">
@@ -52,7 +53,8 @@
           arm_prefix=""
           gazebo_effort="false"
           use_fake_hardware="$(arg use_mock_hardware)"   
-          fake_sensor_commands="$(arg mock_sensor_commands)"/>
+          fake_sensor_commands="$(arg mock_sensor_commands)"
+          />
       </xacro:if>
     </xacro:unless>
   </xacro:if>

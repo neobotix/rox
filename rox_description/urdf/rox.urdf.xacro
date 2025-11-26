@@ -19,6 +19,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="arm_parent" default="cabinet_link"/>
   <xacro:arg name="gripper_type" default=""/>
   <xacro:arg name="use_ur_dc" default="false"/>
+  <xacro:arg name="use_dc_control_box" default="false"/>
   <xacro:arg name="force_abs_paths" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
   <xacro:arg name="use_mock_hardware" default="false" />
@@ -36,6 +37,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="joint_typ" value="$(arg joint_type)"/>
   <xacro:property name="arm" value="$(arg arm_type)"/>
   <xacro:property name="ur_dc" value="$(arg use_ur_dc)"/>
+  <xacro:property name="dc_control_box" value="$(arg use_dc_control_box)"/>
   <xacro:property name="gripper" value="$(arg gripper_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
 
@@ -175,11 +177,11 @@ Contributor: Adarsh Karan K P
     <xacro:if value="${arm == 'fr3'}">
 
       <!-- Different height for AC arm-->
-      <xacro:if value="${ur_dc == False}">
+      <xacro:if value="${dc_control_box == False}">
         <xacro:property name="arm_height" value="0.376" />
       </xacro:if>
 
-      <xacro:if value="${ur_dc == True}">
+      <xacro:if value="${dc_control_box == True}">
         <xacro:property name="arm_height" value="0.276" />
       </xacro:if>
       

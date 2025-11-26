@@ -24,6 +24,7 @@ def execution_stage(context: LaunchContext,
                     d435_enable,
                     arm_type,
                     ur_dc,
+                    dc_control_box,
                     use_rviz):
 
     launch_actions = []
@@ -33,6 +34,7 @@ def execution_stage(context: LaunchContext,
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
     use_ur_dc = ur_dc.perform(context)
+    use_dc_control_box = dc_control_box.perform(context)
     use_rviz = use_rviz.perform(context)
     use_joint_state_publisher_gui = use_joint_state_publisher_gui.perform(context)
     joint_type = "fixed"
@@ -77,6 +79,7 @@ def execution_stage(context: LaunchContext,
                     " ", 'use_imu:=', imu,
                     " ", 'd435_enable:=', d435,
                     " ", 'use_ur_dc:=', use_ur_dc,
+                    " ", 'use_dc_control_box:=', use_dc_control_box,
                 ]), 
                 value_type=str
             )
@@ -137,6 +140,11 @@ def generate_launch_description():
             'use_ur_dc', default_value='False',
             description='Set this argument to True if you have an UR arm with DC variant'
         )
+    
+    declare_franka_pwr_variant_cmd = DeclareLaunchArgument(
+            'use_dc_control_box', default_value='False',
+            description='Set this argument to True if you have an UR arm with DC variant'
+        )
 
     declare_use_rviz_cmd = DeclareLaunchArgument(
             'use_rviz', default_value='True',
@@ -153,6 +161,7 @@ def generate_launch_description():
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('arm_type'),
             LaunchConfiguration('use_ur_dc'),
+            LaunchConfiguration('use_dc_control_box'),
             LaunchConfiguration('use_rviz')
         ])
 
@@ -164,6 +173,7 @@ def generate_launch_description():
         declare_realsense_cmd,
         declare_arm_type_cmd,
         declare_ur_pwr_variant_cmd,
+        declare_franka_pwr_variant_cmd,
         declare_use_rviz_cmd,
         opq_function
     ])

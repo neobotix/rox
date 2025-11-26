@@ -23,6 +23,7 @@ def execution_stage(context: LaunchContext,
                     d435_enable,
                     scanner_type,
                     ur_dc,
+                    dc_control_box,
                     # gripper_type,
                     headless_sim,
                     use_wall_time):
@@ -36,6 +37,7 @@ def execution_stage(context: LaunchContext,
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
+    use_dc_control_box = str(dc_control_box.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
     joint_type = "fixed"
@@ -95,7 +97,6 @@ def execution_stage(context: LaunchContext,
             arm_manufacturer, 
             'simulation_controllers.yaml'
         )
-        print(f"Using controller config: {controllers_yaml}")
 
         # Generates a final YAML parameter file from the controllers template (with substitutions applied),
         # and returns file_path, shutdown_handler
@@ -132,6 +133,7 @@ def execution_stage(context: LaunchContext,
         " ", 'arm_type:=', arm_typ,
         # " ", 'gripper_type:=', gripper_typ,
         " ", 'use_ur_dc:=', use_ur_dc,
+        " ", 'use_dc_control_box:=', use_dc_control_box,
         " ", 'force_abs_paths:=', "true",
         " ", 'simulation_controllers:=', simulation_controllers,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
@@ -282,6 +284,11 @@ def generate_launch_description():
             description='Set this argument to True if you have an UR arm with DC variant'
         )
 
+    declare_franka_pwr_variant_cmd = DeclareLaunchArgument(
+            'use_dc_control_box', default_value='False',
+            description='Set this argument to True if you have an UR arm with DC variant'
+        )
+
     declare_gripper_type_cmd = DeclareLaunchArgument(
             'gripper_type', default_value='',
             choices=['', '2f_140', '2f_85'],
@@ -307,6 +314,7 @@ def generate_launch_description():
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
+            LaunchConfiguration('use_dc_control_box'),
             # LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
             LaunchConfiguration('use_wall_time')
@@ -319,6 +327,7 @@ def generate_launch_description():
         declare_arm_type_cmd,
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
+        declare_franka_pwr_variant_cmd,
         # declare_gripper_type_cmd,
         declare_headless_sim_cmd,
         declare_use_wall_time_cmd,
