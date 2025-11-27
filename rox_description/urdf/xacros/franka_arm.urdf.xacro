@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
+<!--
+Author: Pradheep Padmanabhan
+Contributor: Ashin Anandakrishnan
+-->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="franka_arm">
 
   <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
-  <xacro:include filename="$(find franka_description)/robots/common/franka_arm.ros2_control.xacro"/>
 
   <xacro:arg name="use_gz" default="false"/>
   <xacro:arg name="include_arm_ros2_control" default="false"/>
   <xacro:arg name="arm" default="fr3"/>
   <xacro:arg name="use_mock_hardware" default="false"/>
   <xacro:arg name="mock_sensor_commands" default="false"/>
+  <xacro:arg name="simulation_controllers" default=""/>
 
   <xacro:property name="joint_limits"
         value="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}" />
@@ -40,23 +44,13 @@
       ros2_control="$(arg include_arm_ros2_control)"
       description_pkg="franka_description"
       gazebo_effort="false"
-      use_default_controller_yaml="false"
+    
+      controller_yaml="$(arg simulation_controllers)" 
     />
+    <!-- If a controller_yaml file is provided, it gets passed down into the
+           franka_arm_ros2_control macro(customised). If empty, the macro falls back to the
+           default Franka gazebo controller config. -->
 
-    <xacro:unless value="$(arg use_gz)">
-      <xacro:if value="$(arg include_arm_ros2_control)">
-        <xacro:franka_arm_ros2_control
-          arm_id="fr3"
-          robot_ip=""
-          gazebo="false"           
-          hand="false"
-          arm_prefix=""
-          gazebo_effort="false"
-          use_fake_hardware="$(arg use_mock_hardware)"   
-          fake_sensor_commands="$(arg mock_sensor_commands)"
-          />
-      </xacro:if>
-    </xacro:unless>
   </xacro:if>
 
 </robot>

@@ -378,9 +378,9 @@ def generate_launch_description():
             description='Set this argument to True if you have an UR arm with DC variant'
         )
 
-    declare_franka_pwr_variant_cmd = DeclareLaunchArgument(
+    declare_pwr_variant_cmd = DeclareLaunchArgument(
             'use_dc_control_box', default_value='False',
-            description='Set this argument to True if you have an UR arm with DC variant'
+            description='Set this argument to True if you have an arm with DC variant or smaller controller box'
         )
 
     declare_mock_arm_cmd = DeclareLaunchArgument(
@@ -445,7 +445,7 @@ def generate_launch_description():
         declare_scanner_cmd,
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,
-        declare_franka_pwr_variant_cmd,
+        declare_pwr_variant_cmd,
         declare_mock_arm_cmd,
         declare_initial_controller_arm_cmd,
         declare_robot_ip_cmd,

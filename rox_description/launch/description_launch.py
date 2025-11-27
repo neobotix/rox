@@ -141,9 +141,9 @@ def generate_launch_description():
             description='Set this argument to True if you have an UR arm with DC variant'
         )
     
-    declare_franka_pwr_variant_cmd = DeclareLaunchArgument(
+    declare_pwr_variant_cmd = DeclareLaunchArgument(
             'use_dc_control_box', default_value='False',
-            description='Set this argument to True if you have an UR arm with DC variant'
+            description='Set this argument to True if you have an arm with DC variant or smaller controller box'
         )
 
     declare_use_rviz_cmd = DeclareLaunchArgument(
@@ -173,7 +173,7 @@ def generate_launch_description():
         declare_realsense_cmd,
         declare_arm_type_cmd,
         declare_ur_pwr_variant_cmd,
-        declare_franka_pwr_variant_cmd,
+        declare_pwr_variant_cmd,
         declare_use_rviz_cmd,
         opq_function
     ])
