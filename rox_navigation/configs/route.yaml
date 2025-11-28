@@ -1,6 +1,4 @@
 # Route configuration for neo_route node
-# Define start and goal poses for autonomous navigation
-
 neo_route_node:
   ros__parameters:
 

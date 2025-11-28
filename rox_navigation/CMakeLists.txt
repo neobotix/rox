@@ -17,6 +17,7 @@ install(DIRECTORY launch configs maps scripts graphs rox_navigation
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
+ament_python_install_module(${PROJECT_NAME}/param_file_utils.py)
 
 # Install Python scripts as executables
 install(PROGRAMS
