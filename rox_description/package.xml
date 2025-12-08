@@ -26,7 +26,6 @@
   <exec_depend>franka_hw</exec_depend>
   <exec_depend>franka_gazebo</exec_depend>
  
-
   <!-- Dependencies for Realsense D435 -->
   <exec_depend>realsense2_description</exec_depend>
 

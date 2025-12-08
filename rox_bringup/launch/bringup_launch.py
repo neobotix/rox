@@ -24,7 +24,6 @@ def execution_stage(context: LaunchContext,
                     scanner_type,
                     use_imu,
                     ur_dc,
-                    dc_control_box,
                     mock_arm,
                     initial_controller_arm,
                     robot_ip,
@@ -42,7 +41,6 @@ def execution_stage(context: LaunchContext,
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
-    use_dc_ctrl_box = str(dc_control_box.perform(context))
     use_mock = str(mock_arm.perform(context))
     gripper_typ = str(gripper_type.perform(context))
     initial_controller_arm_name = str(initial_controller_arm.perform(context))
@@ -72,7 +70,6 @@ def execution_stage(context: LaunchContext,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
-        " ", 'use_dc_control_box:=', use_dc_ctrl_box,
         " ", 'joint_type:=', joint_type
     ]
     if arm_typ != "":
@@ -378,11 +375,6 @@ def generate_launch_description():
             description='Set this argument to True if you have an UR arm with DC variant'
         )
 
-    declare_pwr_variant_cmd = DeclareLaunchArgument(
-            'use_dc_control_box', default_value='False',
-            description='Set this argument to True if you have an arm with DC variant or smaller controller box'
-        )
-
     declare_mock_arm_cmd = DeclareLaunchArgument(
             'use_mock_arm', default_value='False',
             description="Mock arm and gripper (if available)"
@@ -429,7 +421,6 @@ def generate_launch_description():
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('use_ur_dc'),
-            LaunchConfiguration('use_dc_control_box'),
             LaunchConfiguration('use_mock_arm'),
             LaunchConfiguration('initial_controller_arm'),
             LaunchConfiguration('robot_ip'),
@@ -445,7 +436,6 @@ def generate_launch_description():
         declare_scanner_cmd,
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,
-        declare_pwr_variant_cmd,
         declare_mock_arm_cmd,
         declare_initial_controller_arm_cmd,
         declare_robot_ip_cmd,

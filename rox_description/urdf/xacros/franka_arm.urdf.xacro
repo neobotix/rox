@@ -24,7 +24,7 @@ Contributor: Ashin Anandakrishnan
         value="${xacro.load_yaml('$(find franka_description)/robots/fr3/dynamics.yaml')}" />
 
   <xacro:if value="${arm == 'fr3'}">
-    <xacro:property name="arm_height" value="0.376"/>
+    <xacro:property name="arm_height" value="0.276"/>
     <xacro:arg name="arm_parent" default="world"/>
     <xacro:arg name="initial_positions_file"
                default="$(find rox_bringup)/configs/franka/initial_joint_positions.yaml"/>
