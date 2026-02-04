@@ -1,7 +1,7 @@
 {
 	"charge_current_ain": -1,
 	"charge_profile": {
-		"current_offset": 1.4,
+		"current_offset": 1,
 		"charge_phases": [
 			{
 				"cc_cv": {
@@ -17,8 +17,9 @@
 					"voltage": 57.6
 				},
 				"min_current": 0.2,
-				"target_max_charge": 0.98,
-				"target_min_current": 0.1
+				"target_max_charge": 0.99,
+				"target_min_current": 0.1,
+				"finish_timeout_ms": 1000
 			},
 			{
 				"cc_cv": {
@@ -27,13 +28,13 @@
 				},
 				"min_current": 0.2,
 				"target_max_charge": 1,
-				"target_min_current": 0.1
+				"target_min_current": 0.1,
+				"finish_timeout_ms": 1000
 			},
 			{
 				"is_conservation": true,
-				"target_min_charge": 0.97
+				"target_min_charge": 0.96
 			}
 		]
 	}
 }
-
