@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!--
+Author: Pradheep Padmanabhan
+Contributor: Ashin Anandakrishnan
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="franka_arm">
+
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+
+  <xacro:arg name="use_gz" default="false"/>
+  <xacro:arg name="include_arm_ros2_control" default="false"/>
+  <xacro:arg name="arm" default="fr3"/>
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="mock_sensor_commands" default="false"/>
+  <xacro:arg name="simulation_controllers" default=""/>
+
+  <xacro:property name="joint_limits"
+        value="${xacro.load_yaml('$(find franka_description)/robots/fr3/joint_limits.yaml')}" />
+  <xacro:property name="kinematics"
+        value="${xacro.load_yaml('$(find franka_description)/robots/fr3/kinematics.yaml')}" />
+  <xacro:property name="inertials"
+        value="${xacro.load_yaml('$(find franka_description)/robots/fr3/inertials.yaml')}" />
+  <xacro:property name="dynamics"
+        value="${xacro.load_yaml('$(find franka_description)/robots/fr3/dynamics.yaml')}" />
+
+  <xacro:if value="${arm == 'fr3'}">
+    <xacro:property name="arm_height" value="0.276"/>
+    <xacro:arg name="arm_parent" default="world"/>
+    <xacro:arg name="initial_positions_file"
+               default="$(find rox_bringup)/configs/franka/initial_joint_positions.yaml"/>
+    <xacro:property name="franka_initial_positions"
+                    value="${xacro.load_yaml('$(arg initial_positions_file)')}"/>
+
+    <xacro:franka_robot
+      arm_id="fr3"
+      hand="false"
+      joint_limits="${joint_limits}"
+      kinematics="${kinematics}"
+      inertials="${inertials}"
+      dynamics="${dynamics}"
+      xyz="0.218 0 ${arm_height}"
+      parent="cabinet_link"
+      gazebo="$(arg use_gz)"
+      ros2_control="$(arg include_arm_ros2_control)"
+      description_pkg="franka_description"
+      gazebo_effort="false"
+    
+      controller_yaml="$(arg simulation_controllers)" 
+    />
+    <!-- If a controller_yaml file is provided, it gets passed down into the
+           franka_arm_ros2_control macro(customised). If empty, the macro falls back to the
+           default Franka gazebo controller config. -->
+
+  </xacro:if>
+
+</robot>

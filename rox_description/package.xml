@@ -19,6 +19,13 @@
   <exec_depend>ur_robot_driver</exec_depend>
   <exec_depend>ur_simulation_gz</exec_depend>
 
+  <!-- Dependencies for Franka Fr3 arm-->
+  <exec_depend>franka_description</exec_depend>
+  <exec_depend>franka_msgs</exec_depend>
+  <exec_depend>franka_gripper</exec_depend>
+  <exec_depend>franka_hw</exec_depend>
+  <exec_depend>franka_gazebo</exec_depend>
+ 
   <!-- Dependencies for Realsense D435 -->
   <exec_depend>realsense2_description</exec_depend>
 

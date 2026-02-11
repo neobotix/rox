@@ -171,6 +171,14 @@ Contributor: Adarsh Karan K P
       <xacro:include filename="$(find rox_description)/urdf/xacros/elite_arm.urdf.xacro"/>
     </xacro:if>
 
+    <!-- Franka Robotics Arms-->
+    <xacro:if value="${arm == 'fr3'}">
+      <xacro:property name="arm_height" value="0.276" />
+  
+      <!-- Include the franka arm -->
+      <xacro:include filename="$(find rox_description)/urdf/xacros/franka_arm.urdf.xacro"/>
+    </xacro:if>
+
     <!-- add gripper-->
     <xacro:unless value="${gripper == ''}">
 

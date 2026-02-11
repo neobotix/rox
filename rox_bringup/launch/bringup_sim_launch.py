@@ -84,7 +84,11 @@ def execution_stage(context: LaunchContext,
             initial_joint_controller_name = 'arm_controller'
         elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
             arm_manufacturer = 'ur'
-
+        elif arm_typ == 'fr3':
+        # new block for Franka FR3
+            arm_manufacturer = 'franka'
+            initial_joint_controller_name = 'fr3_arm_controller'
+        
         controllers_yaml = os.path.join(
             get_package_share_directory('rox_bringup'),
             'configs', 
@@ -214,6 +218,9 @@ def execution_stage(context: LaunchContext,
             env_var_value += ':' + os.path.dirname(get_package_share_directory('elite_description'))
         elif arm_typ == 'ur5' or arm_typ == 'ur10' or arm_typ == 'ur5e' or arm_typ == 'ur10e':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('ur_description'))
+        elif arm_typ == 'fr3':
+            env_var_value += ':' + os.path.dirname(get_package_share_directory('franka_description'))
+
         # Set environment variable for gripper description packages
         # if gripper_typ == 'epick':
         #     env_var_value += ':' + os.path.dirname(get_package_share_directory('epick_description'))
@@ -265,7 +272,7 @@ def generate_launch_description():
 
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66','fr3'],
             description='Arm Types\n\t'
         )
 
