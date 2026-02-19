@@ -180,7 +180,8 @@ def execution_stage(context: LaunchContext,
                     ('/extended_scan', '/lidar_1/extended_scan'),
                     ('/output_paths', '/lidar_1/output_paths'),
                     ('/raw_data', '/lidar_1/raw_data'),
-                    ('/field_data', '/lidar_1/field_data')
+                    ('/field_data', '/lidar_1/field_data'),
+                    ('/diagnostics', '/lidar_1/diagnostics')
                 ]
             )
 
@@ -201,7 +202,8 @@ def execution_stage(context: LaunchContext,
                     ('/extended_scan', '/lidar_2/extended_scan'),
                     ('/output_paths', '/lidar_2/output_paths'),
                     ('/raw_data', '/lidar_2/raw_data'),
-                    ('/field_data', '/lidar_2/field_data')
+                    ('/field_data', '/lidar_2/field_data'),
+                    ('/diagnostics', '/lidar_2/diagnostics')
                 ]
             )
 
