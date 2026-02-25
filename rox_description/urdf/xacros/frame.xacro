@@ -20,13 +20,23 @@
       <visual>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://rox_description/meshes/short_frame.dae" scale="0.1 0.1 0.1"/>
+          <xacro:if value="${linear_axis == True}">
+            <mesh filename="package://rox_description/meshes/linear_axis_frame.dae" scale="0.001 0.001 0.001"/>
+          </xacro:if>
+          <xacro:unless value="${linear_axis == True}">
+            <mesh filename="package://rox_description/meshes/short_frame.dae" scale="0.1 0.1 0.1"/>
+          </xacro:unless>
         </geometry>
       </visual>
       <collision>
         <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://rox_description/meshes/short_frame.dae" scale="0.1 0.1 0.1"/>
+          <xacro:if value="${linear_axis == True}">
+            <mesh filename="package://rox_description/meshes/linear_axis_frame.dae" scale="0.001 0.001 0.001"/>
+          </xacro:if>
+          <xacro:unless value="${linear_axis == True}">
+            <mesh filename="package://rox_description/meshes/short_frame.dae" scale="0.1 0.1 0.1"/>
+          </xacro:unless>
         </geometry>
       </collision>
     </link>

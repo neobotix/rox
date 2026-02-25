@@ -19,18 +19,34 @@
       <origin xyz="${vis_pos}" rpy="${vis_rot}" />
       <inertia ixx="0.00499743171" ixy="0.00000004464" ixz="-0.00000002245" iyy="0.00499741733" iyz="-0.00000000164" izz="0.00839239692"/>    
     </inertial>
-    <visual>
-     <origin xyz="${vis_pos}" rpy="${vis_rot}" />
-     <geometry>
-        <mesh filename="package://rox_description/meshes/argo_caster.dae" scale="0.001 0.001 0.001"/>
-     </geometry>
-    </visual>
-    <collision>
-     <origin xyz="${vis_pos}" rpy="${vis_rot}" />
-     <geometry>
-        <mesh filename="package://rox_description/meshes/argo_caster.dae" scale="0.001 0.001 0.001"/>
-     </geometry>
-    </collision>
+    <xacro:if value="${linear_axis == True}">
+      <visual>
+        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <geometry>
+          <mesh filename="package://rox_description/meshes/linear_axis_argo_caster.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <geometry>
+          <mesh filename="package://rox_description/meshes/linear_axis_argo_caster.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </xacro:if>
+    <xacro:unless value="${linear_axis == True}">
+      <visual>
+        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <geometry>
+          <mesh filename="package://rox_description/meshes/argo_caster.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="${vis_pos}" rpy="${vis_rot}" />
+        <geometry>
+          <mesh filename="package://rox_description/meshes/argo_caster.dae" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </xacro:unless>
    </link>
 
   </xacro:macro>

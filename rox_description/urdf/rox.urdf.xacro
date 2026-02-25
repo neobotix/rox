@@ -13,6 +13,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="scanner_type" default="nanoscan"/>
   <xacro:arg name="rox_type" default="argo"/>
   <xacro:arg name="joint_type" default="fixed"/>
+  <xacro:arg name="enable_linear_axis" default="false"/>
 
   <!-- Manipulator Arguments-->
   <xacro:arg name="arm_type" default=""/>
@@ -38,6 +39,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="ur_dc" value="$(arg use_ur_dc)"/>
   <xacro:property name="gripper" value="$(arg gripper_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
+  <xacro:property name="linear_axis" value="$(arg enable_linear_axis)"/>
 
   <!-- Include xacro files -->
   <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -83,27 +85,48 @@ Contributor: Adarsh Karan K P
     <xacro:trike_drive parent="base_link" wheel_separation="${wheel_separation}"/>
   </xacro:if>
 
+  <!-- Linear axis (EMROX-Argo variant) -->
+  <xacro:if value="${linear_axis == True}">
+    <xacro:include filename="$(find rox_description)/urdf/xacros/linear_axis.xacro"/>
+    <xacro:linear_axis parent="base_link"/>
+  </xacro:if>
+
+  <!-- Scanner placement -->
+  <!-- Linear-axis variant is wider in X (wheel centers +0.05m per side), Y unchanged. -->
+  <xacro:if value="${linear_axis == True}">
+    <xacro:property name="nanoscan_x" value="0.3495"/>
+    <xacro:property name="nanoscan_y" value="0.2690"/>
+    <xacro:property name="psenscan_x" value="0.3516"/>
+    <xacro:property name="psenscan_y" value="0.2719"/>
+  </xacro:if>
+  <xacro:unless value="${linear_axis == True}">
+    <xacro:property name="nanoscan_x" value="0.2995"/>
+    <xacro:property name="nanoscan_y" value="0.2690"/>
+    <xacro:property name="psenscan_x" value="0.3016"/>
+    <xacro:property name="psenscan_y" value="0.2719"/>
+  </xacro:unless>
+
   <!-- Laser scanners -->
 
   <!-- Nanoscans -->
   <xacro:if value="${scanner == 'nanoscan'}">
     <xacro:sick_nanoscan name="lidar_1" parent="base_link">
-      <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995} 0.269 0.189"/>
+      <origin rpy="${pi} 0 ${pi/4}" xyz="${nanoscan_x} ${nanoscan_y} 0.189"/>
     </xacro:sick_nanoscan>
 
     <xacro:sick_nanoscan name="lidar_2" parent="base_link">
-      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995} -0.269 0.189"/>
+      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${nanoscan_x} -${nanoscan_y} 0.189"/>
     </xacro:sick_nanoscan>
   </xacro:if>
   
   <!-- Pilz -->
   <xacro:if value="${scanner == 'psenscan'}">
     <xacro:pilz_psenscan name="lidar_1" parent="base_link">
-      <origin rpy="0 0 ${pi/4}" xyz="${0.3016} 0.2719 0.191"/>
+      <origin rpy="0 0 ${pi/4}" xyz="${psenscan_x} ${psenscan_y} 0.191"/>
     </xacro:pilz_psenscan>
 
     <xacro:pilz_psenscan name="lidar_2" parent="base_link">
-      <origin rpy="0 0 -${pi - pi/4}" xyz="-${0.3016} -0.2719 0.191"/>
+      <origin rpy="0 0 -${pi - pi/4}" xyz="-${psenscan_x} -${psenscan_y} 0.191"/>
     </xacro:pilz_psenscan>
   </xacro:if>
 
@@ -140,8 +163,8 @@ Contributor: Adarsh Karan K P
     </xacro:sensor_d435>
   </xacro:if>
 
-  <!-- arm -->
-  <xacro:unless value="${arm == ''}">
+  <!-- arm (excluded when linear axis is enabled — arms are a separate unit) -->
+  <xacro:unless value="${arm == '' or linear_axis == True}">
 
     <!-- Include cabinet -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />

@@ -24,7 +24,8 @@ def execution_stage(context: LaunchContext,
                     d435_enable,
                     arm_type,
                     ur_dc,
-                    use_rviz):
+                    use_rviz,
+                    enable_linear_axis):
 
     launch_actions = []
 
@@ -35,6 +36,7 @@ def execution_stage(context: LaunchContext,
     use_ur_dc = ur_dc.perform(context)
     use_rviz = use_rviz.perform(context)
     use_joint_state_publisher_gui = use_joint_state_publisher_gui.perform(context)
+    enable_la = str(enable_linear_axis.perform(context)).lower() in ('true',)
     joint_type = "fixed"
 
     if (rox_typ == "diff" or rox_typ == "trike"):
@@ -77,7 +79,8 @@ def execution_stage(context: LaunchContext,
                     " ", 'use_imu:=', imu,
                     " ", 'd435_enable:=', d435,
                     " ", 'use_ur_dc:=', use_ur_dc,
-                ]), 
+                    " ", 'enable_linear_axis:=', str(enable_la).lower(),
+                ]),
                 value_type=str
             )
         }]
@@ -92,7 +95,7 @@ def execution_stage(context: LaunchContext,
 
     launch_actions.append(start_rviz_cmd)
     launch_actions.append(start_robot_state_publisher_cmd)
-    if arm_typ:
+    if arm_typ or enable_la:
         launch_actions.append(start_joint_state_publisher_cmd)
         launch_actions.append(start_joint_state_publisher_gui_cmd)
 
@@ -143,6 +146,11 @@ def generate_launch_description():
             description='Launch RViz for visualization'
         )
 
+    declare_enable_linear_axis_cmd = DeclareLaunchArgument(
+            'enable_linear_axis', default_value='False',
+            description='Enable linear axis (EMROX-Argo variant) - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -153,7 +161,8 @@ def generate_launch_description():
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('arm_type'),
             LaunchConfiguration('use_ur_dc'),
-            LaunchConfiguration('use_rviz')
+            LaunchConfiguration('use_rviz'),
+            LaunchConfiguration('enable_linear_axis')
         ])
 
     ld = LaunchDescription([
@@ -165,6 +174,7 @@ def generate_launch_description():
         declare_arm_type_cmd,
         declare_ur_pwr_variant_cmd,
         declare_use_rviz_cmd,
+        declare_enable_linear_axis_cmd,
         opq_function
     ])
     return ld
