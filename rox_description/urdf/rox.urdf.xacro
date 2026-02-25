@@ -22,6 +22,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="use_ur_dc" default="false"/>
   <xacro:arg name="force_abs_paths" default="false"/>
   <xacro:arg name="simulation_controllers" default=""/>
+  <xacro:arg name="linear_axis_simulation_controllers" default=""/>
   <xacro:arg name="use_mock_hardware" default="false" />
   <xacro:arg name="mock_sensor_commands" default="false" />
 

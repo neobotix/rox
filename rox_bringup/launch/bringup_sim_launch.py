@@ -78,6 +78,8 @@ def execution_stage(context: LaunchContext,
     # Simulation Controllers for the arm
     arm_manufacturer = None
     initial_joint_controller_name = "joint_trajectory_controller"
+    simulation_controllers = ""
+    linear_axis_simulation_controllers = ""
     # initial_gripper_controller_name = ""
     if arm_typ:
         include_arm_ros2_control = "true"
@@ -115,18 +117,12 @@ def execution_stage(context: LaunchContext,
         #         initial_gripper_controller_name = f'robotiq_{gripper_typ}_gripper_controller'
         #     include_gripper_ros2_control = "true"
 
-    else:
-        simulation_controllers = ""
-
     # Linear axis simulation controllers
     if enable_la:
-        la_controllers_yaml = os.path.join(
+        linear_axis_simulation_controllers = os.path.join(
             get_package_share_directory('rox_bringup'),
             'configs', 'linear_axis', 'simulation_controllers.yaml'
         )
-        # When linear axis is enabled without arm, use linear axis controllers
-        if not arm_typ:
-            simulation_controllers = la_controllers_yaml
 
     xacro_args = [
         "xacro", " ", urdf,
@@ -141,6 +137,7 @@ def execution_stage(context: LaunchContext,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'force_abs_paths:=', "true",
         " ", 'simulation_controllers:=', simulation_controllers,
+        " ", 'linear_axis_simulation_controllers:=', linear_axis_simulation_controllers,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
         # " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
         " ", 'enable_linear_axis:=', str(enable_la).lower(),

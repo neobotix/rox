@@ -7,6 +7,12 @@ Author: Adarsh Karan K P
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
   <xacro:macro name="linear_axis" params="parent">
+    <xacro:if value="${gz == True}">
+      <xacro:property name="linear_axis_effort_limit" value="500.0"/>
+    </xacro:if>
+    <xacro:unless value="${gz == True}">
+      <xacro:property name="linear_axis_effort_limit" value="54.0"/>
+    </xacro:unless>
 
     <!-- Linear-axis cabinet/dummy body -->
     <!-- All EMROX meshes share one CAD frame, so identity aligns naturally. -->
@@ -95,7 +101,7 @@ Author: Adarsh Karan K P
       <!-- Shared CAD frame — identity transform -->
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <!-- Travel: 888mm derived from spec (1417mm column top - 529mm base top) -->
-      <limit lower="0.0" upper="0.888" effort="54.0" velocity="0.15"/>
+      <limit lower="0.0" upper="0.888" effort="${linear_axis_effort_limit}" velocity="0.15"/>
       <parent link="linear_axis_fixed_link"/>
       <child link="linear_axis_slide_link"/>
     </joint>
@@ -134,7 +140,6 @@ Author: Adarsh Karan K P
         </hardware>
         <joint name="linear_axis_slide_joint">
           <command_interface name="position"/>
-          <command_interface name="velocity"/>
           <state_interface name="position">
             <param name="initial_value">0.0</param>
           </state_interface>
@@ -144,7 +149,7 @@ Author: Adarsh Karan K P
 
       <gazebo>
         <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
-          <parameters>$(arg simulation_controllers)</parameters>
+          <parameters>$(arg linear_axis_simulation_controllers)</parameters>
         </plugin>
       </gazebo>
     </xacro:if>

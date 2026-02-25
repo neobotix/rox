@@ -22,6 +22,6 @@ linear_axis_controller:
     action_monitor_rate: 20.0
     allow_partial_joints_goal: false
     constraints:
-      stopped_velocity_tolerance: 0.2
-      goal_time: 0.0
-      linear_axis_slide_joint: { trajectory: 0.2, goal: 0.1 }
+      stopped_velocity_tolerance: 0.5
+      goal_time: 2.0
+      linear_axis_slide_joint: { trajectory: 1.0, goal: 0.3 }
