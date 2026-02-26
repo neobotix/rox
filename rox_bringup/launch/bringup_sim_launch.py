@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, 
+def execution_stage(context: LaunchContext,
                     rox_type,
                     arm_type,
                     imu_enable,
@@ -25,7 +25,8 @@ def execution_stage(context: LaunchContext,
                     ur_dc,
                     # gripper_type,
                     headless_sim,
-                    use_wall_time):
+                    use_wall_time,
+                    enable_linear_axis):
 
     launch_actions = []
 
@@ -38,6 +39,7 @@ def execution_stage(context: LaunchContext,
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
+    enable_la = str(enable_linear_axis.perform(context)).lower() in ('true',)
     joint_type = "fixed"
 
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
@@ -76,6 +78,8 @@ def execution_stage(context: LaunchContext,
     # Simulation Controllers for the arm
     arm_manufacturer = None
     initial_joint_controller_name = "joint_trajectory_controller"
+    simulation_controllers = ""
+    linear_axis_simulation_controllers = ""
     # initial_gripper_controller_name = ""
     if arm_typ:
         include_arm_ros2_control = "true"
@@ -113,8 +117,12 @@ def execution_stage(context: LaunchContext,
         #         initial_gripper_controller_name = f'robotiq_{gripper_typ}_gripper_controller'
         #     include_gripper_ros2_control = "true"
 
-    else:
-        simulation_controllers = ""
+    # Linear axis simulation controllers
+    if enable_la:
+        linear_axis_simulation_controllers = os.path.join(
+            get_package_share_directory('rox_bringup'),
+            'configs', 'linear_axis', 'simulation_controllers.yaml'
+        )
 
     xacro_args = [
         "xacro", " ", urdf,
@@ -129,8 +137,10 @@ def execution_stage(context: LaunchContext,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'force_abs_paths:=', "true",
         " ", 'simulation_controllers:=', simulation_controllers,
+        " ", 'linear_axis_simulation_controllers:=', linear_axis_simulation_controllers,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
         # " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
+        " ", 'enable_linear_axis:=', str(enable_la).lower(),
     ]
 
     start_robot_state_publisher_cmd = Node(
@@ -237,6 +247,17 @@ def execution_stage(context: LaunchContext,
         # if gripper_typ == '2f_140' or gripper_typ == '2f_85':
         #     launch_actions.append(robotiq_gripper_controller_spawner)
 
+    if enable_la:
+        linear_axis_controller_spawner = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=["linear_axis_controller", "-c", "/controller_manager", "--inactive"],
+        )
+        # Add joint_state_broadcaster if not already added by arm
+        if not arm_typ:
+            launch_actions.append(joint_state_broadcaster_spawner)
+        launch_actions.append(linear_axis_controller_spawner)
+
     return launch_actions
 
 def generate_launch_description():
@@ -290,6 +311,11 @@ def generate_launch_description():
             description='Run gz_bridge with override_timestamps_with_wall_time:=True - Options: True/False'
         )
 
+    declare_enable_linear_axis_cmd = DeclareLaunchArgument(
+            'enable_linear_axis', default_value='False',
+            description='Enable linear axis (EMROX-Argo variant) - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -301,7 +327,8 @@ def generate_launch_description():
             LaunchConfiguration('use_ur_dc'),
             # LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
-            LaunchConfiguration('use_wall_time')
+            LaunchConfiguration('use_wall_time'),
+            LaunchConfiguration('enable_linear_axis')
             ])
 
     ld = LaunchDescription([
@@ -314,6 +341,7 @@ def generate_launch_description():
         # declare_gripper_type_cmd,
         declare_headless_sim_cmd,
         declare_use_wall_time_cmd,
+        declare_enable_linear_axis_cmd,
         opq_function
     ])
     return ld
