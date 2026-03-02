@@ -8,7 +8,7 @@ Author: Adarsh Karan K P
 
   <xacro:macro name="linear_axis" params="parent">
     <xacro:if value="${gz == True}">
-      <xacro:property name="linear_axis_effort_limit" value="500.0"/>
+      <xacro:property name="linear_axis_effort_limit" value="5000.0"/>
     </xacro:if>
     <xacro:unless value="${gz == True}">
       <xacro:property name="linear_axis_effort_limit" value="54.0"/>
@@ -44,11 +44,6 @@ Author: Adarsh Karan K P
 
     <!-- Linear axis base (rail/column) — fixed to platform -->
     <link name="linear_axis_fixed_link">
-      <inertial>
-        <mass value="15.0" />
-        <origin xyz="0 0 0.4" rpy="0 0 0"/>
-        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="0.5"/>
-      </inertial>
       <visual>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
@@ -77,19 +72,14 @@ Author: Adarsh Karan K P
       Visual offset: -(861 - 335) = -526mm = -0.526m shifts mesh to bottom of travel.
     -->
     <link name="linear_axis_slide_link">
-      <inertial>
-        <mass value="8.0" />
-        <origin xyz="0 0 -0.526" rpy="0 0 0"/>
-        <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="0.3"/>
-      </inertial>
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 -0.526"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.527"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 -0.526"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.527"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -101,7 +91,7 @@ Author: Adarsh Karan K P
       <!-- Shared CAD frame — identity transform -->
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <!-- Travel: 888mm derived from spec (1417mm column top - 529mm base top) -->
-      <limit lower="0.0" upper="0.888" effort="${linear_axis_effort_limit}" velocity="0.15"/>
+      <limit lower="0.0" upper="0.888" effort="50000" velocity="0.15"/>
       <parent link="linear_axis_fixed_link"/>
       <child link="linear_axis_slide_link"/>
     </joint>
@@ -139,19 +129,15 @@ Author: Adarsh Karan K P
           <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </hardware>
         <joint name="linear_axis_slide_joint">
-          <command_interface name="position"/>
+          <command_interface name="position">
+          </command_interface>
           <state_interface name="position">
             <param name="initial_value">0.0</param>
           </state_interface>
           <state_interface name="velocity"/>
         </joint>
       </ros2_control>
-
-      <gazebo>
-        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
-          <parameters>$(arg linear_axis_simulation_controllers)</parameters>
-        </plugin>
-      </gazebo>
+      <!-- NOTE: gz_ros2_control plugin is loaded centrally in rox.urdf.xacro -->
     </xacro:if>
 
   </xacro:macro>

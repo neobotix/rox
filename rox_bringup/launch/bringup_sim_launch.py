@@ -19,6 +19,7 @@ import xacro
 def execution_stage(context: LaunchContext,
                     rox_type,
                     arm_type,
+                    arm2_type,
                     imu_enable,
                     d435_enable,
                     scanner_type,
@@ -32,6 +33,7 @@ def execution_stage(context: LaunchContext,
 
     rox_typ = str(rox_type.perform(context))
     arm_typ = str(arm_type.perform(context))
+    arm2_typ = str(arm2_type.perform(context))
     # gripper_typ = str(gripper_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
     d435 = str(d435_enable.perform(context))
@@ -75,12 +77,15 @@ def execution_stage(context: LaunchContext,
         launch_arguments={'gz_args': gz_args}.items()
       )
 
-    # Simulation Controllers for the arm
+    # Simulation Controllers for the arm(s) and linear axis
+    # All controllers must be in a SINGLE YAML because there is only one gz_ros2_control plugin
     arm_manufacturer = None
+    arm2_manufacturer = None
     initial_joint_controller_name = "joint_trajectory_controller"
+    initial_arm2_joint_controller_name = "arm2_joint_trajectory_controller"
     simulation_controllers = ""
-    linear_axis_simulation_controllers = ""
     # initial_gripper_controller_name = ""
+
     if arm_typ:
         include_arm_ros2_control = "true"
         if arm_typ in ['ec66', 'cs66']:
@@ -89,13 +94,63 @@ def execution_stage(context: LaunchContext,
         elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
             arm_manufacturer = 'ur'
 
+    if arm2_typ:
+        include_arm_ros2_control = "true"
+        if arm2_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
+            arm2_manufacturer = 'ur'
+
+    # Select the appropriate simulation controllers YAML
+    controllers_yaml = None
+
+    if arm_typ and arm2_typ and arm_manufacturer == 'ur' and arm2_manufacturer == 'ur':
+        # Dual UR arm config already includes linear axis controllers
         controllers_yaml = os.path.join(
             get_package_share_directory('rox_bringup'),
-            'configs', 
-            arm_manufacturer, 
-            'simulation_controllers.yaml'
+            'configs', 'ur', 'simulation_controllers_dual.yaml'
+        )
+    elif arm_typ and arm_manufacturer:
+        # Single arm setup
+        arm_controllers_yaml = os.path.join(
+            get_package_share_directory('rox_bringup'),
+            'configs', arm_manufacturer, 'simulation_controllers.yaml'
+        )
+        if enable_la:
+            # Merge single arm + linear axis configs at runtime
+            import yaml
+            linear_axis_controllers_yaml = os.path.join(
+                get_package_share_directory('rox_bringup'),
+                'configs', 'linear_axis', 'simulation_controllers.yaml'
+            )
+            with open(arm_controllers_yaml, 'r') as f:
+                arm_cfg = yaml.safe_load(f)
+            with open(linear_axis_controllers_yaml, 'r') as f:
+                la_cfg = yaml.safe_load(f)
+
+            # Merge controller_manager entries
+            if 'controller_manager' in la_cfg:
+                arm_cfg.setdefault('controller_manager', {}).setdefault('ros__parameters', {}).update(
+                    la_cfg['controller_manager'].get('ros__parameters', {})
+                )
+            # Merge top-level controller parameter blocks
+            for key, value in la_cfg.items():
+                if key != 'controller_manager':
+                    arm_cfg[key] = value
+
+            merged_yaml_path = os.path.join(Path.home(), '.ros', 'simulation_controllers_merged.yaml')
+            os.makedirs(os.path.dirname(merged_yaml_path), exist_ok=True)
+            with open(merged_yaml_path, 'w') as f:
+                yaml.dump(arm_cfg, f, default_flow_style=False)
+            controllers_yaml = merged_yaml_path
+        else:
+            controllers_yaml = arm_controllers_yaml
+    elif enable_la:
+        # Linear axis only (no arms)
+        controllers_yaml = os.path.join(
+            get_package_share_directory('rox_bringup'),
+            'configs', 'linear_axis', 'simulation_controllers.yaml'
         )
 
+    if controllers_yaml:
         # Generates a final YAML parameter file from the controllers template (with substitutions applied),
         # and returns file_path, shutdown_handler
         simulation_controllers, shutdown_handler = generate_final_yaml(
@@ -106,23 +161,16 @@ def execution_stage(context: LaunchContext,
         )
         launch_actions.extend(shutdown_handler)
 
-        # if gripper_typ:
-        #     include_gripper_ros2_control = "true"
-        #     gripper_category = None
-        #     if gripper_typ == 'epick':
-        #         gripper_category = 'epick'
-        #         initial_gripper_controller_name = 'epick_controller'
-        #     elif gripper_typ in ['2f_140', '2f_85']:
-        #         gripper_category = 'robotiq'
-        #         initial_gripper_controller_name = f'robotiq_{gripper_typ}_gripper_controller'
-        #     include_gripper_ros2_control = "true"
-
-    # Linear axis simulation controllers
-    if enable_la:
-        linear_axis_simulation_controllers = os.path.join(
-            get_package_share_directory('rox_bringup'),
-            'configs', 'linear_axis', 'simulation_controllers.yaml'
-        )
+    # if gripper_typ:
+    #     include_gripper_ros2_control = "true"
+    #     gripper_category = None
+    #     if gripper_typ == 'epick':
+    #         gripper_category = 'epick'
+    #         initial_gripper_controller_name = 'epick_controller'
+    #     elif gripper_typ in ['2f_140', '2f_85']:
+    #         gripper_category = 'robotiq'
+    #         initial_gripper_controller_name = f'robotiq_{gripper_typ}_gripper_controller'
+    #     include_gripper_ros2_control = "true"
 
     xacro_args = [
         "xacro", " ", urdf,
@@ -133,11 +181,11 @@ def execution_stage(context: LaunchContext,
         " ", 'use_d435:=', d435,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'arm_type:=', arm_typ,
+        " ", 'arm2_type:=', arm2_typ,
         # " ", 'gripper_type:=', gripper_typ,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'force_abs_paths:=', "true",
         " ", 'simulation_controllers:=', simulation_controllers,
-        " ", 'linear_axis_simulation_controllers:=', linear_axis_simulation_controllers,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
         # " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
         " ", 'enable_linear_axis:=', str(enable_la).lower(),
@@ -181,6 +229,18 @@ def execution_stage(context: LaunchContext,
         package="controller_manager",
         executable="spawner",
         arguments=[initial_joint_controller_name, "-c", "/controller_manager"],
+    )
+
+    initial_arm2_joint_controller_spawner_started = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[initial_arm2_joint_controller_name, "-c", "/controller_manager"],
+    )
+
+    linear_axis_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["linear_axis_controller", "-c", "/controller_manager"],
     )
 
     # robotiq_gripper_controller_spawner = Node(
@@ -241,21 +301,19 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(teleop)
     launch_actions.append(spawn_robot)
 
-    if arm_typ != '':
+    # Spawn joint_state_broadcaster if any hardware is present
+    if arm_typ or arm2_typ or enable_la:
         launch_actions.append(joint_state_broadcaster_spawner)
+
+    if arm_typ:
         launch_actions.append(initial_joint_controller_spawner_started)
         # if gripper_typ == '2f_140' or gripper_typ == '2f_85':
         #     launch_actions.append(robotiq_gripper_controller_spawner)
 
+    if arm2_typ:
+        launch_actions.append(initial_arm2_joint_controller_spawner_started)
+
     if enable_la:
-        linear_axis_controller_spawner = Node(
-            package="controller_manager",
-            executable="spawner",
-            arguments=["linear_axis_controller", "-c", "/controller_manager", "--active"],
-        )
-        # Add joint_state_broadcaster if not already added by arm
-        if not arm_typ:
-            launch_actions.append(joint_state_broadcaster_spawner)
         launch_actions.append(linear_axis_controller_spawner)
 
     return launch_actions
@@ -287,7 +345,13 @@ def generate_launch_description():
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
             choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
-            description='Arm Types\n\t'
+            description='Arm 1 Type\n\t'
+        )
+
+    declare_arm2_type_cmd = DeclareLaunchArgument(
+            'arm2_type', default_value='',
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+            description='Arm 2 Type\n\t'
         )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
@@ -321,6 +385,7 @@ def generate_launch_description():
         args=[
             LaunchConfiguration('rox_type'),
             LaunchConfiguration('arm_type'),
+            LaunchConfiguration('arm2_type'),
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('scanner_type'),
@@ -336,6 +401,7 @@ def generate_launch_description():
         declare_realsense_cmd,
         declare_scanner_cmd,
         declare_arm_type_cmd,
+        declare_arm2_type_cmd,
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
         # declare_gripper_type_cmd,
