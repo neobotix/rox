@@ -251,7 +251,7 @@ def execution_stage(context: LaunchContext,
         linear_axis_controller_spawner = Node(
             package="controller_manager",
             executable="spawner",
-            arguments=["linear_axis_controller", "-c", "/controller_manager", "--inactive"],
+            arguments=["linear_axis_controller", "-c", "/controller_manager", "--active"],
         )
         # Add joint_state_broadcaster if not already added by arm
         if not arm_typ:
