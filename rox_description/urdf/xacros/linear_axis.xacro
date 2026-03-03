@@ -68,18 +68,18 @@ Author: Adarsh Karan K P
     <!-- Linear axis carriage (slide) — moves up/down on rail -->
     <!--
       Slide mesh sits at Z=861-1161mm in CAD frame (mid-stroke position).
-      At joint=0 (lowest), slide should be at Z≈335mm (just above rail base).
-      Visual offset: -(861 - 335) = -526mm = -0.526m shifts mesh to bottom of travel.
+      At joint=0 (lowest), slide should be at Z≈394mm (just above rail base).
+      Visual offset: -(861 - 394) = -467mm = -0.467m shifts mesh to bottom of travel.
     -->
     <link name="linear_axis_slide_link">
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 -0.527"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.467"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 -0.527"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.467"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
