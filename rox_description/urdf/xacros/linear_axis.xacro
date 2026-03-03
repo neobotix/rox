@@ -91,7 +91,7 @@ Author: Adarsh Karan K P
       <!-- Shared CAD frame — identity transform -->
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <!-- Travel: 888mm derived from spec (1417mm column top - 529mm base top) -->
-      <limit lower="0.0" upper="0.888" effort="50000" velocity="0.15"/>
+      <limit lower="0.0" upper="0.888" effort="${linear_axis_effort_limit}" velocity="0.15"/>
       <parent link="linear_axis_fixed_link"/>
       <child link="linear_axis_slide_link"/>
     </joint>
@@ -132,7 +132,7 @@ Author: Adarsh Karan K P
           <command_interface name="position">
           </command_interface>
           <state_interface name="position">
-            <param name="initial_value">0.0</param>
+            <param name="initial_value">0.05</param>
           </state_interface>
           <state_interface name="velocity"/>
         </joint>
