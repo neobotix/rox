@@ -23,6 +23,7 @@ def execution_stage(context: LaunchContext,
                     imu_enable,
                     d435_enable,
                     arm_type,
+                    arm2_type,
                     ur_dc,
                     use_rviz,
                     enable_linear_axis):
@@ -30,6 +31,7 @@ def execution_stage(context: LaunchContext,
     launch_actions = []
 
     arm_typ = arm_type.perform(context)
+    arm2_typ = arm2_type.perform(context)
     rox_typ = rox_type.perform(context)
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
@@ -74,6 +76,7 @@ def execution_stage(context: LaunchContext,
                 Command([
                     "xacro", " ", urdf,
                     " ", 'arm_type:=', arm_typ,
+                    " ", 'arm2_type:=', arm2_typ,
                     " ", 'rox_type:=', rox_typ,
                     " ", 'joint_type:=', joint_type,
                     " ", 'use_imu:=', imu,
@@ -95,7 +98,7 @@ def execution_stage(context: LaunchContext,
 
     launch_actions.append(start_rviz_cmd)
     launch_actions.append(start_robot_state_publisher_cmd)
-    if arm_typ or enable_la:
+    if arm_typ or arm2_typ or enable_la:
         launch_actions.append(start_joint_state_publisher_cmd)
         launch_actions.append(start_joint_state_publisher_gui_cmd)
 
@@ -133,7 +136,13 @@ def generate_launch_description():
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
             choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
-            description='Arm Types\n\t'        
+            description='Arm 1 Type\n\t'        
+        )
+
+    declare_arm2_type_cmd = DeclareLaunchArgument(
+            'arm2_type', default_value='',
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+            description='Arm 2 Type\n\t'        
         )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
@@ -160,6 +169,7 @@ def generate_launch_description():
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('arm_type'),
+            LaunchConfiguration('arm2_type'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_rviz'),
             LaunchConfiguration('enable_linear_axis')
@@ -172,6 +182,7 @@ def generate_launch_description():
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_arm_type_cmd,
+        declare_arm2_type_cmd,
         declare_ur_pwr_variant_cmd,
         declare_use_rviz_cmd,
         declare_enable_linear_axis_cmd,

@@ -18,6 +18,10 @@ Contributor: Adarsh Karan K P
   <!-- Manipulator Arguments-->
   <xacro:arg name="arm_type" default=""/>
   <xacro:arg name="arm_parent" default="cabinet_link"/>
+  <xacro:arg name="arm1_prefix" default="arm1_"/>
+  <xacro:arg name="arm2_type" default=""/>
+  <xacro:arg name="arm2_parent" default="cabinet_link"/>
+  <xacro:arg name="arm2_prefix" default="arm2_"/>
   <xacro:arg name="gripper_type" default=""/>
   <xacro:arg name="use_ur_dc" default="false"/>
   <xacro:arg name="force_abs_paths" default="false"/>
@@ -29,6 +33,12 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="include_arm_ros2_control" default="false"/>
   <xacro:arg name="include_gripper_ros2_control" default="false"/>
 
+  <!-- UR arm parameters (shared) -->
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+  <xacro:arg name="initial_positions_file" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
+
   <!-- Xacro Properties -->
   <xacro:property name="gz" value="$(arg use_gz)"/>
   <xacro:property name="imu" value="$(arg use_imu)"/>
@@ -37,6 +47,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="rox_typ" value="$(arg rox_type)"/>
   <xacro:property name="joint_typ" value="$(arg joint_type)"/>
   <xacro:property name="arm" value="$(arg arm_type)"/>
+  <xacro:property name="arm2" value="$(arg arm2_type)"/>
   <xacro:property name="ur_dc" value="$(arg use_ur_dc)"/>
   <xacro:property name="gripper" value="$(arg gripper_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
@@ -164,72 +175,206 @@ Contributor: Adarsh Karan K P
     </xacro:sensor_d435>
   </xacro:if>
 
-  <!-- arm (excluded when linear axis is enabled — arms are a separate unit) -->
-  <xacro:unless value="${arm == '' or linear_axis == True}">
+  <!-- Arms -->
+  <xacro:unless value="${arm == '' and arm2 == ''}">
 
-    <!-- Include cabinet -->
-    <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
-    <xacro:cabinet name="cabinet" parent="base_footprint">
-      <origin rpy="0 0 0" xyz="0 0 0.33"/>
-    </xacro:cabinet>
+    <!-- Include cabinet (only when linear axis is NOT enabled — linear_axis.xacro defines its own cabinet_link) -->
+    <xacro:unless value="${linear_axis == True}">
+      <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
+      <xacro:cabinet name="cabinet" parent="base_footprint">
+        <origin rpy="0 0 0" xyz="0 0 0.33"/>
+      </xacro:cabinet>
+    </xacro:unless>
 
-    <!-- Universal Robotics (UR) Arms-->
-    <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
+    <!-- ============================================================ -->
+    <!-- ARM 1 (prefix: arm1_)                                        -->
+    <!-- ============================================================ -->
+    <xacro:unless value="${arm == ''}">
 
-      <!-- Different height for AC arm-->
-      <xacro:if value="${ur_dc == False}">
+      <!-- Universal Robotics (UR) Arm 1 -->
+      <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
+
+        <!-- Different height for AC arm-->
+        <xacro:if value="${ur_dc == False}">
+          <xacro:property name="arm_height" value="0.376" />
+        </xacro:if>
+
+        <xacro:if value="${ur_dc == True}">
+          <xacro:property name="arm_height" value="0.276" />
+        </xacro:if>
+
+        <!-- Include UR macros -->
+        <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+        <!-- Arm 1 -->
+        <xacro:if value="${linear_axis == True}">
+          <xacro:ur_robot
+            name="$(arg arm1_prefix)$(arg arm_type)"
+            parent="linear_axis_slide_link"
+            tf_prefix="$(arg arm1_prefix)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"
+            safety_limits="$(arg safety_limits)"
+            safety_pos_margin="$(arg safety_pos_margin)"
+            safety_k_position="$(arg safety_k_position)"
+            force_abs_paths="$(arg force_abs_paths)"
+            >
+            <origin xyz="0.450 0.156 0.529" rpy="-${pi/3} 0 0" />
+          </xacro:ur_robot>
+        </xacro:if>
+        <xacro:unless value="${linear_axis == True}">
+          <xacro:ur_robot
+            name="$(arg arm1_prefix)$(arg arm_type)"
+            parent="$(arg arm_parent)"
+            tf_prefix="$(arg arm1_prefix)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"
+            safety_limits="$(arg safety_limits)"
+            safety_pos_margin="$(arg safety_pos_margin)"
+            safety_k_position="$(arg safety_k_position)"
+            force_abs_paths="$(arg force_abs_paths)"
+            >
+            <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 0.0" />
+          </xacro:ur_robot>
+        </xacro:unless>
+
+      </xacro:if>
+
+      <!-- Elite Arm 1 -->
+      <xacro:if value="${arm == 'ec66' or arm == 'cs66'}">
         <xacro:property name="arm_height" value="0.376" />
+        <xacro:include filename="$(find rox_description)/urdf/xacros/elite_arm.urdf.xacro"/>
       </xacro:if>
 
-      <xacro:if value="${ur_dc == True}">
-        <xacro:property name="arm_height" value="0.276" />
+      <!-- Gripper on Arm 1 -->
+      <xacro:unless value="${gripper == ''}">
+
+        <xacro:if value="${gripper == '2f_140' or gripper == '2f_85'}">
+          <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
+          <xacro:ur_to_robotiq 
+            prefix="$(arg arm1_prefix)" 
+            parent="$(arg arm1_prefix)tool0"
+            child="$(arg arm1_prefix)gripper_mount_link"
+            rotation="${pi/2}"
+            />
+
+          <xacro:include filename="$(find robotiq_description)/urdf/robotiq_${gripper}_macro.urdf.xacro"/>
+          <xacro:robotiq_gripper name="$(arg arm1_prefix)robotiq_gripper"
+            prefix="$(arg arm1_prefix)"
+            parent="$(arg arm1_prefix)gripper_mount_link"
+            use_mock_hardware="${use_mock}"
+            mock_sensor_commands="${use_mock}"
+            sim_gazebo="${gz}"
+            include_ros2_control="$(arg include_gripper_ros2_control)"
+            >
+            <origin xyz="0 0 0" rpy="0 0 -${pi / 2}"/>
+          </xacro:robotiq_gripper>
+        </xacro:if>
+
+        <xacro:if value="${gripper == 'epick'}">
+          <xacro:include filename="$(find epick_description)/urdf/epick_single_suction_cup.xacro"/>
+          <xacro:epick_single_suction_cup parent="$(arg arm1_prefix)tool0"
+            use_fake_hardware="${use_mock}"
+            origin_xyz="0 0 0"
+            origin_rpy="0 0 -${pi / 2}"
+            />
+        </xacro:if>
+
+      </xacro:unless>
+
+    </xacro:unless>
+
+    <!-- ============================================================ -->
+    <!-- ARM 2 (prefix: arm2_)                                        -->
+    <!-- ============================================================ -->
+    <xacro:unless value="${arm2 == ''}">
+
+      <!-- Universal Robotics (UR) Arm 2 -->
+      <xacro:if value="${arm2 == 'ur5' or arm2 == 'ur10' or arm2 == 'ur5e' or arm2 == 'ur10e'}">
+
+        <!-- Different height for AC arm-->
+        <xacro:if value="${ur_dc == False}">
+          <xacro:property name="arm2_height" value="0.376" />
+        </xacro:if>
+
+        <xacro:if value="${ur_dc == True}">
+          <xacro:property name="arm2_height" value="0.276" />
+        </xacro:if>
+
+        <!-- Arm 2 -->
+        <xacro:if value="${linear_axis == True}">
+          <xacro:ur_robot
+            name="$(arg arm2_prefix)$(arg arm2_type)"
+            parent="linear_axis_slide_link"
+            tf_prefix="$(arg arm2_prefix)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm2_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(find ur_description)/config/$(arg arm2_type)/default_kinematics.yaml"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm2_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm2_type)/visual_parameters.yaml"
+            safety_limits="$(arg safety_limits)"
+            safety_pos_margin="$(arg safety_pos_margin)"
+            safety_k_position="$(arg safety_k_position)"
+            force_abs_paths="$(arg force_abs_paths)"
+            >
+            <origin xyz="0.450 -0.156 0.529" rpy="${pi/3} 0.0 0.0" />
+          </xacro:ur_robot>
+        </xacro:if>
+        <xacro:unless value="${linear_axis == True}">
+          <xacro:ur_robot
+            name="$(arg arm2_prefix)$(arg arm2_type)"
+            parent="$(arg arm2_parent)"
+            tf_prefix="$(arg arm2_prefix)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm2_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(find ur_description)/config/$(arg arm2_type)/default_kinematics.yaml"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm2_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm2_type)/visual_parameters.yaml"
+            safety_limits="$(arg safety_limits)"
+            safety_pos_margin="$(arg safety_pos_margin)"
+            safety_k_position="$(arg safety_k_position)"
+            force_abs_paths="$(arg force_abs_paths)"
+            >
+            <origin xyz="-0.218 0.0 ${arm2_height}" rpy="0.0 0.0 0.0" />
+          </xacro:ur_robot>
+        </xacro:unless>
+
       </xacro:if>
-      
-      <!-- Include the UR arm -->
-      <xacro:include filename="$(find rox_description)/urdf/xacros/ur_arm.urdf.xacro"/>
-    </xacro:if>
 
-    <!-- Elite Arms-->
-    <xacro:if value="${arm == 'ec66' or arm == 'cs66'}">
-      <xacro:property name="arm_height" value="0.376" />
-      <xacro:include filename="$(find rox_description)/urdf/xacros/elite_arm.urdf.xacro"/>
-    </xacro:if>
+      <!-- Gripper on Arm 2 -->
+      <xacro:unless value="${gripper == ''}">
 
-    <!-- add gripper-->
-    <xacro:unless value="${gripper == ''}">
+        <xacro:if value="${gripper == '2f_140' or gripper == '2f_85'}">
+          <xacro:ur_to_robotiq 
+            prefix="$(arg arm2_prefix)" 
+            parent="$(arg arm2_prefix)tool0"
+            child="$(arg arm2_prefix)gripper_mount_link"
+            rotation="${pi/2}"
+            />
 
-      <!-- ur_adapter for gripper-->
-      <xacro:if value="${gripper == '2f_140' or gripper == '2f_85'}">
-        <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
-        <xacro:ur_to_robotiq 
-          prefix="" 
-          parent="$(arg tf_prefix)tool0"
-          child="neo_gripper_mount_link"
-          rotation="${pi/2}"
-          />
+          <xacro:robotiq_gripper name="$(arg arm2_prefix)robotiq_gripper"
+            prefix="$(arg arm2_prefix)"
+            parent="$(arg arm2_prefix)gripper_mount_link"
+            use_mock_hardware="${use_mock}"
+            mock_sensor_commands="${use_mock}"
+            sim_gazebo="${gz}"
+            include_ros2_control="$(arg include_gripper_ros2_control)"
+            >
+            <origin xyz="0 0 0" rpy="0 0 -${pi / 2}"/>
+          </xacro:robotiq_gripper>
+        </xacro:if>
 
-        <xacro:include filename="$(find robotiq_description)/urdf/robotiq_${gripper}_macro.urdf.xacro"/>
-        <xacro:robotiq_gripper name="robotiq_gripper"
-          prefix=""
-          parent="neo_gripper_mount_link"
-          use_mock_hardware="${use_mock}"
-          mock_sensor_commands="${use_mock}"
-          sim_gazebo="${gz}"
-          include_ros2_control="$(arg include_gripper_ros2_control)"
-          >
-          <origin xyz="0 0 0" rpy="0 0 -${pi / 2}"/>
-        </xacro:robotiq_gripper>
+        <xacro:if value="${gripper == 'epick'}">
+          <xacro:epick_single_suction_cup parent="$(arg arm2_prefix)tool0"
+            use_fake_hardware="${use_mock}"
+            origin_xyz="0 0 0"
+            origin_rpy="0 0 -${pi / 2}"
+            />
+        </xacro:if>
 
-      </xacro:if>
-
-      <xacro:if value="${gripper == 'epick'}">
-        <xacro:include filename="$(find epick_description)/urdf/epick_single_suction_cup.xacro"/>
-        <xacro:epick_single_suction_cup parent="$(arg tf_prefix)tool0"
-          use_fake_hardware="${use_mock}"
-          origin_xyz="0 0 0"
-          origin_rpy="0 0 -${pi / 2}"
-          />
-      </xacro:if>
+      </xacro:unless>
 
     </xacro:unless>
 
@@ -239,6 +384,59 @@ Contributor: Adarsh Karan K P
   <xacro:if value="${gz == True}">
     <xacro:include filename="$(find rox_description)/urdf/xacros/gazebo.xacro" />
     <xacro:gazebo_plugins />
+
+    <!-- Single consolidated gz_ros2_control plugin for ALL hardware (arms + linear axis) -->
+    <xacro:unless value="${arm == '' and arm2 == '' and linear_axis == False}">
+      <gazebo>
+        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
+          <parameters>$(arg simulation_controllers)</parameters>
+        </plugin>
+      </gazebo>
+    </xacro:unless>
+
+    <!-- UR Arm ros2_control hardware interfaces -->
+    <xacro:unless value="${arm == '' and arm2 == ''}">
+
+      <xacro:include filename="$(find ur_simulation_gz)/urdf/ur_gz.ros2_control.xacro" />
+
+      <!-- Arm 1 ros2_control -->
+      <xacro:unless value="${arm == ''}">
+        <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
+
+          <xacro:property
+            name="arm1_initial_positions"
+            value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+            />
+
+          <xacro:ur_ros2_control
+            name="$(arg arm1_prefix)$(arg arm_type)"
+            tf_prefix="$(arg arm1_prefix)"
+            initial_positions="${arm1_initial_positions}"
+            />
+
+        </xacro:if>
+      </xacro:unless>
+
+      <!-- Arm 2 ros2_control -->
+      <xacro:unless value="${arm2 == ''}">
+        <xacro:if value="${arm2 == 'ur5' or arm2 == 'ur10' or arm2 == 'ur5e' or arm2 == 'ur10e'}">
+
+          <xacro:property
+            name="arm2_initial_positions"
+            value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+            />
+
+          <xacro:ur_ros2_control
+            name="$(arg arm2_prefix)$(arg arm2_type)"
+            tf_prefix="$(arg arm2_prefix)"
+            initial_positions="${arm2_initial_positions}"
+            />
+
+        </xacro:if>
+      </xacro:unless>
+
+    </xacro:unless>
+
   </xacro:if>
 
 </robot>

@@ -8,7 +8,7 @@ Author: Adarsh Karan K P
 
   <xacro:macro name="linear_axis" params="parent">
     <xacro:if value="${gz == True}">
-      <xacro:property name="linear_axis_effort_limit" value="500.0"/>
+      <xacro:property name="linear_axis_effort_limit" value="5000.0"/>
     </xacro:if>
     <xacro:unless value="${gz == True}">
       <xacro:property name="linear_axis_effort_limit" value="54.0"/>
@@ -44,11 +44,6 @@ Author: Adarsh Karan K P
 
     <!-- Linear axis base (rail/column) — fixed to platform -->
     <link name="linear_axis_fixed_link">
-      <inertial>
-        <mass value="15.0" />
-        <origin xyz="0 0 0.4" rpy="0 0 0"/>
-        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="0.5"/>
-      </inertial>
       <visual>
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <geometry>
@@ -73,23 +68,18 @@ Author: Adarsh Karan K P
     <!-- Linear axis carriage (slide) — moves up/down on rail -->
     <!--
       Slide mesh sits at Z=861-1161mm in CAD frame (mid-stroke position).
-      At joint=0 (lowest), slide should be at Z≈335mm (just above rail base).
-      Visual offset: -(861 - 335) = -526mm = -0.526m shifts mesh to bottom of travel.
+      At joint=0 (lowest), slide should be at Z≈394mm (just above rail base).
+      Visual offset: -(861 - 394) = -467mm = -0.467m shifts mesh to bottom of travel.
     -->
     <link name="linear_axis_slide_link">
-      <inertial>
-        <mass value="8.0" />
-        <origin xyz="0 0 -0.526" rpy="0 0 0"/>
-        <inertia ixx="0.5" ixy="0.0" ixz="0.0" iyy="0.5" iyz="0.0" izz="0.3"/>
-      </inertial>
       <visual>
-        <origin rpy="0 0 0" xyz="0 0 -0.526"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.467"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0 0 -0.526"/>
+        <origin rpy="0 0 0" xyz="0 0 -0.467"/>
         <geometry>
           <mesh filename="package://rox_description/meshes/linear_axis_slide.dae" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -139,19 +129,15 @@ Author: Adarsh Karan K P
           <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </hardware>
         <joint name="linear_axis_slide_joint">
-          <command_interface name="position"/>
+          <command_interface name="position">
+          </command_interface>
           <state_interface name="position">
-            <param name="initial_value">0.0</param>
+            <param name="initial_value">0.05</param>
           </state_interface>
           <state_interface name="velocity"/>
         </joint>
       </ros2_control>
-
-      <gazebo>
-        <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
-          <parameters>$(arg linear_axis_simulation_controllers)</parameters>
-        </plugin>
-      </gazebo>
+      <!-- NOTE: gz_ros2_control plugin is loaded centrally in rox.urdf.xacro -->
     </xacro:if>
 
   </xacro:macro>
