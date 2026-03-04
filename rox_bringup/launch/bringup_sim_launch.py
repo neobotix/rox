@@ -79,7 +79,7 @@ def execution_stage(context: LaunchContext,
     initial_gripper_controller_name = ""
     if arm_typ:
         include_arm_ros2_control = "true"
-        if arm_typ in ['ec66', 'cs66']:
+        if arm_typ == "ec66":
             arm_manufacturer = 'elite'
             initial_joint_controller_name = 'arm_controller'
         elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
@@ -210,7 +210,7 @@ def execution_stage(context: LaunchContext,
 
     if arm_typ:
         # Set environment variable for arm description packages
-        if arm_typ == 'ec66' or arm_typ == 'cs66':
+        if arm_typ == 'ec66':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('elite_description'))
         elif arm_typ == 'ur5' or arm_typ == 'ur10' or arm_typ == 'ur5e' or arm_typ == 'ur10e':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('ur_description'))
@@ -265,7 +265,7 @@ def generate_launch_description():
 
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66', 'cs66'],
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66'],
             description='Arm Types\n\t'
         )
 
