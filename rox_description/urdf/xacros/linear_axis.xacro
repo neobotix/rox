@@ -101,10 +101,10 @@ Author: Adarsh Karan K P
       <ros2_control name="linear_axis_control" type="system">
         <hardware>
           <plugin>nla/NlaHardwareInterface</plugin>
-          <param name="can_iface">can1</param>
+          <param name="can_iface">can0</param>
           <param name="timeout">0.2</param>
-          <param name="control_rate">100.0</param>
-          <param name="initial_pose">0.1</param>
+          <param name="control_rate">50.0</param>
+          <param name="initial_pose">0.0</param>
         </hardware>
         <joint name="linear_axis_slide_joint">
           <command_interface name="velocity">
@@ -113,6 +113,9 @@ Author: Adarsh Karan K P
           </command_interface>
           <state_interface name="position">
             <param name="initial_value">0.1</param>
+          </state_interface>
+          <state_interface name="velocity">
+            <param name="initial_value">0.0</param>
           </state_interface>
         </joint>
         <gpio name="linear_axis_gpio">

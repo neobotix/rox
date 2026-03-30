@@ -29,7 +29,8 @@ def execution_stage(context: LaunchContext,
                     robot_ip,
                     controllers_yaml,
                     gripper_type,
-                    ioboard):
+                    ioboard,
+                    enable_linear_axis):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -37,6 +38,7 @@ def execution_stage(context: LaunchContext,
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
     ioboard_enable = str(ioboard.perform(context))
+    enable_la = str(enable_linear_axis.perform(context))
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
@@ -70,7 +72,8 @@ def execution_stage(context: LaunchContext,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
-        " ", 'joint_type:=', joint_type
+        " ", 'joint_type:=', joint_type,
+        " ", 'enable_linear_axis:=', enable_la
     ]
     if arm_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
@@ -348,6 +351,46 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(relay_topic_lidar2)
     launch_actions.append(relay_topic_joint_states)
 
+    # Linear Axis
+        control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        namespace="linear_axis",
+        output="both",
+        parameters=[linear_controller],
+        remappings=[
+            ('/linear_axis/robot_description', 'robot_description'),
+            ('/linear_axis/joint_states','/joint_states'),
+            ('/linear_axis/dynamic_joint_states','/dynamic_joint_states'),
+        ],
+    )
+
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        namespace="linear_axis",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            "controller_manager",
+        ],
+    )
+
+    initial_joint_trajectory_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        namespace="linear_axis",
+        arguments=[
+            "linear_axis_controller",
+            "-c",
+            "/controller_manager",
+            "--inactive",
+        ],
+    )
+    launch_actions.append(control_node)
+    launch_actions.append(joint_state_broadcaster_spawner)
+    launch_actions.append(initial_joint_trajectory_controller_spawner)
+
     return launch_actions
 
 def generate_launch_description():
@@ -420,6 +463,12 @@ def generate_launch_description():
             description="Enables or Disables IOBoard if present - might require restart of the robot"
         )
 
+    declare_enable_linear_axis = DeclareLaunchArgument(
+            'enable_linear_axis', default_value='True',
+            choices=['True', 'False'],
+            description="Enables or Disables Linear Axis if present - might require restart of the robot"
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -434,7 +483,8 @@ def generate_launch_description():
             LaunchConfiguration('robot_ip'),
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
-            LaunchConfiguration('enable_io_board')
+            LaunchConfiguration('enable_io_board'),
+            LaunchConfiguration('enable_linear_axis')
             ])  
 
     ld = LaunchDescription([
