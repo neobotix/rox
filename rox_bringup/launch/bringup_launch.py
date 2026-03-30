@@ -271,6 +271,7 @@ def execution_stage(context: LaunchContext,
                     'mock_sensor_commands': mock_arm,
                     'initial_joint_controller': initial_controller_arm_name,
                     'controllers_file': controllers_yaml,
+                    'enable_linear_axis': enable_la
                 }.items()
             )
 
@@ -350,46 +351,6 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(relay_topic_lidar1)
     launch_actions.append(relay_topic_lidar2)
     launch_actions.append(relay_topic_joint_states)
-
-    # Linear Axis
-        control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        namespace="linear_axis",
-        output="both",
-        parameters=[linear_controller],
-        remappings=[
-            ('/linear_axis/robot_description', 'robot_description'),
-            ('/linear_axis/joint_states','/joint_states'),
-            ('/linear_axis/dynamic_joint_states','/dynamic_joint_states'),
-        ],
-    )
-
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace="linear_axis",
-        arguments=[
-            "joint_state_broadcaster",
-            "--controller-manager",
-            "controller_manager",
-        ],
-    )
-
-    initial_joint_trajectory_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace="linear_axis",
-        arguments=[
-            "linear_axis_controller",
-            "-c",
-            "/controller_manager",
-            "--inactive",
-        ],
-    )
-    launch_actions.append(control_node)
-    launch_actions.append(joint_state_broadcaster_spawner)
-    launch_actions.append(initial_joint_trajectory_controller_spawner)
 
     return launch_actions
 
@@ -500,6 +461,7 @@ def generate_launch_description():
         declare_controllers_file_cmd,
         declare_robotiq_cmd,
         declare_enable_ioboard,
+        declare_enable_linear_axis,
         opq_function
     ])
     return ld

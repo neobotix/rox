@@ -66,6 +66,7 @@ def launch_setup(context):
     use_tool_communication = LaunchConfiguration("use_tool_communication")
     tool_device_name = LaunchConfiguration("tool_device_name")
     tool_tcp_port = LaunchConfiguration("tool_tcp_port")
+    enable_linear_axis = LaunchConfiguration("enable_linear_axis")
 
     control_node = Node(
         package="controller_manager",
@@ -164,7 +165,9 @@ def launch_setup(context):
         "joint_trajectory_controller",
         "forward_velocity_controller",
         "forward_position_controller",
+        "linear_axis_controller"
     ]
+
     if activate_joint_controller.perform(context) == "true":
         controllers_active.append(initial_joint_controller.perform(context))
         controllers_inactive.remove(initial_joint_controller.perform(context))
@@ -451,4 +454,14 @@ def generate_launch_description():
             ],
         )
     )
+
+    # Linear Axis
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            name="enable_linear_axis",
+            default_value="false",
+            description="Enable linear axis",
+        )
+    )
+
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
