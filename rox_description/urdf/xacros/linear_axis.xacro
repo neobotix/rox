@@ -104,7 +104,7 @@ Author: Adarsh Karan K P
           <param name="can_iface">can0</param>
           <param name="timeout">0.2</param>
           <param name="control_rate">50.0</param>
-          <param name="initial_pose">0.0</param>
+          <param name="initial_pose">0.02</param>
         </hardware>
         <joint name="linear_axis_slide_joint">
           <command_interface name="velocity">
