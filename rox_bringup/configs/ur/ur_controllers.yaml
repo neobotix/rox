@@ -21,11 +21,17 @@ controller_manager:
     forward_velocity_controller:
       type: velocity_controllers/JointGroupVelocityController
 
+    forward_effort_controller:
+      type: effort_controllers/JointGroupEffortController
+
     forward_position_controller:
       type: position_controllers/JointGroupPositionController
 
     force_mode_controller:
       type: ur_controllers/ForceModeController
+
+    friction_model_controller:
+      type: ur_controllers/FrictionModelController
 
     freedrive_mode_controller:
       type: ur_controllers/FreedriveModeController
@@ -42,9 +48,6 @@ controller_manager:
     tool_contact_controller:
       type: ur_controllers/ToolContactController
 
-    joint_state_broadcaster:
-      type: joint_state_broadcaster/JointStateBroadcaster
-
     linear_axis_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
@@ -55,7 +58,8 @@ controller_manager:
     defaults:
       allow_controller_activation_with_inactive_hardware: false
 
-    update_rate: 50 # Hz
+    # update_rate is now handled dynamically in Jazzy via update_rate_config_file launch argument
+    # update_rate: 50 # Hz
 
     # The way this is currently implemented upstream doesn't really work for us. When using
     # position control, the robot will have a tracking error. However, limits will be enforced
@@ -88,7 +92,7 @@ force_torque_sensor_broadcaster:
       - torque.x
       - torque.y
       - torque.z
-    frame_id: $(var tf_prefix)tool0
+    frame_id: $(var tf_prefix)tool0_controller
     topic_name: ft_data
 
 
@@ -174,6 +178,17 @@ forward_velocity_controller:
       - $(var tf_prefix)wrist_3_joint
     interface_name: velocity
 
+forward_effort_controller:
+  ros__parameters:
+    joints:
+      - $(var tf_prefix)shoulder_pan_joint
+      - $(var tf_prefix)shoulder_lift_joint
+      - $(var tf_prefix)elbow_joint
+      - $(var tf_prefix)wrist_1_joint
+      - $(var tf_prefix)wrist_2_joint
+      - $(var tf_prefix)wrist_3_joint
+    interface_name: effort
+
 forward_position_controller:
   ros__parameters:
     joints:
@@ -185,6 +200,10 @@ forward_position_controller:
       - $(var tf_prefix)wrist_3_joint
 
 force_mode_controller:
+  ros__parameters:
+    tf_prefix: "$(var tf_prefix)"
+
+friction_model_controller:
   ros__parameters:
     tf_prefix: "$(var tf_prefix)"
 
