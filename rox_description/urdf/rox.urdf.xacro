@@ -258,7 +258,7 @@ Contributor: Adarsh Karan K P
         </xacro:if>
         <xacro:unless value="${linear_axis == True}">
           <xacro:ur_robot
-            name="$(arg arm1_prefix)$(arg arm_type)"
+            name="$(arg arm_type)"
             parent="$(arg arm_parent)"
             tf_prefix="$(arg arm1_prefix)"
             joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
@@ -283,7 +283,7 @@ Contributor: Adarsh Karan K P
               />
 
             <xacro:ur_ros2_control
-              name="$(arg arm1_prefix)$(arg arm_type)"
+              name="$(arg arm_type)"
               tf_prefix="$(arg arm1_prefix)"
               kinematics_parameters_file="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"
               robot_ip="$(arg robot_ip)"
