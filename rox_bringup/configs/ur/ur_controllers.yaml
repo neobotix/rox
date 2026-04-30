@@ -51,6 +51,9 @@ controller_manager:
     linear_axis_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    linear_axis_gpio_controller:
+      type: gpio_controllers/GpioCommandController
+
     hardware_components_initial_state:
       inactive:
         - "linear_axis_control"
@@ -247,3 +250,13 @@ linear_axis_controller:
         d: 0.0
         i_clamp: 0.0
         ff_velocity_scale: 1.0
+
+linear_axis_gpio_controller:
+  ros__parameters:
+    gpios:
+      - linear_axis_gpio
+    state_interfaces:
+      linear_axis_gpio:
+        interfaces:
+          - dig_in_1
+          - dig_in_2

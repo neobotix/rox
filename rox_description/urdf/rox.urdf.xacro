@@ -13,12 +13,12 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="scanner_type" default="nanoscan"/>
   <xacro:arg name="rox_type" default="argo"/>
   <xacro:arg name="joint_type" default="fixed"/>
-  <xacro:arg name="enable_linear_axis" default="false"/>
+  <xacro:arg name="enable_linear_axis" default="true"/>
 
   <!-- Manipulator Arguments-->
   <xacro:arg name="arm_type" default=""/>
   <xacro:arg name="arm_parent" default="cabinet_link"/>
-  <xacro:arg name="arm1_prefix" default="arm1_"/>
+  <xacro:arg name="arm1_prefix" default="ur10e"/>
   <xacro:arg name="arm2_type" default=""/>
   <xacro:arg name="arm2_parent" default="cabinet_link"/>
   <xacro:arg name="arm2_prefix" default="arm2_"/>
@@ -32,6 +32,28 @@ Contributor: Adarsh Karan K P
 
   <xacro:arg name="include_arm_ros2_control" default="false"/>
   <xacro:arg name="include_gripper_ros2_control" default="false"/>
+
+  <!-- UR ros2_control parameters (used when include_arm_ros2_control is true) -->
+  <xacro:arg name="robot_ip" default="192.168.1.102" />
+  <xacro:arg name="headless_mode" default="false" />
+  <xacro:arg name="script_filename" default="$(find ur_client_library)/resources/external_control.urscript"/>
+  <xacro:arg name="output_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_output_recipe.txt"/>
+  <xacro:arg name="input_recipe_filename" default="$(find ur_robot_driver)/resources/rtde_input_recipe.txt"/>
+  <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+  <xacro:arg name="script_command_port" default="50004"/>
+  <xacro:arg name="reverse_port" default="50001"/>
+  <xacro:arg name="script_sender_port" default="50002"/>
+  <xacro:arg name="trajectory_port" default="50003"/>
+  <!-- tool communication -->
+  <xacro:arg name="use_tool_communication" default="false" />
+  <xacro:arg name="tool_voltage" default="0" />
+  <xacro:arg name="tool_parity" default="0" />
+  <xacro:arg name="tool_baud_rate" default="115200" />
+  <xacro:arg name="tool_stop_bits" default="1" />
+  <xacro:arg name="tool_rx_idle_chars" default="1.5" />
+  <xacro:arg name="tool_tx_idle_chars" default="3.5" />
+  <xacro:arg name="tool_device_name" default="/tmp/ttyUR" />
+  <xacro:arg name="tool_tcp_port" default="54321" />
 
   <!-- UR arm parameters (shared) -->
   <xacro:arg name="safety_limits" default="false"/>
@@ -178,7 +200,7 @@ Contributor: Adarsh Karan K P
   <!-- Arms -->
   <xacro:unless value="${arm == '' and arm2 == ''}">
 
-    <!-- Include cabinet (only when linear axis is NOT enabled — linear_axis.xacro defines its own cabinet_link) -->
+    <!-- Include cabinet (only when linear axis is NOT enabled ? linear_axis.xacro defines its own cabinet_link) -->
     <xacro:unless value="${linear_axis == True}">
       <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
       <xacro:cabinet name="cabinet" parent="base_footprint">
@@ -205,12 +227,22 @@ Contributor: Adarsh Karan K P
 
         <!-- Include UR macros -->
         <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+        <xacro:include filename="$(find ur_robot_driver)/urdf/ur.ros2_control.xacro"/>
 
         <!-- Arm 1 -->
         <xacro:if value="${linear_axis == True}">
+
+          <link name="ur_linear_axis_connector"/>
+
+          <joint name="linear_axis_connector_joint" type="fixed">
+            <origin xyz="0.450 0.156 0.529" rpy="-${pi/3} 0 0" />
+            <parent link="linear_axis_slide_link"/>
+            <child link="ur_linear_axis_connector"/>
+          </joint>
+
           <xacro:ur_robot
             name="$(arg arm1_prefix)$(arg arm_type)"
-            parent="linear_axis_slide_link"
+            parent="ur_linear_axis_connector"
             tf_prefix="$(arg arm1_prefix)"
             joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
             kinematics_parameters_file="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"
@@ -221,7 +253,7 @@ Contributor: Adarsh Karan K P
             safety_k_position="$(arg safety_k_position)"
             force_abs_paths="$(arg force_abs_paths)"
             >
-            <origin xyz="0.450 0.156 0.529" rpy="-${pi/3} 0 0" />
+            <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
           </xacro:ur_robot>
         </xacro:if>
         <xacro:unless value="${linear_axis == True}">
@@ -240,6 +272,44 @@ Contributor: Adarsh Karan K P
             >
             <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 0.0" />
           </xacro:ur_robot>
+        </xacro:unless>
+
+        <!-- ros2_control for Arm 1 (real hardware, non-gz) -->
+        <xacro:unless value="${gz == True}">
+          <xacro:if value="$(arg include_arm_ros2_control)">
+            <xacro:property
+              name="arm1_initial_positions"
+              value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+              />
+
+            <xacro:ur_ros2_control
+              name="$(arg arm1_prefix)$(arg arm_type)"
+              tf_prefix="$(arg arm1_prefix)"
+              kinematics_parameters_file="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"
+              robot_ip="$(arg robot_ip)"
+              script_filename="$(arg script_filename)"
+              output_recipe_filename="$(arg output_recipe_filename)"
+              input_recipe_filename="$(arg input_recipe_filename)"
+              headless_mode="$(arg headless_mode)"
+              initial_positions="${arm1_initial_positions}"
+              use_mock_hardware="$(arg use_mock_hardware)"
+              mock_sensor_commands="$(arg mock_sensor_commands)"
+              use_tool_communication="$(arg use_tool_communication)"
+              tool_voltage="$(arg tool_voltage)"
+              tool_parity="$(arg tool_parity)"
+              tool_baud_rate="$(arg tool_baud_rate)"
+              tool_stop_bits="$(arg tool_stop_bits)"
+              tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+              tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+              tool_device_name="$(arg tool_device_name)"
+              tool_tcp_port="$(arg tool_tcp_port)"
+              reverse_ip="$(arg reverse_ip)"
+              script_command_port="$(arg script_command_port)"
+              reverse_port="$(arg reverse_port)"
+              script_sender_port="$(arg script_sender_port)"
+              trajectory_port="$(arg trajectory_port)"
+              />
+          </xacro:if>
         </xacro:unless>
 
       </xacro:if>
@@ -339,6 +409,44 @@ Contributor: Adarsh Karan K P
             >
             <origin xyz="-0.218 0.0 ${arm2_height}" rpy="0.0 0.0 0.0" />
           </xacro:ur_robot>
+        </xacro:unless>
+
+        <!-- ros2_control for Arm 2 (real hardware, non-gz) -->
+        <xacro:unless value="${gz == True}">
+          <xacro:if value="$(arg include_arm_ros2_control)">
+            <xacro:property
+              name="arm2_initial_positions"
+              value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+              />
+
+            <xacro:ur_ros2_control
+              name="$(arg arm2_prefix)$(arg arm2_type)"
+              tf_prefix="$(arg arm2_prefix)"
+              kinematics_parameters_file="$(find ur_description)/config/$(arg arm2_type)/default_kinematics.yaml"
+              robot_ip="$(arg robot_ip)"
+              script_filename="$(arg script_filename)"
+              output_recipe_filename="$(arg output_recipe_filename)"
+              input_recipe_filename="$(arg input_recipe_filename)"
+              headless_mode="$(arg headless_mode)"
+              initial_positions="${arm2_initial_positions}"
+              use_mock_hardware="$(arg use_mock_hardware)"
+              mock_sensor_commands="$(arg mock_sensor_commands)"
+              use_tool_communication="$(arg use_tool_communication)"
+              tool_voltage="$(arg tool_voltage)"
+              tool_parity="$(arg tool_parity)"
+              tool_baud_rate="$(arg tool_baud_rate)"
+              tool_stop_bits="$(arg tool_stop_bits)"
+              tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+              tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+              tool_device_name="$(arg tool_device_name)"
+              tool_tcp_port="$(arg tool_tcp_port)"
+              reverse_ip="$(arg reverse_ip)"
+              script_command_port="$(arg script_command_port)"
+              reverse_port="$(arg reverse_port)"
+              script_sender_port="$(arg script_sender_port)"
+              trajectory_port="$(arg trajectory_port)"
+              />
+          </xacro:if>
         </xacro:unless>
 
       </xacro:if>

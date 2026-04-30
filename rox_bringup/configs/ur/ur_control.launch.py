@@ -208,7 +208,8 @@ def launch_setup(context):
         "passthrough_trajectory_controller",
         "freedrive_mode_controller",
         "tool_contact_controller",
-        "linear_axis_controller"
+        "linear_axis_controller",
+        "linear_axis_gpio_controller"
     ]
 
     if activate_joint_controller.perform(context) == "true":
