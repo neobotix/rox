@@ -30,7 +30,9 @@ def execution_stage(context: LaunchContext,
                     controllers_yaml,
                     gripper_type,
                     ioboard,
-                    enable_linear_axis):
+                    enable_linear_axis,
+                    arm1_prefix,
+                    arm2_prefix):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -46,6 +48,9 @@ def execution_stage(context: LaunchContext,
     use_mock = str(mock_arm.perform(context))
     gripper_typ = str(gripper_type.perform(context))
     initial_controller_arm_name = str(initial_controller_arm.perform(context))
+
+    arm1_prefix = str(arm1_prefix.perform(context))
+    arm2_prefix = str(arm2_prefix.perform(context))
 
     launch_actions = []
 
@@ -73,7 +78,9 @@ def execution_stage(context: LaunchContext,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'joint_type:=', joint_type,
-        " ", 'enable_linear_axis:=', enable_la
+        " ", 'enable_linear_axis:=', enable_la,
+        " ", 'arm1_prefix:=', arm1_prefix,
+        " ", 'arm2_prefix:=', arm2_prefix
     ]
     if arm_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
@@ -430,6 +437,16 @@ def generate_launch_description():
             description="Enables or Disables Linear Axis if present - might require restart of the robot"
         )
 
+    declare_arm1_prefix = DeclareLaunchArgument(
+            'arm1_prefix', default_value='arm1_',
+            description="Prefix for the first arm"
+        )
+
+    declare_arm2_prefix = DeclareLaunchArgument(
+            'arm2_prefix', default_value='arm2_',
+            description="Prefix for the second arm"
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -445,7 +462,9 @@ def generate_launch_description():
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board'),
-            LaunchConfiguration('enable_linear_axis')
+            LaunchConfiguration('enable_linear_axis'),
+            LaunchConfiguration('arm1_prefix'),
+            LaunchConfiguration('arm2_prefix')
             ])  
 
     ld = LaunchDescription([
@@ -462,6 +481,8 @@ def generate_launch_description():
         declare_robotiq_cmd,
         declare_enable_ioboard,
         declare_enable_linear_axis,
+        declare_arm1_prefix,
+        declare_arm2_prefix,
         opq_function
     ])
     return ld
