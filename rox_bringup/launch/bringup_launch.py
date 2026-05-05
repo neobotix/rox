@@ -21,16 +21,20 @@ def execution_stage(context: LaunchContext,
                     robot_namespace,
                     rox_type,
                     arm_type,
+                    arm2_type,
                     scanner_type,
                     use_imu,
                     ur_dc,
                     mock_arm,
                     initial_controller_arm,
-                    robot_ip,
+                    robot_ip_arm1,
+                    robot_ip_arm2,
                     controllers_yaml,
                     gripper_type,
                     ioboard,
-                    enable_linear_axis):
+                    enable_linear_axis,
+                    arm1_prefix,
+                    arm2_prefix):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -42,10 +46,14 @@ def execution_stage(context: LaunchContext,
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
+    arm2_typ = str(arm2_type.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     use_mock = str(mock_arm.perform(context))
     gripper_typ = str(gripper_type.perform(context))
     initial_controller_arm_name = str(initial_controller_arm.perform(context))
+
+    arm1_prefix = str(arm1_prefix.perform(context))
+    arm2_prefix = str(arm2_prefix.perform(context))
 
     launch_actions = []
 
@@ -65,7 +73,9 @@ def execution_stage(context: LaunchContext,
         "xacro", " ", urdf,
         " ", 'rox_type:=', rox_typ,
         " ", 'arm_type:=', arm_typ,
-        " ", 'robot_ip:=', robot_ip,
+        " ", 'arm2_type:=', arm2_typ,
+        " ", 'robot_ip_arm1:=', robot_ip_arm1,
+        " ", 'robot_ip_arm2:=', robot_ip_arm2,
         " ", 'gripper_type:=', gripper_typ,
         " ", 'use_mock_hardware:=', use_mock,
         " ", 'use_mock_sensor_commands:=', use_mock,
@@ -73,9 +83,13 @@ def execution_stage(context: LaunchContext,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'joint_type:=', joint_type,
-        " ", 'enable_linear_axis:=', enable_la
+        " ", 'enable_linear_axis:=', enable_la,
+        " ", 'arm1_prefix:=', arm1_prefix,
+        " ", 'arm2_prefix:=', arm2_prefix
     ]
     if arm_typ != "":
+        xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
+    if arm2_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
 
     # If user wants to deliberately set it to True, then they have to change it manually in the configs
@@ -248,6 +262,7 @@ def execution_stage(context: LaunchContext,
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
     # TODO: Add support for namespacing
+    # TODO: Add support for two arms, for now handling only one arm
     if (arm_typ == "ur5" or
         arm_typ == "ur10" or
         arm_typ == "ur5e" or
@@ -265,8 +280,8 @@ def execution_stage(context: LaunchContext,
                 ),
                 launch_arguments={
                     'ur_type': arm_typ,
-                    'robot_ip': robot_ip,
-                    'tf_prefix': arm_typ,
+                    'robot_ip': robot_ip_arm1,
+                    'tf_prefix': arm1_prefix,
                     'use_mock_hardware': mock_arm,
                     'mock_sensor_commands': mock_arm,
                     'initial_joint_controller': initial_controller_arm_name,
@@ -381,6 +396,12 @@ def generate_launch_description():
             choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
             description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
         )
+    
+    declare_arm2_cmd = DeclareLaunchArgument(
+            'arm2_type', default_value='',
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+            description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
+        )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
             'use_ur_dc', default_value='False',
@@ -398,9 +419,14 @@ def generate_launch_description():
             description='Initial controller for the arm\n\t'
         )
 
-    declare_robot_ip_cmd = DeclareLaunchArgument(
-            'robot_ip', default_value='192.168.1.102',
-            description='IP address of the robot arm.'
+    declare_robot_ip_arm1_cmd = DeclareLaunchArgument(
+            'robot_ip_arm1', default_value='192.168.1.102',
+            description='IP address of the robot arm1.'
+        )
+
+    declare_robot_ip_arm2_cmd = DeclareLaunchArgument(
+            'robot_ip_arm2', default_value='192.168.1.103',
+            description='IP address of the robot arm2.'
         )
 
     declare_controllers_file_cmd = DeclareLaunchArgument(
@@ -430,38 +456,56 @@ def generate_launch_description():
             description="Enables or Disables Linear Axis if present - might require restart of the robot"
         )
 
+    declare_arm1_prefix = DeclareLaunchArgument(
+            'arm1_prefix', default_value='arm1_',
+            description="Prefix for the first arm"
+        )
+
+    declare_arm2_prefix = DeclareLaunchArgument(
+            'arm2_prefix', default_value='arm2_',
+            description="Prefix for the second arm"
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
             LaunchConfiguration('robot_namespace'),
             LaunchConfiguration('rox_type'),
             LaunchConfiguration('arm_type'),
+            LaunchConfiguration('arm2_type'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_mock_arm'),
             LaunchConfiguration('initial_controller_arm'),
-            LaunchConfiguration('robot_ip'),
+            LaunchConfiguration('robot_ip_arm1'),
+            LaunchConfiguration('robot_ip_arm2'),
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board'),
-            LaunchConfiguration('enable_linear_axis')
+            LaunchConfiguration('enable_linear_axis'),
+            LaunchConfiguration('arm1_prefix'),
+            LaunchConfiguration('arm2_prefix')
             ])  
 
     ld = LaunchDescription([
         declare_namespace_cmd,
         declare_rox_type_cmd,
         declare_arm_cmd,
+        declare_arm2_cmd,
         declare_scanner_cmd,
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,
         declare_mock_arm_cmd,
         declare_initial_controller_arm_cmd,
-        declare_robot_ip_cmd,
+        declare_robot_ip_arm1_cmd,
+        declare_robot_ip_arm2_cmd,
         declare_controllers_file_cmd,
         declare_robotiq_cmd,
         declare_enable_ioboard,
         declare_enable_linear_axis,
+        declare_arm1_prefix,
+        declare_arm2_prefix,
         opq_function
     ])
     return ld

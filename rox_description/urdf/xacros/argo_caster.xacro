@@ -5,7 +5,7 @@
 
    <joint name="${name}_joint" type="${joint_type}">
     <xacro:insert_block name="origin" />
-    <axis xyz="1 0 0" />
+    <axis xyz="0 0 1" />
     <dynamics damping="1." friction="1.0"/>
     <limit effort="1000.0" lower="-1e+16" upper="1e+16" velocity="100"/>
     <parent link="${parent}" />

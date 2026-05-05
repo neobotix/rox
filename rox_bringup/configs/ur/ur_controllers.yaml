@@ -1,3 +1,5 @@
+# ToDo: Handle multiple robot arms. Segregate the linear axis controller and gpio controller and use yaml tool to combine arm1, arm2 and 
+# linear axis controller yaml files. This is a generic yaml file for a single arm with linear axis, arm controller and gpio controllers.
 controller_manager:
   ros__parameters:
     joint_state_broadcaster:
