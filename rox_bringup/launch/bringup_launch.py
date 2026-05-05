@@ -281,7 +281,7 @@ def execution_stage(context: LaunchContext,
                 launch_arguments={
                     'ur_type': arm_typ,
                     'robot_ip': robot_ip_arm1,
-                    'tf_prefix': arm_typ,
+                    'tf_prefix': arm1_prefix,
                     'use_mock_hardware': mock_arm,
                     'mock_sensor_commands': mock_arm,
                     'initial_joint_controller': initial_controller_arm_name,
