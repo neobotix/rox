@@ -32,8 +32,9 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="include_arm_ros2_control" default="false"/>
   <xacro:arg name="include_gripper_ros2_control" default="false"/>
 
-  <!-- UR ros2_control parameters (used when include_arm_ros2_control is true) -->
-  <xacro:arg name="robot_ip" default="192.168.1.102" />
+  <!-- ip addresses of the arms -->
+  <xacro:arg name="robot_ip_arm1" default="192.168.1.102" />
+  <xacro:arg name="robot_ip_arm2" default="192.168.1.103" />
 
   <!-- UR arm parameters (shared) -->
   <xacro:arg name="safety_limits" default="false"/>
@@ -56,6 +57,8 @@ Contributor: Adarsh Karan K P
   <xacro:property name="gripper2" value="$(arg gripper2_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
   <xacro:property name="linear_axis" value="$(arg enable_linear_axis)"/>
+  <xacro:property name="arm1_ip" value="$(arg robot_ip_arm1)"/>
+  <xacro:property name="arm2_ip" value="$(arg robot_ip_arm2)"/>
 
   <!-- Include xacro files -->
   <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -222,7 +225,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
-            robot_ip="$(arg robot_ip)"
+            robot_ip="$(arg arm1_ip)"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
           </xacro:ur>
@@ -235,7 +238,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
-            robot_ip="$(arg robot_ip)"
+            robot_ip="$(arg arm1_ip)"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>
@@ -308,7 +311,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
-            robot_ip="$(arg robot_ip)"
+            robot_ip="$(arg arm2_ip)"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -0.7854" />
           </xacro:ur>
@@ -321,7 +324,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
-            robot_ip="$(arg robot_ip)"
+            robot_ip="$(arg arm2_ip)"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>

@@ -26,7 +26,8 @@ def execution_stage(context: LaunchContext,
                     ur_dc,
                     mock_arm,
                     initial_controller_arm,
-                    robot_ip,
+                    robot_ip_arm1,
+                    robot_ip_arm2,
                     controllers_yaml,
                     gripper_type,
                     ioboard,
@@ -70,7 +71,8 @@ def execution_stage(context: LaunchContext,
         "xacro", " ", urdf,
         " ", 'rox_type:=', rox_typ,
         " ", 'arm_type:=', arm_typ,
-        " ", 'robot_ip:=', robot_ip,
+        " ", 'robot_ip_arm1:=', robot_ip_arm1,
+        " ", 'robot_ip_arm2:=', robot_ip_arm2,
         " ", 'gripper_type:=', gripper_typ,
         " ", 'use_mock_hardware:=', use_mock,
         " ", 'use_mock_sensor_commands:=', use_mock,
@@ -405,9 +407,14 @@ def generate_launch_description():
             description='Initial controller for the arm\n\t'
         )
 
-    declare_robot_ip_cmd = DeclareLaunchArgument(
-            'robot_ip', default_value='192.168.1.102',
-            description='IP address of the robot arm.'
+    declare_robot_ip_arm1_cmd = DeclareLaunchArgument(
+            'robot_ip_arm1', default_value='192.168.1.102',
+            description='IP address of the robot arm1.'
+        )
+
+    declare_robot_ip_arm2_cmd = DeclareLaunchArgument(
+            'robot_ip_arm2', default_value='192.168.1.103',
+            description='IP address of the robot arm2.'
         )
 
     declare_controllers_file_cmd = DeclareLaunchArgument(
@@ -458,7 +465,8 @@ def generate_launch_description():
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_mock_arm'),
             LaunchConfiguration('initial_controller_arm'),
-            LaunchConfiguration('robot_ip'),
+            LaunchConfiguration('robot_ip_arm1'),
+            LaunchConfiguration('robot_ip_arm2'),
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board'),
@@ -476,7 +484,8 @@ def generate_launch_description():
         declare_ur_pwr_variant_cmd,
         declare_mock_arm_cmd,
         declare_initial_controller_arm_cmd,
-        declare_robot_ip_cmd,
+        declare_robot_ip_arm1_cmd,
+        declare_robot_ip_arm2_cmd,
         declare_controllers_file_cmd,
         declare_robotiq_cmd,
         declare_enable_ioboard,
