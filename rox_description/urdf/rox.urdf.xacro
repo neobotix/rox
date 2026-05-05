@@ -225,7 +225,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
-            robot_ip="$(arg arm1_ip)"
+            robot_ip="${arm1_ip}"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
           </xacro:ur>
@@ -238,7 +238,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
-            robot_ip="$(arg arm1_ip)"
+            robot_ip="${arm1_ip}"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>
@@ -311,7 +311,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
-            robot_ip="$(arg arm2_ip)"
+            robot_ip="${arm2_ip}"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -0.7854" />
           </xacro:ur>
@@ -324,7 +324,7 @@ Contributor: Adarsh Karan K P
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
-            robot_ip="$(arg arm2_ip)"
+            robot_ip="${arm2_ip}"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>
