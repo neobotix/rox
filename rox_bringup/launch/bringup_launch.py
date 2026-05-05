@@ -21,6 +21,7 @@ def execution_stage(context: LaunchContext,
                     robot_namespace,
                     rox_type,
                     arm_type,
+                    arm2_type,
                     scanner_type,
                     use_imu,
                     ur_dc,
@@ -45,6 +46,7 @@ def execution_stage(context: LaunchContext,
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
+    arm2_typ = str(arm2_type.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     use_mock = str(mock_arm.perform(context))
     gripper_typ = str(gripper_type.perform(context))
@@ -71,6 +73,7 @@ def execution_stage(context: LaunchContext,
         "xacro", " ", urdf,
         " ", 'rox_type:=', rox_typ,
         " ", 'arm_type:=', arm_typ,
+        " ", 'arm2_type:=', arm2_typ,
         " ", 'robot_ip_arm1:=', robot_ip_arm1,
         " ", 'robot_ip_arm2:=', robot_ip_arm2,
         " ", 'gripper_type:=', gripper_typ,
@@ -85,6 +88,8 @@ def execution_stage(context: LaunchContext,
         " ", 'arm2_prefix:=', arm2_prefix
     ]
     if arm_typ != "":
+        xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
+    if arm2_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
 
     # If user wants to deliberately set it to True, then they have to change it manually in the configs
@@ -257,6 +262,7 @@ def execution_stage(context: LaunchContext,
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
     # TODO: Add support for namespacing
+    # TODO: Add support for two arms, for now handling only one arm
     if (arm_typ == "ur5" or
         arm_typ == "ur10" or
         arm_typ == "ur5e" or
@@ -274,7 +280,7 @@ def execution_stage(context: LaunchContext,
                 ),
                 launch_arguments={
                     'ur_type': arm_typ,
-                    'robot_ip': robot_ip,
+                    'robot_ip': robot_ip_arm1,
                     'tf_prefix': arm_typ,
                     'use_mock_hardware': mock_arm,
                     'mock_sensor_commands': mock_arm,
@@ -390,6 +396,12 @@ def generate_launch_description():
             choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
             description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
         )
+    
+    declare_arm2_cmd = DeclareLaunchArgument(
+            'arm2_type', default_value='',
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+            description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
+        )
 
     declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
             'use_ur_dc', default_value='False',
@@ -460,6 +472,7 @@ def generate_launch_description():
             LaunchConfiguration('robot_namespace'),
             LaunchConfiguration('rox_type'),
             LaunchConfiguration('arm_type'),
+            LaunchConfiguration('arm2_type'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('use_ur_dc'),
@@ -479,6 +492,7 @@ def generate_launch_description():
         declare_namespace_cmd,
         declare_rox_type_cmd,
         declare_arm_cmd,
+        declare_arm2_cmd,
         declare_scanner_cmd,
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,

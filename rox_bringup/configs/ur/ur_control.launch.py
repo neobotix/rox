@@ -29,6 +29,8 @@
 #
 # Author: Denis Stogl
 
+# Neobotix ToDo: Handle two arms
+
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
