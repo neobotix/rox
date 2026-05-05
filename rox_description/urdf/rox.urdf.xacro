@@ -219,7 +219,7 @@ Contributor: Adarsh Karan K P
           </joint>
 
           <xacro:ur
-            name="${arm}-1"
+            name="${arm}_1"
             parent="ur_linear_axis_connector"
             use_gz="${gz}"
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
@@ -232,7 +232,7 @@ Contributor: Adarsh Karan K P
         </xacro:if>
         <xacro:unless value="${linear_axis == True}">
           <xacro:ur
-            name="${arm}"
+            name="${arm}_1"
             parent="cabinet_link"
             use_gz="${gz}"
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
@@ -305,7 +305,7 @@ Contributor: Adarsh Karan K P
           </joint>
 
           <xacro:ur
-            name="${arm2}-2"
+            name="${arm2}_2"
             parent="ur_linear_axis_connector2"
             use_gz="${gz}"
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
@@ -318,7 +318,7 @@ Contributor: Adarsh Karan K P
         </xacro:if>
         <xacro:unless value="${linear_axis == True}">
           <xacro:ur
-            name="${arm2}-2"
+            name="${arm2}_2"
             parent="cabinet_link"
             use_gz="${gz}"
             include_arm_ros2_control="$(arg include_arm_ros2_control)"
