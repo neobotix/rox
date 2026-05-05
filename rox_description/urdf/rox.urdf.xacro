@@ -39,7 +39,8 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="safety_limits" default="false"/>
   <xacro:arg name="safety_pos_margin" default="0.15"/>
   <xacro:arg name="safety_k_position" default="20"/>
-  <xacro:arg name="initial_positions_file" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
+  <xacro:arg name="arm1_initial_positions" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
+  <xacro:arg name="arm2_initial_positions" default="$(find rox_bringup)/configs/ur/initial_joint_positions-2.yaml"/>
 
   <!-- Xacro Properties -->
   <xacro:property name="gz" value="$(arg use_gz)"/>
@@ -274,9 +275,7 @@ Contributor: Adarsh Karan K P
             origin_rpy="0 0 -${pi / 2}"
             />
         </xacro:if>
-
       </xacro:unless>
-
     </xacro:unless>
 
     <!-- ============================================================ -->
@@ -289,9 +288,6 @@ Contributor: Adarsh Karan K P
       <xacro:if value="${arm2 == 'ur5' or arm2 == 'ur10' or arm2 == 'ur5e' or arm2 == 'ur10e'}">
 
         <!-- Include UR macros -->
-        <!-- <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
-        <xacro:include filename="$(find ur_robot_driver)/urdf/ur.ros2_control.xacro"/> -->
-
         <xacro:include filename="$(find rox_description)/urdf/xacros/ur_arm.urdf.xacro"/>
 
         <!-- Arm 2 -->
@@ -314,7 +310,7 @@ Contributor: Adarsh Karan K P
             tf_prefix="$(arg arm2_prefix)"
             robot_ip="$(arg robot_ip)"
             >
-            <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
+            <origin xyz="0.0 0.0 0.0" rpy="0 0 -0.7854" />
           </xacro:ur>
         </xacro:if>
         <xacro:unless value="${linear_axis == True}">
@@ -395,13 +391,31 @@ Contributor: Adarsh Karan K P
 
           <xacro:property
             name="arm1_initial_positions"
-            value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+            value="${xacro.load_yaml('$(arg arm1_initial_positions)')}"
             />
 
           <xacro:ur_ros2_control
             name="$(arg arm1_prefix)$(arg arm_type)"
             tf_prefix="$(arg arm1_prefix)"
             initial_positions="${arm1_initial_positions}"
+            />
+
+        </xacro:if>
+      </xacro:unless>
+
+      <!-- Arm 2 ros2_control -->
+      <xacro:unless value="${arm2 == ''}">
+        <xacro:if value="${arm2 == 'ur5' or arm2 == 'ur10' or arm2 == 'ur5e' or arm2 == 'ur10e'}">
+
+          <xacro:property
+            name="arm2_initial_positions"
+            value="${xacro.load_yaml('$(arg arm2_initial_positions)')}"
+            />
+
+          <xacro:ur_ros2_control
+            name="$(arg arm2_prefix)$(arg arm2_type)"
+            tf_prefix="$(arg arm2_prefix)"
+            initial_positions="${arm2_initial_positions}"
             />
 
         </xacro:if>

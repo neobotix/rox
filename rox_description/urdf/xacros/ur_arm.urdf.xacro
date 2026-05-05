@@ -53,9 +53,10 @@ Contributor: Adarsh Karan K P
   <!-- simulation controllers will be passed from launch file after substitutions -->
   <xacro:arg name="simulation_controllers" default=""/>
 
-  <xacro:macro name="ur_robot" params="name parent use_gz include_arm_ros2_control arm_type tf_prefix robot_ip *origin">
+  <xacro:macro name="ur" params="name parent use_gz include_arm_ros2_control arm_type tf_prefix robot_ip *origin">
     
     <!-- parse initial positions as a dictionary -->
+    <!-- This is mainly for using with Mock Controller -->
     <xacro:property 
       name="ur_initial_positions"
       value="${xacro.load_yaml('$(arg initial_positions_file)')}"

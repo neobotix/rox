@@ -189,8 +189,8 @@ def execution_stage(context: LaunchContext,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
         # " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
         " ", 'enable_linear_axis:=', str(enable_la).lower(),
-        " ", 'arm1_prefix:=', "arm1",
-        " ", 'arm2_prefix:=', "arm2"
+        " ", 'arm1_prefix:=', "arm1_",
+        " ", 'arm2_prefix:=', "arm2_"
     ]
 
     start_robot_state_publisher_cmd = Node(
