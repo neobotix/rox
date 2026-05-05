@@ -98,12 +98,12 @@ Author: Adarsh Karan K P
 
     <!-- ros2_control: REAL hardware -->
     <xacro:unless value="${gz == True}">
-      <ros2_control name="linear_axis_control" type="system">
+      <ros2_control name="linear_axis_control" type="system" rw_rate="100">
         <hardware>
           <plugin>nla/NlaHardwareInterface</plugin>
           <param name="can_iface">can0</param>
           <param name="timeout">0.2</param>
-          <param name="control_rate">50.0</param>
+          <param name="control_rate">100.0</param>
           <param name="initial_pose">0.02</param>
         </hardware>
         <joint name="linear_axis_slide_joint">

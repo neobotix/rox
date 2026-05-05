@@ -247,7 +247,7 @@ linear_axis_controller:
 
     gains:
       linear_axis_slide_joint:
-        p: 0.5
+        p: 0.02
         i: 0.0
         d: 0.0
         i_clamp: 0.0
