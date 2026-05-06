@@ -8,7 +8,7 @@
         <always_on>true</always_on>
         <pose>0 0 0 0 0 0</pose>
         <visualize>false</visualize>
-        <update_rate>10</update_rate>
+        <update_rate>15</update_rate>
         <topic>scan</topic>
         <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
         <output_type>sensor_msgs/LaserScan</output_type>
@@ -45,7 +45,7 @@
         <always_on>true</always_on>
         <pose>0 0 0 0 0 0</pose>
         <visualize>false</visualize>
-        <update_rate>10</update_rate>
+        <update_rate>15</update_rate>
         <topic>scan2</topic>
         <!-- Set output to sensor_msgs/LaserScan to get same output type as gazebo_ros_laser -->
         <output_type>sensor_msgs/LaserScan</output_type>
