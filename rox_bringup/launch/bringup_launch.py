@@ -29,7 +29,8 @@ def execution_stage(context: LaunchContext,
                     robot_ip,
                     controllers_yaml,
                     gripper_type,
-                    ioboard):
+                    ioboard,
+                    rs_camera_enable):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -37,6 +38,7 @@ def execution_stage(context: LaunchContext,
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
     ioboard_enable = str(ioboard.perform(context))
+    rs_camera_enable = str(rs_camera_enable.perform(context))
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
@@ -70,7 +72,8 @@ def execution_stage(context: LaunchContext,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
-        " ", 'joint_type:=', joint_type
+        " ", 'joint_type:=', joint_type,
+        " ", 'use_d435:=', rs_camera_enable
     ]
     if arm_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
@@ -227,7 +230,7 @@ def execution_stage(context: LaunchContext,
         launch_actions.append(scan)
 
     # 5. IMU
-    if imu_enable.lower == 'true':
+    if imu_enable.lower() == 'true':
         imu = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(rox, 
@@ -241,6 +244,22 @@ def execution_stage(context: LaunchContext,
         )
 
         launch_actions.append(imu)
+
+    # 6. Realsense Camera
+    if rs_camera_enable.lower() == 'true':
+        rs_camera = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(rox, 
+                    'configs/realsense', 
+                    'rs_launch.py')
+            ),
+            launch_arguments={
+                'namespace': robot_namespace
+            }.items(),
+            condition=UnlessCondition(mock_arm)
+        )
+
+        launch_actions.append(rs_camera)
 
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
@@ -419,6 +438,12 @@ def generate_launch_description():
             choices=['True', 'False'],
             description="Enables or Disables IOBoard if present - might require restart of the robot"
         )
+    
+    declare_rs_camera_enable = DeclareLaunchArgument(
+            'use_d435', default_value='False',
+            choices=['True', 'False'],
+            description="Enables or Disables Realsense Camera if present - might require restart of the robot"
+        )
 
     opq_function = OpaqueFunction(
         function=execution_stage,
@@ -434,7 +459,8 @@ def generate_launch_description():
             LaunchConfiguration('robot_ip'),
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
-            LaunchConfiguration('enable_io_board')
+            LaunchConfiguration('enable_io_board'),
+            LaunchConfiguration('use_d435')
             ])  
 
     ld = LaunchDescription([
@@ -450,6 +476,7 @@ def generate_launch_description():
         declare_controllers_file_cmd,
         declare_robotiq_cmd,
         declare_enable_ioboard,
+        declare_rs_camera_enable,
         opq_function
     ])
     return ld
