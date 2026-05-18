@@ -9,7 +9,7 @@
 				"mode": "VELOCITY_CONTROL",
 				"gear_ratio": 12,
 				"rot_sign": -1,
-				"enc_ticks_per_rev": 4096
+				"enc_ticks_per_rev": 10000
 			}
 		},
 		"RIGHT": {
@@ -20,7 +20,7 @@
 				"mode": "VELOCITY_CONTROL",
 				"gear_ratio": 12,
 				"rot_sign": -1,
-				"enc_ticks_per_rev": 4096
+				"enc_ticks_per_rev": 10000
 			}
 		}
 	}
