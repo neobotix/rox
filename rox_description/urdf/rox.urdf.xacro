@@ -150,7 +150,7 @@ Contributor: Adarsh Karan K P
     </xacro:cabinet>
 
     <!-- Universal Robotics (UR) Arms-->
-    <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e'}">
+    <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e' or arm == 'ur8long'}">
 
       <!-- Different height for AC arm-->
       <xacro:if value="${ur_dc == False}">

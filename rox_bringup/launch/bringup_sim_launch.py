@@ -82,7 +82,7 @@ def execution_stage(context: LaunchContext,
         if arm_typ == "ec66":
             arm_manufacturer = 'elite'
             initial_joint_controller_name = 'arm_controller'
-        elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e']:
+        elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e', 'ur8long']:
             arm_manufacturer = 'ur'
 
         controllers_yaml = os.path.join(
@@ -265,7 +265,7 @@ def generate_launch_description():
 
     declare_arm_type_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ec66'],
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ur8long', 'ec66'],
             description='Arm Types\n\t'
         )
 

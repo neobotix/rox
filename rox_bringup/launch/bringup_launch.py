@@ -393,7 +393,7 @@ def generate_launch_description():
 
     declare_arm_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e'],
+            choices=['', 'ur5', 'ur10', 'ur5e', 'ur10e', 'ur8long'],
             description='Arm used in the robot - currently only Universal Robotics arms are supported\n\t'
         )
 
