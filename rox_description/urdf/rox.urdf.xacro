@@ -13,6 +13,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="scanner_type" default="nanoscan"/>
   <xacro:arg name="rox_type" default="argo"/>
   <xacro:arg name="joint_type" default="fixed"/>
+  <xacro:arg name="enable_lift_axis" default="true"/>
 
   <!-- Manipulator Arguments-->
   <xacro:arg name="arm_type" default=""/>
@@ -38,6 +39,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="ur_dc" value="$(arg use_ur_dc)"/>
   <xacro:property name="gripper" value="$(arg gripper_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
+  <xacro:property name="lift" value="$(arg enable_lift_axis)"/>
 
   <!-- Include xacro files -->
   <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -83,27 +85,48 @@ Contributor: Adarsh Karan K P
     <xacro:trike_drive parent="base_link" wheel_separation="${wheel_separation}"/>
   </xacro:if>
 
-  <!-- Laser scanners -->
+  <!-- Lift axis -->
+  <xacro:if value="${lift == True}">
+    <xacro:include filename="$(find ewellix_description)/urdf/ewellix_macro.xacro"/>    
+    <xacro:ewellix_linear_actuator sim_gazebo="${gz}" type="tlt_x25" />
+  </xacro:if>
 
+  <!-- Laser scanners -->
+  <!-- Lift-axis variant is wider in X and Y -->
+  <!-- ToDo: waiting for the lift axis dimensions and ROX base frame dimension -->
   <!-- Nanoscans -->
+
+  <xacro:if value="${lift == True}">
+    <xacro:property name="nanoscan_x" value="0.3495"/>
+    <xacro:property name="nanoscan_y" value="0.2690"/>
+    <xacro:property name="psenscan_x" value="0.3516"/>
+    <xacro:property name="psenscan_y" value="0.2719"/>
+  </xacro:if>
+  <xacro:unless value="${lift == True}">
+    <xacro:property name="nanoscan_x" value="0.2995"/>
+    <xacro:property name="nanoscan_y" value="0.2690"/>
+    <xacro:property name="psenscan_x" value="0.3016"/>
+    <xacro:property name="psenscan_y" value="0.2719"/>
+  </xacro:unless>
+
   <xacro:if value="${scanner == 'nanoscan'}">
     <xacro:sick_nanoscan name="lidar_1" parent="base_link">
-      <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995} 0.269 0.189"/>
+      <origin rpy="${pi} 0 ${pi/4}" xyz="${nanoscan_x} ${nanoscan_y} 0.189"/>
     </xacro:sick_nanoscan>
 
     <xacro:sick_nanoscan name="lidar_2" parent="base_link">
-      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995} -0.269 0.189"/>
+      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${nanoscan_x} -${nanoscan_y} 0.189"/>
     </xacro:sick_nanoscan>
   </xacro:if>
   
   <!-- Pilz -->
   <xacro:if value="${scanner == 'psenscan'}">
     <xacro:pilz_psenscan name="lidar_1" parent="base_link">
-      <origin rpy="0 0 ${pi/4}" xyz="${0.3016} 0.2719 0.191"/>
+      <origin rpy="0 0 ${pi/4}" xyz="${psenscan_x} ${psenscan_y} 0.191"/>
     </xacro:pilz_psenscan>
 
     <xacro:pilz_psenscan name="lidar_2" parent="base_link">
-      <origin rpy="0 0 -${pi - pi/4}" xyz="-${0.3016} -0.2719 0.191"/>
+      <origin rpy="0 0 -${pi - pi/4}" xyz="-${psenscan_x} -${psenscan_y} 0.191"/>
     </xacro:pilz_psenscan>
   </xacro:if>
 
@@ -144,10 +167,13 @@ Contributor: Adarsh Karan K P
   <xacro:unless value="${arm == ''}">
 
     <!-- Include cabinet -->
-    <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
-    <xacro:cabinet name="cabinet" parent="base_footprint">
-      <origin rpy="0 0 0" xyz="0 0 0.33"/>
-    </xacro:cabinet>
+
+    <xacro:unless value="${lift == True}">
+      <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
+      <xacro:cabinet name="cabinet" parent="base_footprint">
+        <origin rpy="0 0 0" xyz="0 0 0.33"/>
+      </xacro:cabinet>
+    </xacro:unless>
 
     <!-- Universal Robotics (UR) Arms-->
     <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e' or arm == 'ur8long'}">
@@ -163,6 +189,42 @@ Contributor: Adarsh Karan K P
       
       <!-- Include the UR arm -->
       <xacro:include filename="$(find rox_description)/urdf/xacros/ur_arm.urdf.xacro"/>
+
+      <xacro:if value="${lift == True}">
+
+          <link name="ur_lift_axis_connector"/>
+
+          <joint name="lift_axis_connector_joint" type="fixed">
+            <origin xyz="0.450 0.156 0.529" rpy="-${pi/3} 0 0" />
+            <parent link="linear_axis_slide_link"/>
+            <child link="ur_lift_axis_connector"/>
+          </joint>
+
+          <xacro:ur
+            name="${arm}"
+            parent="ur_lift_axis_connector"
+            use_gz="${gz}"
+            include_arm_ros2_control="$(arg include_arm_ros2_control)"
+            arm_type="${arm}"
+            tf_prefix="$(arg arm_prefix)"
+            robot_ip="${arm_ip}"
+            >
+            <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
+          </xacro:ur>
+      </xacro:if>
+      <xacro:unless value="${lift == True}">
+        <xacro:ur
+          name="${arm}"
+          parent="cabinet_link"
+          use_gz="${gz}"
+          include_arm_ros2_control="$(arg include_arm_ros2_control)"
+          arm_type="${arm}"
+          tf_prefix="$(arg arm_prefix)"
+          robot_ip="${arm_ip}"
+          >
+          <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
+        </xacro:ur>
+      </xacro:unless>
     </xacro:if>
 
     <!-- Elite Arms-->
