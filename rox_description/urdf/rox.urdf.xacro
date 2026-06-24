@@ -97,8 +97,8 @@ Contributor: Adarsh Karan K P
   <!-- Nanoscans -->
 
   <xacro:if value="${lift == True}">
-    <xacro:property name="nanoscan_x" value="0.3495"/>
-    <xacro:property name="nanoscan_y" value="0.2690"/>
+    <xacro:property name="nanoscan_x" value="0.427"/>
+    <xacro:property name="nanoscan_y" value="0.314"/>
     <xacro:property name="psenscan_x" value="0.3516"/>
     <xacro:property name="psenscan_y" value="0.2719"/>
   </xacro:if>

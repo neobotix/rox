@@ -267,7 +267,8 @@ def execution_stage(context: LaunchContext,
     if (arm_typ == "ur5" or
         arm_typ == "ur10" or
         arm_typ == "ur5e" or
-        arm_typ == "ur10e"):
+        arm_typ == "ur10e" or
+        arm_typ == "ur8long"):
 
         # Mock hardware supports only `joint_trajectory_controller`
         if use_mock.lower() == 'true':
