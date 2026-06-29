@@ -42,6 +42,12 @@ controller_manager:
     tool_contact_controller:
       type: ur_controllers/ToolContactController
 
+    lift_joint_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    
+    lift_position_controller:
+      type: position_controllers/JointGroupPositionController
+
     # The way this is currently implemented upstream doesn't really work for us. When using
     # position control, the robot will have a tracking error. However, limits will be enforced
     # from the currently reported position, effectively limiting the possible step size using the
@@ -187,3 +193,34 @@ tcp_pose_broadcaster:
 tool_contact_controller:
   ros__parameters:
     tf_prefix: "$(var tf_prefix)"
+
+controller_manager:
+  ros__parameters:
+    update_rate: 10  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    lift_joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+lift_joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - lift_lower_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 10.0
+    action_monitor_rate: 10.0
+    allow_partial_joints_goal: false
+    constraints:
+      stopped_velocity_tolerance: 0.0
+      goal_time: 0.0
+
+lift_position_controller:
+  ros__parameters:
+    joints:
+      - lift_lower_joint

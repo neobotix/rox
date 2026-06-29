@@ -7,7 +7,6 @@ Contributor: Adarsh Karan K P
 
   <!-- create arm from macro-->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
-  <xacro:include filename="$(find ur_robot_driver)/urdf/ur.ros2_control.xacro"/>
   <xacro:include filename="$(find ur_description)/urdf/inc/ur_transmissions.xacro"/>
 
   <!-- Set use_gz = true for simulation -->
@@ -57,12 +56,13 @@ Contributor: Adarsh Karan K P
     force_abs_paths="$(arg force_abs_paths)"
     >
     <!-- position of arm in the world -->
-    <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 3.1415926535897931" />
+    <origin xyz="0.0 0.0 ${arm_height}" rpy="0.0 0.0 0.0" />
   </xacro:ur_robot>
 
   <!-- this condition is to ensure that ros2_control doesn't interfere with gz_ros2_control during simulation  -->
   <xacro:unless value="$(arg use_gz)">
     <xacro:if value="$(arg include_arm_ros2_control)">
+      <xacro:include filename="$(find ur_robot_driver)/urdf/ur.ros2_control.xacro"/>
       <!-- ros2_control related parameters -->
       <xacro:arg name="headless_mode" default="false" />
       <xacro:arg name="robot_ip" default="192.168.1.102" />

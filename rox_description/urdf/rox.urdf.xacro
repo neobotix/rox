@@ -17,7 +17,7 @@ Contributor: Adarsh Karan K P
 
   <!-- Manipulator Arguments-->
   <xacro:arg name="arm_type" default=""/>
-  <xacro:arg name="arm_parent" default="cabinet_link"/>
+  <xacro:arg name="arm_parent" default="ur_lift_axis_connector"/>
   <xacro:arg name="gripper_type" default=""/>
   <xacro:arg name="use_ur_dc" default="false"/>
   <xacro:arg name="force_abs_paths" default="false"/>
@@ -88,7 +88,15 @@ Contributor: Adarsh Karan K P
   <!-- Lift axis -->
   <xacro:if value="${lift == True}">
     <xacro:include filename="$(find ewellix_description)/urdf/ewellix_macro.xacro"/>    
-    <xacro:ewellix_linear_actuator sim_gazebo="${gz}" type="tlt_x25" />
+    <xacro:ewellix_lift
+      parent="cabinet_link"
+      tf_prefix="lift_"
+      parameters_file="$(find ewellix_description)/config/ur_620.yaml"
+      sim_gazebo="${gz}"
+      generate_ros2_control_tag="true"
+      use_fake_hardware="${use_mock}">
+      <origin xyz="-0.345 0 0.112" rpy="0 0 3.14159" />
+    </xacro:ewellix_lift>
   </xacro:if>
 
   <!-- Laser scanners -->
@@ -168,63 +176,35 @@ Contributor: Adarsh Karan K P
 
     <!-- Include cabinet -->
 
-    <xacro:unless value="${lift == True}">
-      <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
-      <xacro:cabinet name="cabinet" parent="base_footprint">
-        <origin rpy="0 0 0" xyz="0 0 0.33"/>
-      </xacro:cabinet>
-    </xacro:unless>
+    <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
+    <xacro:cabinet name="cabinet" parent="base_footprint">
+      <origin rpy="0 0 0" xyz="0 0 0.334"/>
+    </xacro:cabinet>
 
     <!-- Universal Robotics (UR) Arms-->
     <xacro:if value="${arm == 'ur5' or arm == 'ur10' or arm == 'ur5e' or arm == 'ur10e' or arm == 'ur8long'}">
 
       <!-- Different height for AC arm-->
       <xacro:if value="${ur_dc == False}">
-        <xacro:property name="arm_height" value="0.376" />
+        <xacro:property name="arm_height" value="0.0" />
       </xacro:if>
 
       <xacro:if value="${ur_dc == True}">
-        <xacro:property name="arm_height" value="0.276" />
+        <xacro:property name="arm_height" value="0.0" />
       </xacro:if>
       
-      <!-- Include the UR arm -->
-      <xacro:include filename="$(find rox_description)/urdf/xacros/ur_arm.urdf.xacro"/>
-
       <xacro:if value="${lift == True}">
 
           <link name="ur_lift_axis_connector"/>
 
           <joint name="lift_axis_connector_joint" type="fixed">
-            <origin xyz="0.450 0.156 0.529" rpy="-${pi/3} 0 0" />
-            <parent link="linear_axis_slide_link"/>
+            <origin xyz="0 0.0 0.0" rpy="0 0 0" />
+            <parent link="lift_mount"/>
             <child link="ur_lift_axis_connector"/>
           </joint>
 
-          <xacro:ur
-            name="${arm}"
-            parent="ur_lift_axis_connector"
-            use_gz="${gz}"
-            include_arm_ros2_control="$(arg include_arm_ros2_control)"
-            arm_type="${arm}"
-            tf_prefix="$(arg arm_prefix)"
-            robot_ip="${arm_ip}"
-            >
-            <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
-          </xacro:ur>
+        <xacro:include filename="$(find rox_description)/urdf/xacros/ur_arm.urdf.xacro"/>
       </xacro:if>
-      <xacro:unless value="${lift == True}">
-        <xacro:ur
-          name="${arm}"
-          parent="cabinet_link"
-          use_gz="${gz}"
-          include_arm_ros2_control="$(arg include_arm_ros2_control)"
-          arm_type="${arm}"
-          tf_prefix="$(arg arm_prefix)"
-          robot_ip="${arm_ip}"
-          >
-          <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
-        </xacro:ur>
-      </xacro:unless>
     </xacro:if>
 
     <!-- Elite Arms-->
