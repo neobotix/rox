@@ -93,7 +93,7 @@ Contributor: Adarsh Karan K P
       tf_prefix="lift_"
       parameters_file="$(find ewellix_description)/config/ur_620.yaml"
       sim_gazebo="${gz}"
-      generate_ros2_control_tag="false"
+      generate_ros2_control_tag="true"
       use_fake_hardware="${use_mock}">
       <origin xyz="-0.345 0 0.112" rpy="0 0 3.14159" />
     </xacro:ewellix_lift>

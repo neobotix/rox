@@ -369,15 +369,14 @@ def execution_stage(context: LaunchContext,
         package='ewellix_driver',
         executable='ewellix_node',
         name='lift',
-        namespace='ewellix',
         output='screen',
-        parameters=[{'conversion:': '3200.0'},{'encoder_upper_limit': '1299'}]
+        parameters=[{'conversion:': 3200.0},{'encoder_upper_limit': 1299}]
     )
 
     launch_actions.append(relay_topic_lidar1)
     launch_actions.append(relay_topic_lidar2)
     launch_actions.append(relay_topic_joint_states)
-    launch_actions.append(lift_node)
+    # launch_actions.append(lift_node)
 
     return launch_actions
 
