@@ -56,6 +56,10 @@ controller_manager:
     # true.
     enforce_command_limits: false
 
+    hardware_components_initial_state:
+      inactive:
+        - "lift_hardware"
+
 speed_scaling_state_broadcaster:
   ros__parameters:
     state_publish_rate: 100.0
