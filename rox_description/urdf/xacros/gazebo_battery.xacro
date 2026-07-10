@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
+
+  <!-- Battery configuration macro - LFP (Lithium Iron Phosphate) -->
+  <xacro:macro name="battery_plugin">
+    <plugin filename="gz-sim-linearbatteryplugin-system"
+      name="gz::sim::systems::LinearBatteryPlugin">
+      <battery_name>linear_battery</battery_name>
+      <voltage>54.0</voltage>
+      <open_circuit_voltage_constant_coef>54.0</open_circuit_voltage_constant_coef>
+
+      <!-- Initial charge set to 100% of capacity -->
+      <initial_charge>26.0</initial_charge>
+      <capacity>26.0</capacity>
+      <!-- Internal resistance of the battery (Ohm) -->
+      <resistance>0.01</resistance>
+      <!-- Coefficient for smoothing current -->
+      <smooth_current_tau>2.0</smooth_current_tau>
+
+      <!-- charging I = c / t, discharging I = P / V, 
+      charging I should be > discharging I -->
+      <enable_recharge>true</enable_recharge>
+      <recharge_by_topic>true</recharge_by_topic>
+      <!-- Charging time: 30 minutes = 0.5 hours -->
+      <charging_time>0.5</charging_time>
+
+      <!-- Robot power draw (Wh) -->
+      <power_load>260.0</power_load>
+
+      <power_draining_topic>/start_power_draining</power_draining_topic>
+      <stop_power_draining_topic>/stop_power_draining</stop_power_draining_topic>
+
+      <!-- battery_runtime (hours) = <capacity> * <voltage> / <power_load> -->
+    </plugin>
+  </xacro:macro>
+
+</robot>

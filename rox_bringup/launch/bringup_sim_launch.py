@@ -23,6 +23,7 @@ def execution_stage(context: LaunchContext,
                     d435_enable,
                     scanner_type,
                     ur_dc,
+                    battery_enable,
                     gripper_type,
                     headless_sim,
                     use_wall_time):
@@ -35,6 +36,7 @@ def execution_stage(context: LaunchContext,
     scanner_typ = str(scanner_type.perform(context))
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
+    battery = str(battery_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
@@ -123,6 +125,7 @@ def execution_stage(context: LaunchContext,
         " ", 'joint_type:=', joint_type,
         " ", 'use_imu:=', imu,
         " ", 'use_d435:=', d435,
+        " ", 'use_battery:=', battery,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'arm_type:=', arm_typ,
         " ", 'gripper_type:=', gripper_typ,
@@ -257,6 +260,11 @@ def generate_launch_description():
             description='Enable Realsense - Options: True/False'
         )
 
+    declare_battery_cmd = DeclareLaunchArgument(
+            'battery_enable', default_value='False',
+            description='Enable LFP (Lithium Iron Phosphate) Battery in Simulation - Options: True/False'
+        )
+
     declare_scanner_cmd = DeclareLaunchArgument(
             'scanner_type', default_value='nanoscan',
             choices = ['', 'nanoscan', 'psenscan'],
@@ -299,6 +307,7 @@ def generate_launch_description():
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
+            LaunchConfiguration('battery_enable'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
             LaunchConfiguration('use_wall_time')
@@ -307,6 +316,7 @@ def generate_launch_description():
     ld = LaunchDescription([
         declare_imu_cmd,
         declare_realsense_cmd,
+        declare_battery_cmd,
         declare_scanner_cmd,
         declare_arm_type_cmd,
         declare_rox_type_cmd,

@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
+  <!-- Include battery configuration macro -->
+  <xacro:include filename="$(find rox_description)/urdf/xacros/gazebo_battery.xacro" />
+
   <xacro:macro name="gazebo_plugins">
 
     <gazebo reference="lidar_1_link">
@@ -130,6 +133,11 @@
       <plugin filename="gz-sim-imu-system"
           name="gz::sim::systems::Imu">
       </plugin>
+
+      <!-- Battery plugin for all rox platforms -->
+      <xacro:if value="${battery == True}">
+        <xacro:battery_plugin/>
+      </xacro:if>
 
       <!-- For ArgoDrive platforms -->
       <xacro:if value="${rox_typ == 'argo' or rox_typ == 'argo-trio'}">
