@@ -5,7 +5,7 @@
 		"charge_phases": [
 			{
 				"cc_cv": {
-					"current": 21,
+					"current": 25,
 					"voltage": 55.2
 				},
 				"min_current": 0.2,
