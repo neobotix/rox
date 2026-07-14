@@ -56,7 +56,7 @@ Contributor: Adarsh Karan K P
     force_abs_paths="$(arg force_abs_paths)"
     >
     <!-- position of arm in the world -->
-    <origin xyz="0.0 0.0 ${arm_height}" rpy="0.0 0.0 0.0" />
+    <origin xyz="0.0 0.0 ${arm_height}" rpy="0.0 0.0 -1.57" />
   </xacro:ur_robot>
 
   <!-- this condition is to ensure that ros2_control doesn't interfere with gz_ros2_control during simulation  -->
