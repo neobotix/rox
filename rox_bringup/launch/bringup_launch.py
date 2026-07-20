@@ -376,7 +376,7 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(relay_topic_lidar1)
     launch_actions.append(relay_topic_lidar2)
     launch_actions.append(relay_topic_joint_states)
-    # launch_actions.append(lift_node)
+    launch_actions.append(lift_node)
 
     return launch_actions
 
