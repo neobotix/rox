@@ -57,7 +57,7 @@ neo_localization2_node:
     # if to broadcast map frame
     broadcast_tf: true
     # Scan topic
-    scan_topic: "lidar_1/scan_filtered"
+    scan_topic: "scan"
     # Initial Pose topic
     initialpose: initialpose
     # Map Tile topic
@@ -146,30 +146,30 @@ controller_server:
       movement_time_allowance: 100.0
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.05
-      yaw_goal_tolerance: 0.01
+      xy_goal_tolerance: 0.03
+      yaw_goal_tolerance: 0.005
       stateful: True
     FollowPath:
       plugin: neo_local_planner2::NeoLocalPlanner
       acc_lim_x : 0.25
       # The rotational acceleration limit of the robot in radians/sec^2
-      acc_lim_theta : 0.8
+      acc_lim_theta : 0.3
       # The maximum x velocity for the robot in m/s.
-      max_vel_x : 0.8
+      max_vel_x : 0.5
       # The minimum x velocity for the robot in m/s, negative for backwards motion.
       min_vel_x : -0.1
       # The absolute value of the maximum rotational velocity for the robot in rad/s
-      max_rot_vel : 0.8
+      max_rot_vel : 0.3
       # The absolute value of the minimum rotational velocity for the robot in rad/s
-      min_rot_vel : 0.1
+      min_rot_vel : 0.05
       # The absolute value of the maximum translational velocity for the robot in m/s
-      max_trans_vel : 0.8
+      max_trans_vel : 0.5
       # The absolute value of the minimum translational velocity for the robot in m/s
       min_trans_vel : 0.1
       # The tolerance in radians for the controller in yaw/rotation when achieving its goal
-      yaw_goal_tolerance : 0.05
+      yaw_goal_tolerance : 0.005
       # The tolerance in meters for the controller in the x & y distance when achieving a goal
-      xy_goal_tolerance : 0.1
+      xy_goal_tolerance : 0.03
       # How long to fine tune for goal position after reaching tolerance limits [s]
       goal_tune_time : 3.0
       # How far to predict control pose into the future based on latest odometry [s]
