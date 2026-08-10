@@ -46,7 +46,6 @@
 		"WHITE": [5, 0]
 	},
 	"battery_voltage_ain": 0,
-	"charge_current_ain": 2,
 	"temperature_ain": 4,
 
 	"led_off": {
