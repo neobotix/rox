@@ -7,7 +7,8 @@
 					"current": 4.7,
 					"voltage": 56.4
 				},
-				"target_min_current": 0.4
+				"target_min_current": 0.4,
+                "min_current": 0.2
 			},
 			{
 				"is_conservation": true,
