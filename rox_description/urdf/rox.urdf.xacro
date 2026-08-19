@@ -88,11 +88,11 @@ Contributor: Adarsh Karan K P
   <!-- Nanoscans -->
   <xacro:if value="${scanner == 'nanoscan'}">
     <xacro:sick_nanoscan name="lidar_1" parent="base_link">
-      <origin rpy="${pi} 0 ${pi/4}" xyz="${0.2995} 0.269 0.189"/>
+      <origin rpy="${pi} 0 ${pi/4}" xyz="0.429 0.269 0.189"/>
     </xacro:sick_nanoscan>
 
     <xacro:sick_nanoscan name="lidar_2" parent="base_link">
-      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-${0.2995} -0.269 0.189"/>
+      <origin rpy="${pi} 0 -${pi - pi/4}" xyz="-0.429 -0.269 0.189"/>
     </xacro:sick_nanoscan>
   </xacro:if>
   
