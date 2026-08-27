@@ -6,7 +6,7 @@ import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, AppendEnvironmentVariable
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
@@ -25,7 +25,9 @@ def execution_stage(context: LaunchContext,
                     ur_dc,
                     # gripper_type,
                     headless_sim,
-                    use_wall_time):
+                    use_wall_time,
+                    rosbridge_enable,
+                    nbx_log_bridge_enable):
 
     launch_actions = []
 
@@ -38,6 +40,8 @@ def execution_stage(context: LaunchContext,
     use_ur_dc = str(ur_dc.perform(context))
     headless_sim = str(headless_sim.perform(context)).lower()
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
+    rosbridge_enabled = str(rosbridge_enable.perform(context)).lower() == 'true'
+    nbx_log_bridge_enabled = str(nbx_log_bridge_enable.perform(context)).lower() == 'true'
     joint_type = "fixed"
 
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
@@ -226,6 +230,30 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(start_robot_state_publisher_cmd)
     launch_actions.append(gz_sim)
     launch_actions.append(gz_bridge)
+    if rosbridge_enabled:
+        launch_actions.append(
+            IncludeLaunchDescription(
+                AnyLaunchDescriptionSource(
+                    os.path.join(
+                        get_package_share_directory('rosbridge_server'),
+                        'launch',
+                        'rosbridge_websocket_launch.xml'
+                    )
+                )
+            )
+        )
+    if nbx_log_bridge_enabled:
+        launch_actions.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(
+                        get_package_share_directory('nbx_log_bridge'),
+                        'launch',
+                        'nbx_log_bridge.launch.py'
+                    )
+                )
+            )
+        )
     launch_actions.append(relay_topic_lidar1)
     launch_actions.append(relay_topic_lidar2)
     launch_actions.append(teleop)
@@ -290,6 +318,16 @@ def generate_launch_description():
             description='Run gz_bridge with override_timestamps_with_wall_time:=True - Options: True/False'
         )
 
+    declare_rosbridge_enable_cmd = DeclareLaunchArgument(
+            'rosbridge_enable', default_value='False',
+            description='Launch the rosbridge WebSocket server - Options: True/False'
+        )
+
+    declare_nbx_log_bridge_enable_cmd = DeclareLaunchArgument(
+            'nbx_log_bridge_enable', default_value='False',
+            description='Launch the NBX log bridge - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -301,7 +339,9 @@ def generate_launch_description():
             LaunchConfiguration('use_ur_dc'),
             # LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
-            LaunchConfiguration('use_wall_time')
+            LaunchConfiguration('use_wall_time'),
+            LaunchConfiguration('rosbridge_enable'),
+            LaunchConfiguration('nbx_log_bridge_enable')
             ])
 
     ld = LaunchDescription([
@@ -314,6 +354,8 @@ def generate_launch_description():
         # declare_gripper_type_cmd,
         declare_headless_sim_cmd,
         declare_use_wall_time_cmd,
+        declare_rosbridge_enable_cmd,
+        declare_nbx_log_bridge_enable_cmd,
         opq_function
     ])
     return ld
