@@ -225,14 +225,19 @@ controller_server:
       plugin: "neo_mpc_planner::NeoMpcPlanner"
       lookahead_dist_min: 0.4
       lookahead_dist_max: 0.4
-      lookahead_dist_close_to_goal: 0.3
+      lookahead_dist_close_to_goal: 1.0
       tight_lookahead_dist: 0.1
+      use_predicted_footprint_collision_check: true
+      # Validate the final, acceleration-limited command through approximately
+      # one MPC control interval (0.8 s horizon / 3 control steps).
+      collision_prediction_time: 0.27
 
 local_costmap:
   local_costmap:
     ros__parameters:
       update_frequency: 10.0
-      publish_frequency: 1.0
+      # Keep the Python MPC collision ESDF reasonably current.
+      publish_frequency: 10.0
       global_frame: odom
       robot_base_frame: base_link
       footprint_padding: 0.0
@@ -370,15 +375,15 @@ mpc_optimization_server:
     acc_y_limit: 0.8
     acc_theta_limit: 0.8
     # Minimum velocity limits
-    min_vel_x: -0.7
-    min_vel_y: -0.7
-    min_vel_trans: -0.7
-    min_vel_theta: -0.7
+    min_vel_x: -0.5
+    min_vel_y: -0.5
+    min_vel_trans: -0.5
+    min_vel_theta: -0.5
     # Maximum velocity limits
-    max_vel_x: 0.7
-    max_vel_y: 0.7
-    max_vel_trans: 0.7
-    max_vel_theta: 0.7
+    max_vel_x: 0.5
+    max_vel_y: 0.5
+    max_vel_trans: 0.5
+    max_vel_theta: 0.5
     # Translation error weight 
     w_trans: 0.82
     # Orientation error weight 
@@ -405,4 +410,21 @@ mpc_optimization_server:
     # Threshold for tight lookahead distance
     tight_lookahead_dist_threshold: 0.5
     control_time_scale: 0.2
-
+    # Stop when the optimizer's local costmap is missing, stale, or in a
+    # different frame than current_pose.
+    costmap_max_age: 0.3
+    # Four-circle collision envelope in base_link coordinates.
+    # Set false only when the application intentionally does not want the MPC
+    # to account for the robot footprint.
+    use_footprint_constraints: true
+    footprint_circle_offset_x: 0.15
+    footprint_circle_offset_y: 0.15
+    footprint_circle_radius: 0.18
+    footprint_safety_margin: 0.05
+    # Five samples per MPC interval keep translation between checks below the
+    # 3 cm local-costmap resolution at maximum translational velocity.
+    footprint_constraint_substeps: 5
+    # Numerical feasibility tolerance. With the 5 cm safety margin this still
+    # preserves at least 4.5 cm clearance.
+    footprint_constraint_tolerance: 5e-3
+    solver_finite_difference_step: 1e-3
