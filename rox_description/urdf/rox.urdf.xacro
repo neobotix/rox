@@ -28,6 +28,7 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="linear_axis_simulation_controllers" default=""/>
   <xacro:arg name="use_mock_hardware" default="false" />
   <xacro:arg name="mock_sensor_commands" default="false" />
+  <xacro:arg name="use_mock_linear_axis" default="$(arg use_mock_hardware)" />
 
   <xacro:arg name="include_arm_ros2_control" default="false"/>
   <xacro:arg name="include_gripper_ros2_control" default="false"/>
@@ -42,6 +43,19 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="safety_k_position" default="20"/>
   <xacro:arg name="arm1_initial_positions" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
   <xacro:arg name="arm2_initial_positions" default="$(find rox_bringup)/configs/ur/initial_joint_positions-2.yaml"/>
+  <xacro:arg name="arm1_kinematics_parameters_file" default="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"/>
+  <xacro:arg name="arm2_kinematics_parameters_file" default="$(find ur_description)/config/$(arg arm2_type)/default_kinematics.yaml"/>
+  <xacro:arg name="headless_mode" default="false"/>
+
+  <!-- Unique local ports are required when both UR drivers run on this host. -->
+  <xacro:arg name="arm1_reverse_port" default="50001"/>
+  <xacro:arg name="arm1_script_sender_port" default="50002"/>
+  <xacro:arg name="arm1_script_command_port" default="50004"/>
+  <xacro:arg name="arm1_trajectory_port" default="50003"/>
+  <xacro:arg name="arm2_reverse_port" default="50006"/>
+  <xacro:arg name="arm2_script_sender_port" default="50007"/>
+  <xacro:arg name="arm2_script_command_port" default="50010"/>
+  <xacro:arg name="arm2_trajectory_port" default="50009"/>
 
   <!-- Xacro Properties -->
   <xacro:property name="gz" value="$(arg use_gz)"/>
@@ -56,6 +70,7 @@ Contributor: Adarsh Karan K P
   <xacro:property name="gripper" value="$(arg gripper_type)"/>
   <xacro:property name="gripper2" value="$(arg gripper2_type)"/>
   <xacro:property name="use_mock" value="$(arg use_mock_hardware)"/>
+  <xacro:property name="mock_linear_axis" value="$(arg use_mock_linear_axis)"/>
   <xacro:property name="linear_axis" value="$(arg enable_linear_axis)"/>
   <xacro:property name="arm1_ip" value="$(arg robot_ip_arm1)"/>
   <xacro:property name="arm2_ip" value="$(arg robot_ip_arm2)"/>
@@ -107,7 +122,7 @@ Contributor: Adarsh Karan K P
   <!-- Linear axis (EMROX-Argo variant) -->
   <xacro:if value="${linear_axis == True}">
     <xacro:include filename="$(find rox_description)/urdf/xacros/linear_axis.xacro"/>
-    <xacro:linear_axis parent="base_link"/>
+    <xacro:linear_axis parent="base_link" use_mock_hardware="${mock_linear_axis}"/>
   </xacro:if>
 
   <!-- Scanner placement -->
@@ -226,6 +241,17 @@ Contributor: Adarsh Karan K P
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
             robot_ip="${arm1_ip}"
+            initial_positions_file="$(arg arm1_initial_positions)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(arg arm1_kinematics_parameters_file)"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"
+            headless_mode="$(arg headless_mode)"
+            reverse_port="$(arg arm1_reverse_port)"
+            script_sender_port="$(arg arm1_script_sender_port)"
+            script_command_port="$(arg arm1_script_command_port)"
+            trajectory_port="$(arg arm1_trajectory_port)"
+            tool_device_name="/tmp/ttyUR_arm1"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -2.355" />
           </xacro:ur>
@@ -239,6 +265,17 @@ Contributor: Adarsh Karan K P
             arm_type="${arm}"
             tf_prefix="$(arg arm1_prefix)"
             robot_ip="${arm1_ip}"
+            initial_positions_file="$(arg arm1_initial_positions)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(arg arm1_kinematics_parameters_file)"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"
+            headless_mode="$(arg headless_mode)"
+            reverse_port="$(arg arm1_reverse_port)"
+            script_sender_port="$(arg arm1_script_sender_port)"
+            script_command_port="$(arg arm1_script_command_port)"
+            trajectory_port="$(arg arm1_trajectory_port)"
+            tool_device_name="/tmp/ttyUR_arm1"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>
@@ -312,6 +349,17 @@ Contributor: Adarsh Karan K P
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
             robot_ip="${arm2_ip}"
+            initial_positions_file="$(arg arm2_initial_positions)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm2_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(arg arm2_kinematics_parameters_file)"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm2_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm2_type)/visual_parameters.yaml"
+            headless_mode="$(arg headless_mode)"
+            reverse_port="$(arg arm2_reverse_port)"
+            script_sender_port="$(arg arm2_script_sender_port)"
+            script_command_port="$(arg arm2_script_command_port)"
+            trajectory_port="$(arg arm2_trajectory_port)"
+            tool_device_name="/tmp/ttyUR_arm2"
             >
             <origin xyz="0.0 0.0 0.0" rpy="0 0 -0.7854" />
           </xacro:ur>
@@ -325,6 +373,17 @@ Contributor: Adarsh Karan K P
             arm_type="${arm2}"
             tf_prefix="$(arg arm2_prefix)"
             robot_ip="${arm2_ip}"
+            initial_positions_file="$(arg arm2_initial_positions)"
+            joint_limits_parameters_file="$(find ur_description)/config/$(arg arm2_type)/joint_limits.yaml"
+            kinematics_parameters_file="$(arg arm2_kinematics_parameters_file)"
+            physical_parameters_file="$(find ur_description)/config/$(arg arm2_type)/physical_parameters.yaml"
+            visual_parameters_file="$(find ur_description)/config/$(arg arm2_type)/visual_parameters.yaml"
+            headless_mode="$(arg headless_mode)"
+            reverse_port="$(arg arm2_reverse_port)"
+            script_sender_port="$(arg arm2_script_sender_port)"
+            script_command_port="$(arg arm2_script_command_port)"
+            trajectory_port="$(arg arm2_trajectory_port)"
+            tool_device_name="/tmp/ttyUR_arm2"
             >
             <origin xyz="0.218 0.0 0.0" rpy="0.0 0.0 0.0" />
           </xacro:ur>

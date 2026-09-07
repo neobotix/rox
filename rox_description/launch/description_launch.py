@@ -26,6 +26,7 @@ def execution_stage(context: LaunchContext,
                     arm2_type,
                     ur_dc,
                     use_rviz,
+                    use_robot_state_publisher,
                     enable_linear_axis):
 
     launch_actions = []
@@ -69,6 +70,7 @@ def execution_stage(context: LaunchContext,
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
+        condition=IfCondition(use_robot_state_publisher),
         name='robot_state_publisher',
         output='screen',
         parameters=[{
@@ -98,9 +100,9 @@ def execution_stage(context: LaunchContext,
 
     launch_actions.append(start_rviz_cmd)
     launch_actions.append(start_robot_state_publisher_cmd)
-    if arm_typ or arm2_typ or enable_la:
-        launch_actions.append(start_joint_state_publisher_cmd)
-        launch_actions.append(start_joint_state_publisher_gui_cmd)
+    # if arm_typ or arm2_typ or enable_la:
+    #     launch_actions.append(start_joint_state_publisher_cmd)
+    #     launch_actions.append(start_joint_state_publisher_gui_cmd)
 
     return launch_actions
 
@@ -155,6 +157,14 @@ def generate_launch_description():
             description='Launch RViz for visualization'
         )
 
+    declare_use_robot_state_publisher_cmd = DeclareLaunchArgument(
+            'use_robot_state_publisher', default_value='True',
+            description=(
+                'Start robot_state_publisher. Set to False when another launch '
+                'already publishes the robot description and TF.'
+            )
+        )
+
     declare_enable_linear_axis_cmd = DeclareLaunchArgument(
             'enable_linear_axis', default_value='False',
             description='Enable linear axis (EMROX-Argo variant) - Options: True/False'
@@ -172,6 +182,7 @@ def generate_launch_description():
             LaunchConfiguration('arm2_type'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_rviz'),
+            LaunchConfiguration('use_robot_state_publisher'),
             LaunchConfiguration('enable_linear_axis')
         ])
 
@@ -185,6 +196,7 @@ def generate_launch_description():
         declare_arm2_type_cmd,
         declare_ur_pwr_variant_cmd,
         declare_use_rviz_cmd,
+        declare_use_robot_state_publisher_cmd,
         declare_enable_linear_axis_cmd,
         opq_function
     ])

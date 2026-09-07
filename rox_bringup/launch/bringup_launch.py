@@ -8,9 +8,15 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, Command
+from launch.substitutions import (
+    Command,
+    EnvironmentVariable,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+)
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
 from launch.launch_context import LaunchContext
 from launch.conditions import UnlessCondition
 import os
@@ -52,6 +58,10 @@ def execution_stage(context: LaunchContext,
     gripper_typ = str(gripper_type.perform(context))
     initial_controller_arm_name = str(initial_controller_arm.perform(context))
 
+    headless_mode = LaunchConfiguration('headless_mode')
+    arm1_kinematics = LaunchConfiguration('arm1_kinematics_parameters_file')
+    arm2_kinematics = LaunchConfiguration('arm2_kinematics_parameters_file')
+
     arm1_prefix = str(arm1_prefix.perform(context))
     arm2_prefix = str(arm2_prefix.perform(context))
 
@@ -78,14 +88,27 @@ def execution_stage(context: LaunchContext,
         " ", 'robot_ip_arm2:=', robot_ip_arm2,
         " ", 'gripper_type:=', gripper_typ,
         " ", 'use_mock_hardware:=', use_mock,
-        " ", 'use_mock_sensor_commands:=', use_mock,
+        " ", 'mock_sensor_commands:=', use_mock,
+        " ", 'use_mock_linear_axis:=', LaunchConfiguration('use_mock_linear_axis'),
         " ", 'scanner_type:=', scanner_typ,
         " ", 'use_imu:=', imu_enable,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'joint_type:=', joint_type,
         " ", 'enable_linear_axis:=', enable_la,
         " ", 'arm1_prefix:=', arm1_prefix,
-        " ", 'arm2_prefix:=', arm2_prefix
+        " ", 'arm2_prefix:=', arm2_prefix,
+        " ", 'headless_mode:=', headless_mode,
+        " ", 'script_filename:=', LaunchConfiguration('ur_script_filename'),
+        " ", 'arm1_kinematics_parameters_file:=', arm1_kinematics,
+        " ", 'arm2_kinematics_parameters_file:=', arm2_kinematics,
+        " ", 'arm1_reverse_port:=', LaunchConfiguration('arm1_reverse_port'),
+        " ", 'arm1_script_sender_port:=', LaunchConfiguration('arm1_script_sender_port'),
+        " ", 'arm1_script_command_port:=', LaunchConfiguration('arm1_script_command_port'),
+        " ", 'arm1_trajectory_port:=', LaunchConfiguration('arm1_trajectory_port'),
+        " ", 'arm2_reverse_port:=', LaunchConfiguration('arm2_reverse_port'),
+        " ", 'arm2_script_sender_port:=', LaunchConfiguration('arm2_script_sender_port'),
+        " ", 'arm2_script_command_port:=', LaunchConfiguration('arm2_script_command_port'),
+        " ", 'arm2_trajectory_port:=', LaunchConfiguration('arm2_trajectory_port')
     ]
     if arm_typ != "":
         xacro_args.extend([" include_arm_ros2_control:=", "true"]) # Include only the arm ros2_control tags
@@ -262,8 +285,38 @@ def execution_stage(context: LaunchContext,
     # 7. Arm - Bringing up drivers for Universal Arm
     # TODO: Add support for Elite Robots
     # TODO: Add support for namespacing
-    # TODO: Add support for two arms, for now handling only one arm
-    if (arm_typ == "ur5" or
+    ur_types = ("ur5", "ur10", "ur5e", "ur10e")
+
+    if arm_typ in ur_types and arm2_typ in ur_types:
+        arm1_initial_controller = f"arm1_{initial_controller_arm_name}"
+        arm2_initial_controller = f"arm2_{initial_controller_arm_name}"
+        if use_mock.lower() == 'true':
+            arm1_initial_controller = "arm1_joint_trajectory_controller"
+            arm2_initial_controller = "arm2_joint_trajectory_controller"
+
+        dual_ur_arms = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(rox, 'configs/ur', 'ur_dual_control.launch.py')
+            ),
+            launch_arguments={
+                'arm1_ur_type': arm_typ,
+                'arm2_ur_type': arm2_typ,
+                'robot_ip_arm1': robot_ip_arm1,
+                'robot_ip_arm2': robot_ip_arm2,
+                'use_mock_hardware': mock_arm,
+                'headless_mode': headless_mode,
+                'arm1_initial_joint_controller': arm1_initial_controller,
+                'arm2_initial_joint_controller': arm2_initial_controller,
+                'controllers_file': LaunchConfiguration('dual_controllers_file'),
+                'enable_linear_axis': enable_la,
+                'arm1_prefix': arm1_prefix,
+                'arm2_prefix': arm2_prefix,
+                'controller_spawner_timeout': LaunchConfiguration('controller_spawner_timeout'),
+            }.items(),
+        )
+        launch_actions.append(dual_ur_arms)
+
+    elif (arm_typ == "ur5" or
         arm_typ == "ur10" or
         arm_typ == "ur5e" or
         arm_typ == "ur10e"):
@@ -286,7 +339,9 @@ def execution_stage(context: LaunchContext,
                     'mock_sensor_commands': mock_arm,
                     'initial_joint_controller': initial_controller_arm_name,
                     'controllers_file': controllers_yaml,
-                    'enable_linear_axis': enable_la
+                    'enable_linear_axis': enable_la,
+                    'headless_mode': headless_mode,
+                    'controller_spawner_timeout': LaunchConfiguration('controller_spawner_timeout'),
                 }.items()
             )
 
@@ -413,6 +468,11 @@ def generate_launch_description():
             description="Mock arm and gripper (if available)"
         )
 
+    declare_mock_linear_axis_cmd = DeclareLaunchArgument(
+            'use_mock_linear_axis', default_value=LaunchConfiguration('use_mock_arm'),
+            description='Use mock ros2_control hardware for the linear axis independently.'
+        )
+
     declare_initial_controller_arm_cmd = DeclareLaunchArgument(
             'initial_controller_arm', default_value='scaled_joint_trajectory_controller',
             choices=['', 'joint_trajectory_controller', 'scaled_joint_trajectory_controller'],
@@ -437,6 +497,63 @@ def generate_launch_description():
             ),
             description='YAML file with the arm controllers configuration.',
         )
+
+    declare_dual_controllers_file_cmd = DeclareLaunchArgument(
+        'dual_controllers_file',
+        default_value=os.path.join(
+            get_package_share_directory('rox_bringup'),
+            'configs/ur/ur_controllers_dual.yaml'
+        ),
+        description='YAML file containing controllers for both UR arms.',
+    )
+
+    declare_headless_mode_cmd = DeclareLaunchArgument(
+        'headless_mode', default_value='False',
+        description='Run both UR drivers in headless mode.'
+    )
+
+    declare_controller_spawner_timeout_cmd = DeclareLaunchArgument(
+        'controller_spawner_timeout', default_value='60',
+        description='Seconds controller spawners wait while all hardware initializes.'
+    )
+
+    declare_ur_script_filename_cmd = DeclareLaunchArgument(
+        'ur_script_filename',
+        default_value=PathJoinSubstitution([
+            '/opt/ros', EnvironmentVariable('ROS_DISTRO'), 'share',
+            'ur_client_library', 'resources', 'external_control.urscript'
+        ]),
+        description='External-control URScript matching the installed ur_robot_driver binaries.'
+    )
+
+    declare_arm1_kinematics_cmd = DeclareLaunchArgument(
+        'arm1_kinematics_parameters_file',
+        default_value=PathJoinSubstitution([
+            FindPackageShare('ur_description'), 'config',
+            LaunchConfiguration('arm_type'), 'default_kinematics.yaml'
+        ]),
+        description='Calibration/kinematics YAML for arm 1.'
+    )
+
+    declare_arm2_kinematics_cmd = DeclareLaunchArgument(
+        'arm2_kinematics_parameters_file',
+        default_value=PathJoinSubstitution([
+            FindPackageShare('ur_description'), 'config',
+            LaunchConfiguration('arm2_type'), 'default_kinematics.yaml'
+        ]),
+        description='Calibration/kinematics YAML for arm 2.'
+    )
+
+    port_arguments = [
+        DeclareLaunchArgument('arm1_reverse_port', default_value='50001'),
+        DeclareLaunchArgument('arm1_script_sender_port', default_value='50002'),
+        DeclareLaunchArgument('arm1_script_command_port', default_value='50004'),
+        DeclareLaunchArgument('arm1_trajectory_port', default_value='50003'),
+        DeclareLaunchArgument('arm2_reverse_port', default_value='50006'),
+        DeclareLaunchArgument('arm2_script_sender_port', default_value='50007'),
+        DeclareLaunchArgument('arm2_script_command_port', default_value='50010'),
+        DeclareLaunchArgument('arm2_trajectory_port', default_value='50009'),
+    ]
 
     declare_robotiq_cmd = DeclareLaunchArgument(
             'gripper_type', default_value='',
@@ -497,15 +614,23 @@ def generate_launch_description():
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,
         declare_mock_arm_cmd,
+        declare_mock_linear_axis_cmd,
         declare_initial_controller_arm_cmd,
         declare_robot_ip_arm1_cmd,
         declare_robot_ip_arm2_cmd,
         declare_controllers_file_cmd,
+        declare_dual_controllers_file_cmd,
+        declare_headless_mode_cmd,
+        declare_controller_spawner_timeout_cmd,
+        declare_ur_script_filename_cmd,
+        declare_arm1_kinematics_cmd,
+        declare_arm2_kinematics_cmd,
         declare_robotiq_cmd,
         declare_enable_ioboard,
         declare_enable_linear_axis,
         declare_arm1_prefix,
         declare_arm2_prefix,
+        *port_arguments,
         opq_function
     ])
     return ld

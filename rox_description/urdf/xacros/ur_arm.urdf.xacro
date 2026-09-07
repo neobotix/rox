@@ -16,9 +16,6 @@ Contributor: Adarsh Karan K P
   <xacro:arg name="safety_pos_margin" default="0.15"/>
   <xacro:arg name="safety_k_position" default="20"/>
 
-  <!-- initial positions file for ur arm on rox-->
-  <xacro:arg name="initial_positions_file" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
-
   <!-- When using gazebo simulations absolute paths are necessary -->
   <xacro:arg name="force_abs_paths" default="false" />
 
@@ -49,19 +46,34 @@ Contributor: Adarsh Karan K P
   <!-- simulation controllers will be passed from launch file after substitutions -->
   <xacro:arg name="simulation_controllers" default=""/>
 
-  <xacro:macro name="ur" params="name parent use_gz include_arm_ros2_control arm_type tf_prefix robot_ip *origin">
-    
-    <!-- default config path for ur arm -->
-    <xacro:arg name="joint_limit_params" default="$(find ur_description)/config/$(arg arm_type)/joint_limits.yaml"/>
-    <xacro:arg name="kinematics_params" default="$(find ur_description)/config/$(arg arm_type)/default_kinematics.yaml"/>
-    <xacro:arg name="physical_params" default="$(find ur_description)/config/$(arg arm_type)/physical_parameters.yaml"/>
-    <xacro:arg name="visual_params" default="$(find ur_description)/config/$(arg arm_type)/visual_parameters.yaml"/>
+  <!--
+    All robot-specific driver settings are macro parameters.  This is important
+    for a multi-robot description: xacro arguments are global and would make
+    both hardware components use the same calibration, ports and tool device.
+  -->
+  <xacro:macro name="ur" params="
+      name parent use_gz include_arm_ros2_control arm_type tf_prefix robot_ip
+      initial_positions_file
+      joint_limits_parameters_file
+      kinematics_parameters_file
+      physical_parameters_file
+      visual_parameters_file
+      headless_mode:=false
+      reverse_ip:=0.0.0.0
+      script_command_port:=50004
+      reverse_port:=50001
+      script_sender_port:=50002
+      trajectory_port:=50003
+      use_tool_communication:=false
+      tool_device_name:=/tmp/ttyUR
+      tool_tcp_port:=54321
+      *origin">
 
     <!-- parse initial positions as a dictionary -->
     <!-- This is mainly for using with Mock Controller -->
     <xacro:property 
       name="ur_initial_positions"
-      value="${xacro.load_yaml('$(arg initial_positions_file)')}"
+      value="${xacro.load_yaml(initial_positions_file)}"
       />
 
     <!-- create arm from macro-->
@@ -69,10 +81,10 @@ Contributor: Adarsh Karan K P
       name="${name}"
       parent="${parent}"
       tf_prefix="${tf_prefix}"
-      joint_limits_parameters_file="$(arg joint_limit_params)"
-      kinematics_parameters_file="$(arg kinematics_params)"
-      physical_parameters_file="$(arg physical_params)"
-      visual_parameters_file="$(arg visual_params)"
+      joint_limits_parameters_file="${joint_limits_parameters_file}"
+      kinematics_parameters_file="${kinematics_parameters_file}"
+      physical_parameters_file="${physical_parameters_file}"
+      visual_parameters_file="${visual_parameters_file}"
       safety_limits="$(arg safety_limits)"
       safety_pos_margin="$(arg safety_pos_margin)"
       safety_k_position="$(arg safety_k_position)"
@@ -88,28 +100,28 @@ Contributor: Adarsh Karan K P
         <xacro:ur_ros2_control
           name="${name}"
           tf_prefix="${tf_prefix}"
-          kinematics_parameters_file="$(arg kinematics_params)"
+          kinematics_parameters_file="${kinematics_parameters_file}"
           transmission_hw_interface="$(arg transmission_hw_interface)"
-          headless_mode="$(arg headless_mode)"
+          headless_mode="${headless_mode}"
           initial_positions="${ur_initial_positions}"
-          use_tool_communication="$(arg use_tool_communication)"
+          use_tool_communication="${use_tool_communication}"
           tool_voltage="$(arg tool_voltage)"
           tool_parity="$(arg tool_parity)"
           tool_baud_rate="$(arg tool_baud_rate)"
           tool_stop_bits="$(arg tool_stop_bits)"
           tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
           tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
-          tool_device_name="$(arg tool_device_name)"
-          tool_tcp_port="$(arg tool_tcp_port)"
+          tool_device_name="${tool_device_name}"
+          tool_tcp_port="${tool_tcp_port}"
           robot_ip="${robot_ip}"
           script_filename="$(arg script_filename)"
           output_recipe_filename="$(arg output_recipe_filename)"
           input_recipe_filename="$(arg input_recipe_filename)"
-          reverse_ip="$(arg reverse_ip)"
-          script_command_port="$(arg script_command_port)"
-          reverse_port="$(arg reverse_port)"
-          script_sender_port="$(arg script_sender_port)"
-          trajectory_port="$(arg trajectory_port)"
+          reverse_ip="${reverse_ip}"
+          script_command_port="${script_command_port}"
+          reverse_port="${reverse_port}"
+          script_sender_port="${script_sender_port}"
+          trajectory_port="${trajectory_port}"
           use_mock_hardware="$(arg use_mock_hardware)"
           mock_sensor_commands="$(arg mock_sensor_commands)"
           />

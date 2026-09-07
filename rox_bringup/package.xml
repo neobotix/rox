@@ -12,6 +12,10 @@
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>ur_robot_driver</exec_depend>
 
   <exec_depend>ros_gz</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>

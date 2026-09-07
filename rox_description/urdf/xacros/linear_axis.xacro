@@ -6,7 +6,7 @@ Author: Adarsh Karan K P
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
-  <xacro:macro name="linear_axis" params="parent">
+  <xacro:macro name="linear_axis" params="parent use_mock_hardware:=false">
     <xacro:if value="${gz == True}">
       <xacro:property name="linear_axis_effort_limit" value="5000.0"/>
     </xacro:if>
@@ -100,11 +100,17 @@ Author: Adarsh Karan K P
     <xacro:unless value="${gz == True}">
       <ros2_control name="linear_axis_control" type="system" rw_rate="100">
         <hardware>
-          <plugin>nla/NlaHardwareInterface</plugin>
-          <param name="can_iface">can0</param>
-          <param name="timeout">0.2</param>
-          <param name="control_rate">100.0</param>
-          <param name="initial_pose">0.02</param>
+          <xacro:if value="${use_mock_hardware}">
+            <plugin>mock_components/GenericSystem</plugin>
+            <param name="calculate_dynamics">true</param>
+          </xacro:if>
+          <xacro:unless value="${use_mock_hardware}">
+            <plugin>nla/NlaHardwareInterface</plugin>
+            <param name="can_iface">can0</param>
+            <param name="timeout">0.2</param>
+            <param name="control_rate">100.0</param>
+            <param name="initial_pose">0.02</param>
+          </xacro:unless>
         </hardware>
         <joint name="linear_axis_slide_joint">
           <command_interface name="velocity">
