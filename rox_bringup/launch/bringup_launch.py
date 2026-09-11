@@ -49,6 +49,18 @@ def execution_stage(context: LaunchContext,
 
     launch_actions = []
 
+    rosbridge_websocket = IncludeLaunchDescription(
+        XMLLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('rosbridge_server'),
+                'launch',
+                'rosbridge_websocket_launch.xml'
+            )
+        )
+    )
+
+    launch_actions.append(rosbridge_websocket)
+
     joint_type = "revolute"
     if use_mock.lower() == "true":
         joint_type = "fixed"

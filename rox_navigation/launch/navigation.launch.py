@@ -110,8 +110,34 @@ def execution_stage(
         ]
     )
 
+    start_mapping = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('rox_navigation'),
+                'launch',
+                'mapping.launch.py'
+            )
+        ),
+        launch_arguments={
+            'autostart': 'False',
+            'use_sim_time': use_sim_time
+        }.items()
+    )
+
+    start_waypoint_follower = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('neo_waypoint_follower'),
+                'launch',
+                'waypoint_follower_launch.py'
+            )
+        )
+    )
+
     launches.append(start_navigation)
     launches.append(start_map_server)
+    launches.append(start_mapping)
+    launches.append(start_waypoint_follower)
 
     return launches
 
