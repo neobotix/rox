@@ -12,7 +12,7 @@ from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
 from launch.launch_context import LaunchContext
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 import os
 from pathlib import Path
 import xacro
@@ -30,7 +30,8 @@ def execution_stage(context: LaunchContext,
                     controllers_yaml,
                     gripper_type,
                     ioboard,
-                    rs_camera_enable):
+                    rs_camera_enable,
+                    rosbridge_enable):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -56,7 +57,8 @@ def execution_stage(context: LaunchContext,
                 'launch',
                 'rosbridge_websocket_launch.xml'
             )
-        )
+        ),
+        condition=IfCondition(rosbridge_enable)
     )
 
     launch_actions.append(rosbridge_websocket)
@@ -457,6 +459,12 @@ def generate_launch_description():
             description="Enables or Disables Realsense Camera if present - might require restart of the robot"
         )
 
+    declare_rosbridge_enable = DeclareLaunchArgument(
+            'rosbridge_enable', default_value='False',
+            choices=['True', 'False'],
+            description='Enable or disable the rosbridge websocket server'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -472,7 +480,8 @@ def generate_launch_description():
             LaunchConfiguration('controllers_file'),
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board'),
-            LaunchConfiguration('use_d435')
+            LaunchConfiguration('use_d435'),
+            LaunchConfiguration('rosbridge_enable')
             ])  
 
     ld = LaunchDescription([
@@ -489,6 +498,7 @@ def generate_launch_description():
         declare_robotiq_cmd,
         declare_enable_ioboard,
         declare_rs_camera_enable,
+        declare_rosbridge_enable,
         opq_function
     ])
     return ld
