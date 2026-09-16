@@ -113,7 +113,10 @@ def execution_stage(context: LaunchContext,
                         'launch',
                         'rosbridge_websocket_launch.xml'
                     )
-                )
+                ),
+                launch_arguments={
+                    'default_call_service_timeout': '15.0',
+                }.items(),
             )
         )
 
