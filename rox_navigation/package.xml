@@ -11,6 +11,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <exec_depend>neo_nav2_bringup</exec_depend>
+  <exec_depend>neo_waypoint_follower</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

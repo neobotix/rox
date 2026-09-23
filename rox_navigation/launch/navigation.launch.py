@@ -28,7 +28,8 @@ def execution_stage(
         use_amcl, 
         map_dir, 
         param_dir, 
-        use_rviz):
+        use_rviz,
+        use_waypoint_follower):
 
     launches = []
 
@@ -110,8 +111,35 @@ def execution_stage(
         ]
     )
 
+    start_mapping = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('rox_navigation'),
+                'launch',
+                'mapping.launch.py'
+            )
+        ),
+        launch_arguments={
+            'autostart': 'False',
+            'use_sim_time': use_sim_time
+        }.items()
+    )
+
+    start_waypoint_follower = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('neo_waypoint_follower'),
+                'launch',
+                'waypoint_follower_launch.py'
+            )
+        ),
+        condition=IfCondition(use_waypoint_follower)
+    )
+
     launches.append(start_navigation)
     launches.append(start_map_server)
+    launches.append(start_mapping)
+    launches.append(start_waypoint_follower)
 
     return launches
 
@@ -127,6 +155,7 @@ def generate_launch_description():
     map_dir = LaunchConfiguration('map')
     param_dir = LaunchConfiguration('nav2_params_file')
     use_rviz = LaunchConfiguration('use_rviz')
+    use_waypoint_follower = LaunchConfiguration('use_waypoint_follower')
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
@@ -182,6 +211,12 @@ def generate_launch_description():
             'use_rviz', default_value='True',
             description='Launch RViz for visualization'
         )
+
+    declare_use_waypoint_follower_cmd = DeclareLaunchArgument(
+            'use_waypoint_follower', default_value='False',
+            choices=['True', 'False'],
+            description='Enable or disable the waypoint follower'
+        )
     
     # Adding all the necessary launch description actions
     launch_desc.add_action(declare_rox_type_cmd)
@@ -194,9 +229,11 @@ def generate_launch_description():
     launch_desc.add_action(declare_map_cmd)
     launch_desc.add_action(declare_nav2_param_file_cmd)
     launch_desc.add_action(declare_use_rviz_cmd)
+    launch_desc.add_action(declare_use_waypoint_follower_cmd)
 
     context_arguments = [rox_type, use_sim_time, autostart, namespace,
-                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz]
+                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir,
+                         use_rviz, use_waypoint_follower]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
 

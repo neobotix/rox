@@ -12,6 +12,7 @@
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
 
   <exec_depend>ros_gz</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
