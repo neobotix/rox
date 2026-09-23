@@ -31,7 +31,8 @@ def execution_stage(context: LaunchContext,
                     gripper_type,
                     ioboard,
                     rs_camera_enable,
-                    rosbridge_enable):
+                    rosbridge_enable,
+                    nbx_log_bridge_enable):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -62,6 +63,19 @@ def execution_stage(context: LaunchContext,
     )
 
     launch_actions.append(rosbridge_websocket)
+
+    nbx_log_bridge = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('nbx_log_bridge'),
+                'launch',
+                'nbx_log_bridge.launch.py'
+            )
+        ),
+        condition=IfCondition(nbx_log_bridge_enable)
+    )
+
+    launch_actions.append(nbx_log_bridge)
 
     joint_type = "revolute"
     if use_mock.lower() == "true":
@@ -476,6 +490,12 @@ def generate_launch_description():
             description='Enable or disable the rosbridge websocket server'
         )
 
+    declare_nbx_log_bridge_enable = DeclareLaunchArgument(
+            'nbx_log_bridge_enable', default_value='True',
+            choices=['True', 'False'],
+            description='Enable or disable the NBX Lemma log bridge'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -492,7 +512,8 @@ def generate_launch_description():
             LaunchConfiguration('gripper_type'),
             LaunchConfiguration('enable_io_board'),
             LaunchConfiguration('use_d435'),
-            LaunchConfiguration('rosbridge_enable')
+            LaunchConfiguration('rosbridge_enable'),
+            LaunchConfiguration('nbx_log_bridge_enable')
             ])  
 
     ld = LaunchDescription([
@@ -510,6 +531,7 @@ def generate_launch_description():
         declare_enable_ioboard,
         declare_rs_camera_enable,
         declare_rosbridge_enable,
+        declare_nbx_log_bridge_enable,
         opq_function
     ])
     return ld

@@ -7,15 +7,27 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
   DeclareLaunchArgument,
+  EmitEvent,
   IncludeLaunchDescription,
   GroupAction,
+  LogInfo,
   OpaqueFunction,
+  RegisterEventHandler,
 )
+from launch.events import matches_action
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import Node, PushRosNamespace
+from launch.substitutions import (
+  AndSubstitution,
+  LaunchConfiguration,
+  NotSubstitution,
+  PythonExpression,
+)
+from launch_ros.actions import LifecycleNode, Node, PushRosNamespace
 from launch.conditions import IfCondition
 from launch.launch_context import LaunchContext
+from launch_ros.event_handlers import OnStateTransition
+from launch_ros.events.lifecycle import ChangeState
+from lifecycle_msgs.msg import Transition
 
 def execution_stage(
         context: LaunchContext,
@@ -28,8 +40,7 @@ def execution_stage(
         use_amcl, 
         map_dir, 
         param_dir, 
-        use_rviz,
-        use_waypoint_follower):
+        use_rviz):
 
     launches = []
 
@@ -111,35 +122,43 @@ def execution_stage(
         ]
     )
 
-    start_mapping = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory('rox_navigation'),
-                'launch',
-                'mapping.launch.py'
-            )
+    # Keep map saving independent from the localization lifecycle manager. The
+    # GUI pauses localization while SLAM is active, but the saver must remain
+    # available throughout the mapping session.
+    start_map_saver = GroupAction([
+        LifecycleNode(
+            package='nav2_map_server',
+            executable='map_saver_server',
+            name='map_saver',
+            namespace='',
+            output='screen',
+            parameters=[
+                params,
+                {
+                    'use_sim_time': use_sim_time,
+                    'save_map_timeout': 5.0,
+                    'free_thresh_default': 0.25,
+                    'occupied_thresh_default': 0.65,
+                    'map_subscribe_transient_local': True,
+                },
+            ],
         ),
-        launch_arguments={
-            'autostart': 'False',
-            'use_sim_time': use_sim_time
-        }.items()
-    )
-
-    start_waypoint_follower = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory('neo_waypoint_follower'),
-                'launch',
-                'waypoint_follower_launch.py'
-            )
+        Node(
+            package='nav2_lifecycle_manager',
+            executable='lifecycle_manager',
+            name='lifecycle_manager_map_saver',
+            output='screen',
+            parameters=[
+                {'use_sim_time': use_sim_time},
+                {'autostart': True},
+                {'node_names': ['map_saver']},
+            ],
         ),
-        condition=IfCondition(use_waypoint_follower)
-    )
+    ])
 
     launches.append(start_navigation)
     launches.append(start_map_server)
-    launches.append(start_mapping)
-    launches.append(start_waypoint_follower)
+    launches.append(start_map_saver)
 
     return launches
 
@@ -155,6 +174,9 @@ def generate_launch_description():
     map_dir = LaunchConfiguration('map')
     param_dir = LaunchConfiguration('nav2_params_file')
     use_rviz = LaunchConfiguration('use_rviz')
+    slam_autostart = LaunchConfiguration('slam_autostart')
+    use_slam_lifecycle_manager = LaunchConfiguration('use_slam_lifecycle_manager')
+    slam_params_file = LaunchConfiguration('slam_params_file')
     use_waypoint_follower = LaunchConfiguration('use_waypoint_follower')
     
     declare_rox_type_cmd = DeclareLaunchArgument(
@@ -212,11 +234,85 @@ def generate_launch_description():
             description='Launch RViz for visualization'
         )
 
+    declare_slam_autostart_cmd = DeclareLaunchArgument(
+            'slam_autostart', default_value='False',
+            description='Automatically configure and activate SLAM Toolbox'
+        )
+
+    declare_use_slam_lifecycle_manager_cmd = DeclareLaunchArgument(
+            'use_slam_lifecycle_manager', default_value='False',
+            description='Enable the SLAM Toolbox bond connection during activation'
+        )
+
+    declare_slam_params_file_cmd = DeclareLaunchArgument(
+            'slam_params_file',
+            default_value=os.path.join(
+                get_package_share_directory('rox_navigation'),
+                'configs',
+                'mapping.yaml'),
+            description='Full path to the SLAM Toolbox parameters file'
+        )
+
     declare_use_waypoint_follower_cmd = DeclareLaunchArgument(
             'use_waypoint_follower', default_value='False',
-            choices=['True', 'False'],
-            description='Enable or disable the waypoint follower'
+            description='Launch the Neobotix waypoint follower'
         )
+
+    start_sync_slam_toolbox_node = LifecycleNode(
+        parameters=[
+            slam_params_file,
+            {
+                'use_lifecycle_manager': use_slam_lifecycle_manager,
+                'use_sim_time': use_sim_time,
+            }
+        ],
+        package='slam_toolbox',
+        executable='sync_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen',
+        namespace=''
+    )
+
+    configure_slam_toolbox = EmitEvent(
+        event=ChangeState(
+            lifecycle_node_matcher=matches_action(start_sync_slam_toolbox_node),
+            transition_id=Transition.TRANSITION_CONFIGURE
+        ),
+        condition=IfCondition(AndSubstitution(
+            slam_autostart,
+            NotSubstitution(use_slam_lifecycle_manager)
+        ))
+    )
+
+    activate_slam_toolbox = RegisterEventHandler(
+        OnStateTransition(
+            target_lifecycle_node=start_sync_slam_toolbox_node,
+            start_state='configuring',
+            goal_state='inactive',
+            entities=[
+                LogInfo(msg='[LifecycleLaunch] SLAM Toolbox node is activating.'),
+                EmitEvent(event=ChangeState(
+                    lifecycle_node_matcher=matches_action(start_sync_slam_toolbox_node),
+                    transition_id=Transition.TRANSITION_ACTIVATE
+                ))
+            ]
+        ),
+        condition=IfCondition(AndSubstitution(
+            slam_autostart,
+            NotSubstitution(use_slam_lifecycle_manager)
+        ))
+    )
+
+    start_waypoint_follower = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('neo_waypoint_follower'),
+                'launch',
+                'waypoint_follower_launch.py'
+            )
+        ),
+        condition=IfCondition(use_waypoint_follower)
+    )
     
     # Adding all the necessary launch description actions
     launch_desc.add_action(declare_rox_type_cmd)
@@ -229,14 +325,20 @@ def generate_launch_description():
     launch_desc.add_action(declare_map_cmd)
     launch_desc.add_action(declare_nav2_param_file_cmd)
     launch_desc.add_action(declare_use_rviz_cmd)
+    launch_desc.add_action(declare_slam_autostart_cmd)
+    launch_desc.add_action(declare_use_slam_lifecycle_manager_cmd)
+    launch_desc.add_action(declare_slam_params_file_cmd)
     launch_desc.add_action(declare_use_waypoint_follower_cmd)
 
     context_arguments = [rox_type, use_sim_time, autostart, namespace,
-                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir,
-                         use_rviz, use_waypoint_follower]
+                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
 
     launch_desc.add_action(opq_function)
+    launch_desc.add_action(start_sync_slam_toolbox_node)
+    launch_desc.add_action(configure_slam_toolbox)
+    launch_desc.add_action(activate_slam_toolbox)
+    launch_desc.add_action(start_waypoint_follower)
 
     return launch_desc
