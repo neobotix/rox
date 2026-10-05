@@ -13,6 +13,7 @@ from launch.launch_context import LaunchContext
 from launch_ros.descriptions import ParameterValue
 from param_file_utils import generate_final_yaml
 import os
+import shlex
 from pathlib import Path
 import xacro
 
@@ -23,15 +24,18 @@ def execution_stage(context: LaunchContext,
                     d435_enable,
                     scanner_type,
                     ur_dc,
-                    # gripper_type,
+                    gripper_type,
                     headless_sim,
-                    use_wall_time):
+                    use_wall_time,
+                    world):
 
     launch_actions = []
 
     rox_typ = str(rox_type.perform(context))
     arm_typ = str(arm_type.perform(context))
-    # gripper_typ = str(gripper_type.perform(context))
+    gripper_typ = str(gripper_type.perform(context))
+    if gripper_typ and arm_typ not in ['ur5', 'ur10', 'ur5e', 'ur10e', 'ur8long']:
+        raise ValueError('A simulated Robotiq gripper requires a UR arm_type')
     scanner_typ = str(scanner_type.perform(context))
     d435 = str(d435_enable.perform(context))
     imu = str(imu_enable.perform(context))
@@ -40,10 +44,14 @@ def execution_stage(context: LaunchContext,
     use_wall_time = str(use_wall_time.perform(context)) in ('true', 'True')
     joint_type = "fixed"
 
-    default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
+    world_path = str(world.perform(context))
+    if not os.path.isabs(world_path):
+        world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', world_path)
+    if not os.path.isfile(world_path):
+        raise FileNotFoundError(f'Gazebo world does not exist: {world_path}')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
 
-    # include_gripper_ros2_control = "false"
+    include_gripper_ros2_control = "true" if gripper_typ else "false"
     include_arm_ros2_control = "false"
 
     if (rox_typ == "diff" or rox_typ == "trike"):
@@ -62,10 +70,10 @@ def execution_stage(context: LaunchContext,
             '-name', "rox"])
 
     # Define gz_args based on headless_simulation argument
-    gz_args = f"-r {default_world_path}"
+    gz_args = f"-r {shlex.quote(world_path)}"
 
     if headless_sim == 'true':
-        gz_args = f"-r -s {default_world_path}"
+        gz_args = f"-r -s {shlex.quote(world_path)}"
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
@@ -76,7 +84,6 @@ def execution_stage(context: LaunchContext,
     # Simulation Controllers for the arm
     arm_manufacturer = None
     initial_joint_controller_name = "joint_trajectory_controller"
-    # initial_gripper_controller_name = ""
     if arm_typ:
         include_arm_ros2_control = "true"
         if arm_typ == "ec66":
@@ -102,17 +109,6 @@ def execution_stage(context: LaunchContext,
         )
         launch_actions.extend(shutdown_handler)
 
-        # if gripper_typ:
-        #     include_gripper_ros2_control = "true"
-        #     gripper_category = None
-        #     if gripper_typ == 'epick':
-        #         gripper_category = 'epick'
-        #         initial_gripper_controller_name = 'epick_controller'
-        #     elif gripper_typ in ['2f_140', '2f_85']:
-        #         gripper_category = 'robotiq'
-        #         initial_gripper_controller_name = f'robotiq_{gripper_typ}_gripper_controller'
-        #     include_gripper_ros2_control = "true"
-
     else:
         simulation_controllers = ""
 
@@ -125,12 +121,12 @@ def execution_stage(context: LaunchContext,
         " ", 'use_d435:=', d435,
         " ", 'scanner_type:=', scanner_typ,
         " ", 'arm_type:=', arm_typ,
-        # " ", 'gripper_type:=', gripper_typ,
+        " ", 'gripper_type:=', gripper_typ,
         " ", 'use_ur_dc:=', use_ur_dc,
         " ", 'force_abs_paths:=', "true",
         " ", 'simulation_controllers:=', simulation_controllers,
         " ", 'include_arm_ros2_control:=', include_arm_ros2_control,
-        # " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
+        " ", 'include_gripper_ros2_control:=', include_gripper_ros2_control
     ]
 
     start_robot_state_publisher_cmd = Node(
@@ -173,11 +169,12 @@ def execution_stage(context: LaunchContext,
         arguments=[initial_joint_controller_name, "-c", "/controller_manager"],
     )
 
-    # robotiq_gripper_controller_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[initial_gripper_controller_name, "-c", "/controller_manager"]
-    # )
+    if gripper_typ:
+        robotiq_gripper_controller_spawner = Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[f'robotiq_{gripper_typ}_gripper_controller', "-c", "/controller_manager"],
+        )
 
     # Relaying lidar data to /scan topic
     relay_topic_lidar1 = Node(
@@ -212,13 +209,10 @@ def execution_stage(context: LaunchContext,
         # Set environment variable for arm description packages
         if arm_typ == 'ec66':
             env_var_value += ':' + os.path.dirname(get_package_share_directory('elite_description'))
-        elif arm_typ == 'ur5' or arm_typ == 'ur10' or arm_typ == 'ur5e' or arm_typ == 'ur10e':
+        elif arm_typ in ['ur5', 'ur10', 'ur5e', 'ur10e', 'ur8long']:
             env_var_value += ':' + os.path.dirname(get_package_share_directory('ur_description'))
-        # Set environment variable for gripper description packages
-        # if gripper_typ == 'epick':
-        #     env_var_value += ':' + os.path.dirname(get_package_share_directory('epick_description'))
-        # else:
-        #     env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
+        if gripper_typ:
+            env_var_value += ':' + os.path.dirname(get_package_share_directory('robotiq_description'))
             
     set_env_vars_resources = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', env_var_value)
 
@@ -234,12 +228,17 @@ def execution_stage(context: LaunchContext,
     if arm_typ != '':
         launch_actions.append(joint_state_broadcaster_spawner)
         launch_actions.append(initial_joint_controller_spawner_started)
-        # if gripper_typ == '2f_140' or gripper_typ == '2f_85':
-        #     launch_actions.append(robotiq_gripper_controller_spawner)
+        if gripper_typ:
+            launch_actions.append(robotiq_gripper_controller_spawner)
 
     return launch_actions
 
 def generate_launch_description():
+
+    declare_world_cmd = DeclareLaunchArgument(
+            'world', default_value='neo_workshop.sdf',
+            description='World filename in neo_gz_worlds/worlds, or an absolute SDF path'
+        )
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type',default_value='argo',
@@ -277,7 +276,7 @@ def generate_launch_description():
     declare_gripper_type_cmd = DeclareLaunchArgument(
             'gripper_type', default_value='',
             choices=['', '2f_140', '2f_85'],
-            description='Gripper Types - Supported Robots [mpo-700, mpo-500]\n\t'
+            description='Robotiq gripper on a UR arm; empty disables the gripper'
         )
 
     declare_headless_sim_cmd = DeclareLaunchArgument(
@@ -299,19 +298,21 @@ def generate_launch_description():
             LaunchConfiguration('d435_enable'),
             LaunchConfiguration('scanner_type'),
             LaunchConfiguration('use_ur_dc'),
-            # LaunchConfiguration('gripper_type'),
+            LaunchConfiguration('gripper_type'),
             LaunchConfiguration('headless_simulation'),
-            LaunchConfiguration('use_wall_time')
+            LaunchConfiguration('use_wall_time'),
+            LaunchConfiguration('world')
             ])
 
     ld = LaunchDescription([
+        declare_world_cmd,
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_scanner_cmd,
         declare_arm_type_cmd,
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
-        # declare_gripper_type_cmd,
+        declare_gripper_type_cmd,
         declare_headless_sim_cmd,
         declare_use_wall_time_cmd,
         opq_function

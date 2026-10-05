@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="rox_gripper_state_joint" params="name">
+    <!-- Mimic relationships come from the gripper URDF. Mimics are state-only. -->
+    <joint name="${name}">
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="rox_robotiq_gz_control" params="gripper_type">
+    <ros2_control name="robotiq_gripper" type="system">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+      <joint name="${'finger_joint' if gripper_type == '2f_140' else 'robotiq_85_left_knuckle_joint'}">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <xacro:if value="${gripper_type == '2f_85'}">
+        <xacro:rox_gripper_state_joint name="robotiq_85_right_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="robotiq_85_left_inner_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="robotiq_85_right_inner_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="robotiq_85_left_finger_tip_joint"/>
+        <xacro:rox_gripper_state_joint name="robotiq_85_right_finger_tip_joint"/>
+      </xacro:if>
+      <xacro:if value="${gripper_type == '2f_140'}">
+        <xacro:rox_gripper_state_joint name="left_inner_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="left_inner_finger_joint"/>
+        <xacro:rox_gripper_state_joint name="right_outer_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="right_inner_knuckle_joint"/>
+        <xacro:rox_gripper_state_joint name="right_inner_finger_joint"/>
+      </xacro:if>
+    </ros2_control>
+  </xacro:macro>
+</robot>

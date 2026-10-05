@@ -134,14 +134,16 @@ forward_position_controller:
 # Robotiq gripper controller
 robotiq_2f_140_gripper_controller:
   ros__parameters:
-    default: true
     joint: finger_joint # for 2f_140 gripper
-    use_effort_interface: true
-    use_speed_interface: true
+    goal_tolerance: 0.01
+    allow_stalling: true
+    stall_velocity_threshold: 0.001
+    stall_timeout: 1.0
 
 robotiq_2f_85_gripper_controller:
   ros__parameters:
-    default: true
     joint: robotiq_85_left_knuckle_joint
-    use_effort_interface: true
-    use_speed_interface: true
+    goal_tolerance: 0.01
+    allow_stalling: true
+    stall_velocity_threshold: 0.001
+    stall_timeout: 1.0

@@ -74,7 +74,7 @@ def generate_launch_description():
             " ",
             LaunchConfiguration("model"),
             " ",
-            "use_mock_hardware:=",
+            "use_fake_hardware:=",
             LaunchConfiguration("use_mock_hardware"),
             " ",
             "mock_sensor_commands:=",
