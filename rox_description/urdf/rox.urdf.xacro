@@ -188,13 +188,21 @@ Contributor: Adarsh Karan K P
         <xacro:robotiq_gripper name="robotiq_gripper"
           prefix=""
           parent="neo_gripper_mount_link"
-          use_mock_hardware="${use_mock}"
+          use_fake_hardware="${use_mock}"
           mock_sensor_commands="${use_mock}"
           sim_gazebo="${gz}"
-          include_ros2_control="$(arg include_gripper_ros2_control)"
+          include_ros2_control="${False if gz else xacro.arg('include_gripper_ros2_control')}"
           >
           <origin xyz="0 0 0" rpy="0 0 -${pi / 2}"/>
         </xacro:robotiq_gripper>
+
+        <!-- Share the arm's Gazebo control plugin; publish all coupled joint states. -->
+        <xacro:if value="${gz}">
+          <xacro:if value="$(arg include_gripper_ros2_control)">
+            <xacro:include filename="$(find rox_description)/urdf/xacros/robotiq_gz.ros2_control.xacro"/>
+            <xacro:rox_robotiq_gz_control gripper_type="${gripper}"/>
+          </xacro:if>
+        </xacro:if>
 
       </xacro:if>
 

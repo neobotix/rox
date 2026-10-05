@@ -58,7 +58,7 @@ def generate_launch_description():
 
     args.append(
         launch.actions.DeclareLaunchArgument(
-            name="use_fake_hardware",
+            name="use_mock_hardware",
             default_value="false",
             description="Mock gripper",
         )
@@ -71,7 +71,7 @@ def generate_launch_description():
             LaunchConfiguration("model"),
             " ",
             "use_fake_hardware:=",
-            LaunchConfiguration("use_fake_hardware")
+            LaunchConfiguration("use_mock_hardware")
         ]
     )
     robot_description_param = {
