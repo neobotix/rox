@@ -28,6 +28,9 @@
 
   <!-- Dependencies for Neobotix Packages -->
   <exec_depend>neo_relayboard_v3</exec_depend>
+  <exec_depend>neo_teleop2</exec_depend>
+  <exec_depend>joy</exec_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
