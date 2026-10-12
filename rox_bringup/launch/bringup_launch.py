@@ -12,7 +12,7 @@ from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
 from launch.launch_context import LaunchContext
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 import os
 from pathlib import Path
 import xacro
@@ -22,6 +22,7 @@ def execution_stage(context: LaunchContext,
                     rox_type,
                     arm_type,
                     scanner_type,
+                    scanner_enable,
                     use_imu,
                     ur_dc,
                     mock_arm,
@@ -36,6 +37,7 @@ def execution_stage(context: LaunchContext,
     
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
+    scanners_enabled = IfCondition(scanner_enable).evaluate(context)
     imu_enable = str(use_imu.perform(context))
     ioboard_enable = str(ioboard.perform(context))
     rs_camera_enable = str(rs_camera_enable.perform(context))
@@ -167,7 +169,7 @@ def execution_stage(context: LaunchContext,
     launch_actions.append(joy)
 
     # 4. Laser - Nanoscan
-    if scanner_typ == "nanoscan":
+    if scanners_enabled and scanner_typ == "nanoscan":
         scan1 = Node(
                 package="sick_safetyscanners2",
                 executable="sick_safetyscanners2_node",
@@ -213,7 +215,7 @@ def execution_stage(context: LaunchContext,
         launch_actions.append(scan2)
 
     # Laser - PsenScan
-    elif scanner_typ == "psenscan":
+    elif scanners_enabled and scanner_typ == "psenscan":
         scan = IncludeLaunchDescription(
             XMLLaunchDescriptionSource(
                 os.path.join(get_package_share_directory('psen_scan_v2'),
@@ -363,8 +365,9 @@ def execution_stage(context: LaunchContext,
         condition=UnlessCondition(mock_arm)
     )
 
-    launch_actions.append(relay_topic_lidar1)
-    launch_actions.append(relay_topic_lidar2)
+    if scanners_enabled:
+        launch_actions.append(relay_topic_lidar1)
+        launch_actions.append(relay_topic_lidar2)
     launch_actions.append(relay_topic_joint_states)
 
     return launch_actions
@@ -389,6 +392,11 @@ def generate_launch_description():
     declare_scanner_cmd = DeclareLaunchArgument(
             'scanner_type', default_value='nanoscan',
             description='Scanner options available: nanoscan/psenscan'
+        )
+
+    declare_scanner_enable_cmd = DeclareLaunchArgument(
+            'scanner_enable', default_value='True',
+            description='Enable scanner drivers and scan topic relays - Options: True/False'
         )
 
     declare_arm_cmd = DeclareLaunchArgument(
@@ -452,6 +460,7 @@ def generate_launch_description():
             LaunchConfiguration('rox_type'),
             LaunchConfiguration('arm_type'),
             LaunchConfiguration('scanner_type'),
+            LaunchConfiguration('scanner_enable'),
             LaunchConfiguration('imu_enable'),
             LaunchConfiguration('use_ur_dc'),
             LaunchConfiguration('use_mock_arm'),
@@ -468,6 +477,7 @@ def generate_launch_description():
         declare_rox_type_cmd,
         declare_arm_cmd,
         declare_scanner_cmd,
+        declare_scanner_enable_cmd,
         declare_imu_cmd,
         declare_ur_pwr_variant_cmd,
         declare_mock_arm_cmd,
