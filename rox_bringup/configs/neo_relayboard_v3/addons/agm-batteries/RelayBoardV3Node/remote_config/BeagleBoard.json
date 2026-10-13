@@ -1,4 +1,5 @@
 {
+	"charge_current_ain": -1,
 	"charge_profile": {
 		"current_offset": 1.4,
 		"charge_phases": [

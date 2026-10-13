@@ -1,6 +1,4 @@
 {
-	"input_system_state": "platform.system_state",
-	"can_proxy_server": "CAN_Proxy_Motors",
 	"canopen_node": {
 		"id": 1
 	},
@@ -13,6 +11,5 @@
 	"motor_timeout_ms": 500,
 	"cmd_timeout_ms": 500,
 	"motor_group_id": 30,
-	"home_vel": -1,
 	"auto_home": true
 }
