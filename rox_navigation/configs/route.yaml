@@ -1,0 +1,11 @@
+# Route configuration for neo_route node
+neo_route_node:
+  ros__parameters:
+
+    # Initial pose of the robot (x in metres, y in metres, yaw in radians)
+    initial_pose.x: 0.0
+    initial_pose.y: 0.0
+    initial_pose.yaw: 0.0
+
+    # List of node IDs to navigate through
+    node_ids: [6, 0, 3, 7, 11, 12, 6]

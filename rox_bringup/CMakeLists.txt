@@ -13,7 +13,6 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 
 install(DIRECTORY launch configs
-    
   DESTINATION share/${PROJECT_NAME})
 
 # Install Python modules
