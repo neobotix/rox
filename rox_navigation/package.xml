@@ -10,7 +10,6 @@
   <author email="padmanabhan@neobotix.de">Pradheep Padmanabhan</author> 
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>ament_cmake_python</buildtool_depend>
   
   <exec_depend>neo_nav2_bringup</exec_depend>
 

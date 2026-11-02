@@ -16,7 +16,7 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, PushRosNamespace
 from launch.conditions import IfCondition
 from launch.launch_context import LaunchContext
-from rox_navigation.param_file_utils import generate_final_yaml
+from neo_nav2_bringup.param_file_utils import generate_final_yaml
 
 def execution_stage(
         context: LaunchContext,
@@ -148,9 +148,9 @@ def execution_stage(
     launches.append(start_navigation)
     launches.append(start_map_server)
 
-    # Start route server if use_route is set to true
+    # Start the service-controlled route follower if use_route is set to true.
     start_neo_route = Node(
-        package='rox_navigation',
+        package='neo_nav2_bringup',
         condition=IfCondition(use_route),
         executable='neo_route.py',
         name='neo_route_node',
@@ -243,7 +243,7 @@ def generate_launch_description():
     
     declare_use_route_cmd = DeclareLaunchArgument(
             'use_route', default_value='False',
-            description='Launch neo_route node for route-based navigation'
+            description='Enable route navigation and launch the idle, service-controlled route follower'
         )
 
     declare_route_param_cmd = DeclareLaunchArgument(

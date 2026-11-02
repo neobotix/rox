@@ -11,7 +11,7 @@
 -->
 
 <root BTCPP_format="4" main_tree_to_execute="NavigateOnRouteGraphWRecovery">
-  <BehaviorTree ID="NavigateOnRouteGraphWRecovery">
+  <BehaviorTree ID="RoxNavigateOnRouteGraphWRecovery">
     <RecoveryNode number_of_retries="6" name="NavigateRecovery">
       <PipelineSequence name="NavigateWithReplanning">
         <ControllerSelector selected_controller="{selected_controller}" default_controller="FollowPath" topic_name="controller_selector"/>
@@ -26,7 +26,7 @@
                     <GlobalUpdatedGoal/>
                   </Inverter>
                   <!-- Recompute route if route path is blocked (if not also using Route Tracking, who's collision monitor would do this for you) -->
-                  <IsPathValid path="{route_path}"/>
+                  <ValidatePath path="{route_path}"/>
                 </ReactiveSequence>
                 <Sequence name="ComputeAndSmoothRoute">
                   <!-- Compute the route -->
