@@ -11,7 +11,7 @@ from launch.substitutions import LaunchConfiguration, Command
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
 from launch_ros.descriptions import ParameterValue
-from param_file_utils import generate_final_yaml
+from neo_nav2_bringup.param_file_utils import generate_final_yaml
 import os
 from pathlib import Path
 import xacro
