@@ -6,7 +6,7 @@ import launch
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
 from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -40,7 +40,9 @@ def execution_stage(context: LaunchContext,
                     ioboard,
                     enable_linear_axis,
                     arm1_prefix,
-                    arm2_prefix):
+                    arm2_prefix,
+                    rosbridge_enable,
+                    nbx_log_bridge_enable):
 
     rox = get_package_share_directory('rox_bringup')
     
@@ -49,6 +51,8 @@ def execution_stage(context: LaunchContext,
     imu_enable = str(use_imu.perform(context))
     ioboard_enable = str(ioboard.perform(context))
     enable_la = str(enable_linear_axis.perform(context))
+    rosbridge_enabled = str(rosbridge_enable.perform(context)).lower() == 'true'
+    nbx_log_bridge_enabled = str(nbx_log_bridge_enable.perform(context)).lower() == 'true'
 
     # Manipulator launch arguments
     arm_typ = str(arm_type.perform(context))
@@ -138,6 +142,35 @@ def execution_stage(context: LaunchContext,
             ('/tf_static', 'tf_static'),
             ],
     )
+
+    if rosbridge_enabled:
+        launch_actions.append(
+            IncludeLaunchDescription(
+                AnyLaunchDescriptionSource(
+                    os.path.join(
+                        get_package_share_directory('rosbridge_server'),
+                        'launch',
+                        'rosbridge_websocket_launch.xml'
+                    )
+                ),
+                launch_arguments={
+                    'default_call_service_timeout': '15.0',
+                }.items(),
+            )
+        )
+
+    if nbx_log_bridge_enabled:
+        launch_actions.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(
+                        get_package_share_directory('nbx_log_bridge'),
+                        'launch',
+                        'nbx_log_bridge.launch.py'
+                    )
+                )
+            )
+        )
 
     launch_actions.append(start_robot_state_publisher_cmd)
 
@@ -583,6 +616,16 @@ def generate_launch_description():
             description="Prefix for the second arm"
         )
 
+    declare_rosbridge_enable_cmd = DeclareLaunchArgument(
+            'rosbridge_enable', default_value='False',
+            description='Launch the rosbridge WebSocket server - Options: True/False'
+        )
+
+    declare_nbx_log_bridge_enable_cmd = DeclareLaunchArgument(
+            'nbx_log_bridge_enable', default_value='True',
+            description='Launch the NBX Lemma log bridge - Options: True/False'
+        )
+
     opq_function = OpaqueFunction(
         function=execution_stage,
         args=[
@@ -602,7 +645,9 @@ def generate_launch_description():
             LaunchConfiguration('enable_io_board'),
             LaunchConfiguration('enable_linear_axis'),
             LaunchConfiguration('arm1_prefix'),
-            LaunchConfiguration('arm2_prefix')
+            LaunchConfiguration('arm2_prefix'),
+            LaunchConfiguration('rosbridge_enable'),
+            LaunchConfiguration('nbx_log_bridge_enable')
             ])  
 
     ld = LaunchDescription([
@@ -631,6 +676,8 @@ def generate_launch_description():
         declare_arm1_prefix,
         declare_arm2_prefix,
         *port_arguments,
+        declare_rosbridge_enable_cmd,
+        declare_nbx_log_bridge_enable_cmd,
         opq_function
     ])
     return ld
