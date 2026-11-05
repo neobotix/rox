@@ -117,6 +117,7 @@ Contributor: Adarsh Karan K P
           script_filename="$(arg script_filename)"
           output_recipe_filename="$(arg output_recipe_filename)"
           input_recipe_filename="$(arg input_recipe_filename)"
+          ur_type="${arm_type}"
           reverse_ip="${reverse_ip}"
           script_command_port="${script_command_port}"
           reverse_port="${reverse_port}"
