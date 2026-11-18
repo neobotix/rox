@@ -15,6 +15,11 @@ install(DIRECTORY launch configs
     
   DESTINATION share/${PROJECT_NAME})
 
+install(PROGRAMS
+  scripts/start_dual_ursim.sh
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
 ament_python_install_module(${PROJECT_NAME}/param_file_utils.py)
