@@ -244,7 +244,7 @@ def generate_launch_description():
         )
 
     declare_use_waypoint_follower_cmd = DeclareLaunchArgument(
-            'use_waypoint_follower', default_value='False',
+            'use_waypoint_follower', default_value='True',
             description='Launch the Neobotix waypoint follower'
         )
 

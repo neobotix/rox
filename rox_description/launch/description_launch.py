@@ -100,9 +100,8 @@ def execution_stage(context: LaunchContext,
 
     launch_actions.append(start_rviz_cmd)
     launch_actions.append(start_robot_state_publisher_cmd)
-    # if arm_typ or arm2_typ or enable_la:
-    #     launch_actions.append(start_joint_state_publisher_cmd)
-    #     launch_actions.append(start_joint_state_publisher_gui_cmd)
+    launch_actions.append(start_joint_state_publisher_cmd)
+    launch_actions.append(start_joint_state_publisher_gui_cmd)
 
     return launch_actions
 

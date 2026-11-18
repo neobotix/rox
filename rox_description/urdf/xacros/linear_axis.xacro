@@ -98,7 +98,7 @@ Author: Adarsh Karan K P
 
     <!-- ros2_control: REAL hardware -->
     <xacro:unless value="${gz == True}">
-      <ros2_control name="linear_axis_control" type="system" rw_rate="50" is_async="true">
+      <ros2_control name="linear_axis_control" type="system" rw_rate="30" is_async="true">
         <hardware>
           <xacro:if value="${use_mock_hardware}">
             <plugin>mock_components/GenericSystem</plugin>
