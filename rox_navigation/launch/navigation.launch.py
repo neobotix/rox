@@ -260,7 +260,10 @@ def generate_launch_description():
         executable='sync_slam_toolbox_node',
         name='slam_toolbox',
         output='screen',
-        namespace=''
+        namespace='',
+        remappings=[
+            ('map', '/slam_map'),
+        ],
     )
 
     configure_slam_toolbox = EmitEvent(
